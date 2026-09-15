@@ -1,0 +1,97 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+
+.textBoxView{
+  position: absolute;
+  z-index: 11;
+  margin-top: 3px;
+  margin-left: 1px;
+}
+
+
+.changePosition{
+  .form-group{
+    width: 49%;
+  }
+}
+
+.clear{
+  position: absolute;
+  padding: 8px;
+  right: 32px;
+  cursor: pointer;
+  z-index: 15;
+  margin: 0px 0;
+}
+
+::ng-deep.dx-texteditor.dx-editor-outlined{
+  border-radius: 4px;
+  border-color: $toggle-off;
+}
+
+::ng-deep.dx-datagrid-rowsview .dx-texteditor-input{
+  text-align: right;
+}
+
+
+.errorValue{
+  ::ng-deep.dx-widget input {
+    background-color: $backgroundColorError;
+    color: $colorError;
+  }
+}
+.greenValue{
+  ::ng-deep.dx-widget input {
+    background-color: $sectionForestBackground;
+    color: $sectionForest;
+  }
+}
+
+.orangeValue{
+  ::ng-deep.dx-widget input {
+    background-color: $sectionAgriculturalBackground;
+    color: $sectionAgricultural;
+  }
+}
+
+@media (min-width: 1920px){
+  .changePosition{
+    display: flex!important;
+    flex-direction: row!important;
+    gap: 16px;
+
+    .form-group{
+      flex-basis: 32%;
+    }
+    .notRequired{
+      flex-wrap: wrap;
+      width: 66%;
+
+      .form-group{
+        flex-basis: 49%;
+      }
+    }
+  }
+}
+
+.place-search-hint {
+  font-size: 12px;
+  line-height: 16px;
+  color: $toggle-off;
+  padding: 0 4px;
+  margin: 5px 0 0 0;
+}
+
+.place-search-lazy-load {
+  color: $sectionForest;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 18px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+

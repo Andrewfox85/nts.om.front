@@ -1,0 +1,11 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+.tagOne {
+  background-color: $white;
+  padding: 10px 10px;
+  z-index: 10;
+  position: relative;
+  min-width: 71px;
+}

@@ -1,0 +1,161 @@
+<!-- eslint-disable -->
+<dx-popup
+  #popupOpen
+  contentTemplate="popupContent"
+  [hideOnOutsideClick]="false"
+  [visible]="popup"
+  [showTitle]="true"
+  title="{{'openAccess.openAccess' | translate}}"
+  width="810"
+  height="auto"
+  maxHeight="800"
+  (onInitialized)="onInitializedPopup($event)"
+  [showCloseButton]="true"
+  (onHiding)="closeAccessPopup()"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'popupContent'">
+
+    <form [formGroup]="form">
+
+        <!-- Участник/трейдер -->
+        <div class="flexContent16 w-100">
+            <div class="form-group w-50">
+                <label>{{'createOffer.generalInfo.participant' | translate}}</label>
+                <div class="flexContentColumn8">
+
+                    <dx-select-box
+                        [dataSource]="firm"
+                        valueExpr="idFirm"
+                        displayExpr="firmName"
+                        [disabled]="true"
+                        height="40px"
+                        placeholder="{{'filters.selection' | translate}}"
+                        formControlName="participant">
+                        <div *dxTemplate="let data of 'dropDownButton'"></div>
+                 </dx-select-box>
+
+                <button class="btn btn-withoutBorder jc-fl-st" [disabled]="chooseOffers" (click)="openSidebar()"><i class="plus mr-2"></i>{{'filters.chooseParticipant' | translate}}</button>
+                </div>
+            </div>
+
+            <div class="form-group w-50">
+                <label>{{'worker.registration.trader' | translate}}</label>
+                <dx-select-box
+                    [dataSource]="traders"
+                    valueExpr="idTrader"
+                    displayExpr="traderFio"
+                    [disabled]="!!!form.get('participant')?.value || chooseOffers"
+                    height="40px"
+                    placeholder="{{'filters.selection' | translate}}"
+                    formControlName="trader"
+                    (onValueChanged)="onValueChanged($event, 'trader')">
+                </dx-select-box><!--  [disabled]="true"  -->
+            </div>
+        </div>
+
+        <div class="flexContentColumn24 w-100">
+            <!-- Направление/действие -->
+            <div class="flexContent16">
+                <div class="form-group w-50">
+                    <label>{{'openAccess.direction' | translate}}</label>
+                    <dx-select-box
+                       [dataSource]="directions"
+                        valueExpr="refBookKey"
+                        displayExpr="refBookValue"
+                        [disabled]="chooseOffers"
+                        height="40px"
+                        placeholder="{{'filters.selection' | translate}}"
+                        formControlName="direction"
+                        (onValueChanged)="onValueChanged($event, 'direction')">
+                    </dx-select-box><!--  [disabled]="true"-->
+                </div>
+
+                <div class="form-group w-50">
+                    <label>{{'openAccess.action' | translate}}</label>
+                    <dx-select-box
+                        [dataSource]="actions"
+                        valueExpr="id"
+                        displayExpr="name"
+                        height="40px"
+                        [disabled]="!!!form.get('direction')?.value"
+                        placeholder="{{'filters.selection' | translate}}"
+                        formControlName="action"
+                        (onValueChanged)="onValueChanged($event, 'action')">
+                    </dx-select-box><!--  [disabled]="true"  -->
+                </div>
+            </div>
+
+             <!-- Кол-во действий/номер заявки -->
+            <div class="flexContent16">
+                <div class="form-group w-50 number-style">
+                    <label>{{'openAccess.actionNumber' | translate}}</label>
+                    <dx-number-box
+                      dxNumberBoxClear
+                        height="40px"
+                        placeholder="00"
+                        class="date-roboto-mono"
+                        [disabled]="chooseOffers || actionNumberDisable"
+                        formControlName="actionNumber"
+                        [min]="1"
+                        [max]="99">
+                   </dx-number-box>
+                </div>
+
+                <div class="form-group w-50">
+                    <label>{{'openAccess.offerNumber' | translate}}</label>
+
+                    <dx-tag-box  *ngIf="!chooseOffers"
+                        [dataSource]="listDemoff"
+                        displayExpr="lotNumber"
+                        valueExpr="idDemandOffer"
+                        height="40px"
+                        placeholder="{{'filters.selection' | translate}}"
+                        formControlName="offerNumber"
+                        [disabled]="offersNumberDisable"
+                        [searchEnabled]="true"
+                        [showSelectionControls]="true"
+                        [showDropDownButton]="true"
+                        [maxDisplayedTags]="0"
+                        (onValueChanged)="onValueChanged($event, 'offerNumber')">
+                    </dx-tag-box>
+
+                    <dx-select-box *ngIf="chooseOffers"
+                            [dataSource]="listDemoff"
+                            valueExpr="idDemandOffer"
+                            displayExpr="lotNumber"
+                            [disabled]="true"
+                            height="40px"
+                            formControlName="offerNumber"
+                            (onValueChanged)="onValueChanged($event, 'offerNumber')">
+                            <div *dxTemplate="let data of 'dropDownButton'"></div>
+                    </dx-select-box>
+
+                    <div *ngIf="!chooseOffers" class="optinalField">{{'general.optionalField' | translate}}</div>
+                </div>
+            </div>
+
+            <!-- Примечание -->
+            <div class="note-text">
+                <div class="field-title">
+                    <span>{{'openAccess.note' | translate }}</span>
+                    <span class="count"> {{myInput.value.length}} /{{maxChars}}</span>
+                </div>
+                <div class="field_entry" ng-app>
+                    <textarea  #myInput [maxlength]="maxChars"
+                               class="w-100 textarea"
+                               [rows]="6"
+                               formControlName="note"
+                               placeholder="{{'general.text' | translate}}"></textarea>
+                </div>
+            </div>
+
+            <div class="buttons flexContent24 buttonsClass">
+                <button class="btn btn-primary submit w-50" [disabled]="!form.valid" (click)="submitForm()">{{'offer-management.openAccess' | translate }}</button>
+                <button class="btn btn-outline-primary w-50" (click)="popup = false">{{'btns.close' | translate}}</button>
+             </div>
+        </div>
+    </form>
+  </div>
+</dx-popup>
+

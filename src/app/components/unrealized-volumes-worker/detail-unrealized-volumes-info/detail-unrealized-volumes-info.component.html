@@ -1,0 +1,152 @@
+<!-- eslint-disable -->
+<main class="flexContentColumn24">
+  <div class="main_component">
+    <div class="head flexContentColumn8">
+      <h1>{{title}}</h1>
+
+
+      <div class="flexContent8">
+        <div class="font-s12 py-1 px-2" [ngClass]="{blueStage: sessionInfo.idSection == 1, greenStage: sessionInfo.idSection == 2,
+             orangeStage: sessionInfo.idSection == 3, purpleStage: sessionInfo.idSection == 7}"> {{ sessionInfo.sectionName }}</div>
+        <div *ngIf="sessionInfo" class="session-stage d-flex ai-c font-s12 py-1 px-2"
+        [ngClass]="sessionInfo?.sessionStageId | stageColor">{{sessionInfo.sessionStageName}}
+        </div>
+
+        <div *ngIf="sessionInfo" class="flexContent16 py-1 px-2">
+          {{'filters.session' | translate}}
+          <span class="widthMaxContent">{{((sessionInfo.datetimeBegin - 25569) * 24 * 3600 * 1000) +1  | date:'dd.MM.yyyy HH:mm' : "+0000" }}</span>
+          <span class="date-roboto-mono">№{{ sessionInfo.idSession }}</span>
+          <span class="widthMaxContent">{{sessionInfo.sessionName}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <dx-data-grid
+    id="gridContainer"
+    [dataSource]="outputArray"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [width]="1600"
+  >
+
+      <dxo-state-storing 
+        [enabled]="true" 
+        type="localStorage" 
+        storageKey="detailUnrealizedOrdermanagment">
+    </dxo-state-storing>
+
+    <!-- style="table-layout: fixed; width: 50%" -->
+    <dxi-column caption="{{'catalogs.lot' | translate }}"
+                dataField="lotNumber"
+                cssClass="column text-align-left"
+                width="auto"
+                cellTemplate="cellTemplateLot"
+    >
+    </dxi-column>
+    <div *dxTemplate="let data of 'cellTemplateLot'">
+        <div class="lotNumber d-flex ai-c " (click)="onViewOffer(data.data.idOffer)">{{data.data.lotNumber}}</div>
+    </div>
+
+
+    <!-- Участник -->
+    <dxi-column caption="{{'createOffer.generalInfo.participant' | translate}}"
+                dataField="concatedFirmName"
+                cssClass="column text-align-left"
+                width="140"
+                alignment="left"
+                [allowFiltering]="true"
+                [allowSorting]="true"
+    >
+    </dxi-column>
+
+    <!-- Тип договора -->
+    <dxi-column caption="{{'general.contractType' | translate}}"
+                dataField="clientContractTypeName"
+                cssClass="column text-align-left"
+                width="140"
+                alignment="left"
+                [allowFiltering]="true"
+                [allowSorting]="true"
+                cellTemplate="cellTemplateClientContractType"
+    >
+    </dxi-column>
+
+    <div *dxTemplate="let data of 'cellTemplateClientContractType'">
+      <div>{{ data.data.clientContractTypeName == '20' ? ('general.commissionAgreement' | translate) : data.data.clientContractTypeName == 21 ? ('general.agencyAgreement' | translate) : '' }}</div>
+    </div>
+
+
+    <!-- Клиент брокера -->
+    <dxi-column caption="{{'filters.brokerClient' | translate}}"
+                dataField="concatedClientName"
+                cssClass="column text-align-left"
+                width="140"
+                alignment="left"
+                [allowFiltering]="true"
+                [allowSorting]="true"
+                cellTemplate="cellTemplateClient"
+                [visible]="true">
+    </dxi-column>
+
+    <div *dxTemplate="let item of 'cellTemplateClient'">
+                <span class="twostrings"
+                      id="offerClient{{item.data.idOffer}}">{{ item.data.concatedClientName }}</span>
+      <dx-tooltip
+        target="#offerClient{{item.data.idOffer}}"
+        [showEvent]="{ name: 'mouseover', delay: 500 }"
+        hideEvent="mouseleave"
+      >
+        <div *dxTemplate="let data = data; of: 'content'">{{ item.data.concatedClientName }}</div>
+      </dx-tooltip>
+    </div>
+
+
+    <!-- Стр подразделение -->
+    <dxi-column caption="{{'filters.listBranchs' | translate}}"
+                dataField="branchName"
+                cssClass="column text-align-left"
+                width="140"
+                alignment="left"
+                [allowFiltering]="true"
+                [allowSorting]="true"
+                cellTemplate="cellTemplateBranch"
+    >
+    </dxi-column>
+
+    <div *dxTemplate="let item of 'cellTemplateBranch'">
+                <span class="twostrings"
+                      id="offerBranch{{item.data.idOffer}}">{{ item.data.branchName }}</span>
+      <dx-tooltip
+        target="#offerBranch{{item.data.idOffer}}"
+        [showEvent]="{ name: 'mouseover', delay: 500 }"
+        hideEvent="mouseleave"
+      >
+        <div *dxTemplate="let data = data; of: 'content'">{{ item.data.branchName }}</div>
+      </dx-tooltip>
+    </div>
+
+    <!-- Трейдер -->
+    <dxi-column caption="{{'worker.registration.trader' | translate}}"
+                dataField="traderName"
+                cssClass="column text-align-left"
+                width="140"
+                alignment="left"
+                [allowFiltering]="true"
+                [allowSorting]="true"
+                [visible]="true">
+    </dxi-column>
+    <dxi-column caption="{{ 'worker.errorReason' | translate }}"
+                cssClass="column text-align-left"
+                width="auto"
+                cellTemplate="resultTemplate"
+                [minWidth]="200"
+    >
+    </dxi-column>
+    <!--  dataField="description"-->
+    <div *dxTemplate="let item of 'resultTemplate'">
+      <span>{{item.data.result ? ('worker.successfully' | translate) :  item.data.description}}</span>
+    </div>
+  </dx-data-grid>
+</main>

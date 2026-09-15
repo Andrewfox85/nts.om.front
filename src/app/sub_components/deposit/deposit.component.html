@@ -1,0 +1,788 @@
+<!-- eslint-disable -->
+<main class="deposit">
+  <div class="main_component">
+    <div class="head" id="head">
+      <h1>{{ "deposit.depositInfo" | translate }}</h1>
+    </div>
+
+    <div class="session flexContent8">
+      <div
+        *ngIf="!sessionInfo"
+        class="session-stage default d-flex ai-c font-s12"
+      >
+        {{ "sessions-schedule.sessionStage" | translate }}
+      </div>
+      <div
+        *ngIf="sessionInfo"
+        class="session-stage d-flex ai-c font-s12"
+        [ngClass]="sessionInfo?.stageId | stageColor"
+      >
+        {{ nameSessionStage }}
+      </div>
+
+      <div class="session-number d-flex font-s14">
+        <div *ngIf="!sessionInfo">{{ "filters.session" | translate }} -</div>
+        <div *ngIf="sessionInfo" class="session-info h-24px">
+          <span class="date-roboto-mono" *ngIf="!numberDate"
+            >{{ "filters.session" | translate }}
+            {{ sessionInfo.startDateTime }}</span
+          >
+          <span class="date-roboto-mono" *ngIf="numberDate"
+            >{{ "filters.session" | translate }}
+             {{ sessionInfo.startDateTime | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000" }}
+            </span
+          >
+          <span class="date-roboto-mono">№{{ sessionInfo.id }}</span>
+          <span class="overflowText">{{ sessionInfo.sessionName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="flexContentColumn12 firm-info"
+      *ngIf="!user.IsWorker && depositType != depositTypeEnum.withoutDeposit"
+    >
+      <div class="flexContent8 center">
+        <span class="title"
+          >{{ "createOffer.generalInfo.participant" | translate }}:</span
+        >
+        <span class="font-s14"
+          >{{ this.traderRegNumber() }} - {{ user.userInfo.firmName }}</span
+        >
+      </div>
+
+      <div class="flexContent8 center">
+        <span class="title">{{ "deposit.depositType" | translate }}:</span>
+        <span class="font-s14" *ngIf="depositType == depositTypeEnum.dealsDeposit">{{
+          "deposit.ensuringDeals" | translate
+        }}</span>
+        <span class="font-s14" *ngIf="depositType == depositTypeEnum.taxDeposit">{{
+          "deposit.ensuringTax" | translate
+        }}</span>
+      </div>
+
+      <div class="flexContent8 center" *ngIf="depositType == depositTypeEnum.taxDeposit">
+        <span class="title">{{ "deposit.rate" | translate }}:</span>
+        <span class="font-s14 date-roboto-mono"
+          >{{
+            firmTax?.sumRate | ruNumberFormat : firmTax.currencyPrecision : firmTax.currencyPrecision
+          }}
+          {{ firmTax?.currencyName }}</span
+        >
+      </div>
+
+      <div class="flexContent8 center" *ngIf="depositType == depositTypeEnum.taxDeposit">
+        <span class="title"
+          >{{ "deposit.freeDepositAmount" | translate }}:</span
+        >
+        <span class="font-s14 date-roboto-mono"
+          >{{
+            firmTax?.sumFree | ruNumberFormat : firmTax.currencyPrecision : firmTax.currencyPrecision
+          }}
+          {{ firmTax?.currencyName }}</span
+        >
+      </div>
+    </div>
+
+    <div *ngIf="depositType == depositTypeEnum.dealsDeposit" class="content deposit-deals">
+      <div class="toolbarTable flexContent24">
+        <div>
+          <button class="btn h-32px secondary-btn w-280px" id="updateGrid">
+            <div class="flexContent8 ai-c blackColor" (click)="updateInfo()">
+              <div class="toolbar update"></div>
+              {{ "sessions-schedule.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="body" [ngClass]="{ mt: detailsFirmDeals?.length == 0 }">
+        <div class="deposit-deals-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              [dataSource]="detailsFirmDeals"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [showRowLines]="true"
+              (onExporting)="onExportGrid($event, FileTypes.DEPOSIT)"
+            >
+              <dxo-state-storing
+                [enabled]="true"
+                type="localStorage"
+                storageKey="depositOrderManagment"
+              >
+              </dxo-state-storing>
+
+              <dxo-header-filter
+                [visible]="false"
+                [allowSearch]="false"
+              ></dxo-header-filter>
+
+              <dxi-column
+                cssClass="column p-0 text-align-right"
+                width="240"
+                allowSorting="false"
+                [allowFiltering]="false"
+                dataField=""
+                cellTemplate="cellTemplateTr"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateTr'">
+                <table class="main">
+                  <ng-container>
+                    <tr class="subTitle">
+                      {{
+                        "worker.registration" | translate
+                      }}
+                    </tr>
+                    <tr class="subTitle">
+                      {{
+                        "deposit.buyOffers" | translate
+                      }}
+                    </tr>
+                    <tr class="subTitle">
+                      {{
+                        "deposit.saleOffers" | translate
+                      }}
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+
+              <dxi-column
+                caption="{{ 'deposit.amountForAuction' | translate }}"
+                dataField="depositSumRequired"
+                cssClass="column p-0 date-roboto-mono text-align-right"
+                width="350"
+                allowSorting="false"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateReq"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateReq'">
+                <table class="main">
+                  <ng-container>
+                    <tr>
+                      <span
+                        *ngIf="data.data.idDirection == 3"
+                        class="date-roboto-mono"
+                        >{{
+                          data.data.depositSumRequired | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                        }}
+                        {{ data.data.currencyName }}</span
+                      >
+                    </tr>
+                    <tr>
+                      <span
+                        *ngIf="data.data.idDirection == 1"
+                        class="date-roboto-mono"
+                        >{{
+                          data.data.depositSumRequired | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                        }}{{ data.data.currencyName }}</span
+                      >
+                    </tr>
+                    <tr>
+                      <span
+                        *ngIf="data.data.idDirection == 2"
+                        class="date-roboto-mono"
+                        >{{
+                          data.data.depositSumRequired | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                        }}
+                        {{ data.data.currencyName }}</span
+                      >
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+
+              <dxi-column
+                caption="{{ 'deposit.calcOfDeposit' | translate }}"
+                cssClass="column p-0 date-roboto-mono text-align-right"
+                width="350"
+                allowSorting="false"
+                [allowFiltering]="false"
+                dataField="depositSumTrader"
+                cellTemplate="cellTemplateTrader"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateTrader'">
+                <table class="main">
+                  <ng-container>
+                    <tr>
+                      <span
+                        *ngIf="
+                          data.data.idDirection == 3 &&
+                          data.data.depositSumTrader
+                        "
+                        >{{
+                          data.data.depositSumTrader | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                        }}
+                        {{ data.data.currencyName }}</span
+                      >
+                    </tr>
+                    <tr>
+                      <span
+                        *ngIf="
+                          data.data.idDirection == 1 &&
+                          data.data.depositSumTrader
+                        "
+                        >{{
+                          data.data.depositSumTrader | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                        }}
+                        {{ data.data.currencyName }}</span
+                      >
+                    </tr>
+                    <tr>
+                      <span
+                        *ngIf="
+                          data.data.idDirection == 2 &&
+                          data.data.depositSumTrader
+                        "
+                        >{{
+                          data.data.depositSumTrader | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                        }}
+                        {{ data.data.currencyName }}</span
+                      >
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+
+              <dxi-column
+                caption=" {{ 'deposit.calcOfDepositPart' | translate }}"
+                dataField="fullDeposit"
+                cssClass="column date-roboto-mono"
+                [minWidth]="230"
+                alignment="rigth"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cellTemplate="cellTemplatePart"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplatePart'">
+                <div *ngIf="data.data.depositSumFirm">
+                  {{
+                    data.data.depositSumFirm | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                  }}
+                  {{ data.data.currencyName }}
+                </div>
+              </div>
+
+              <dxi-column
+                caption=" {{ 'deposit.freeDepositAmount' | translate }}"
+                dataField="fullSumma"
+                cssClass="column date-roboto-mono"
+                [minWidth]="230"
+                alignment="rigth"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cellTemplate="cellTemplateFree"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateFree'">
+                <div>
+                  {{
+                    data.data.depositSumFree | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                  }}
+                  {{ data.data.currencyName }}
+                </div>
+              </div>
+
+              <dxo-export [enabled]="detailsFirmDeals?.length > 0"></dxo-export>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="search"
+      *ngIf="(listTaxLength > 0 && listDealsLength > 0) || user.IsWorker"
+    >
+      <form [formGroup]="formClient">
+        <div class="form-group">
+          <div class="input-group flexContentColumn4">
+            <label *ngIf="!user.IsWorker" class="label">{{
+              "general.brokerClient" | translate
+            }}</label>
+            <label *ngIf="user.IsWorker" class="label"
+              >{{ "deposit.firmAndBrokerClient" | translate }}</label
+            >
+            <dx-select-box
+              [dataSource]="clients"
+              valueExpr="this"
+              displayExpr="clientNameShort"
+              fieldTemplate="clientTemplate"
+              width="340px"
+              height="40px"
+              placeholder="{{ 'filters.searchLabel' | translate }}"
+              formControlName="client"
+              [searchEnabled]="true"
+              [searchExpr]="['clientNameShort', 'clientRegNumber']"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+              (onValueChanged)="onSearchClient($event)"
+            >
+              <!--            (onValueChanged)="onChangeSelectBox($event, 'goods')"-->
+
+              <div *dxTemplate="let item of 'item'">
+                <div id="nameSession{{ item.clientId }}" class="flexContent8">
+                  <div>{{ item.clientRegNumber }}</div>
+                  <div>-</div>
+                  <div class="overflowText">{{ item.clientNameShort }}</div>
+                </div>
+              </div>
+
+              <!--              Отображение в выбранном значании ид + дата + название сессиии-->
+              <div *dxTemplate="let item of 'clientTemplate'">
+                <div class="flexContent4 flex-start">
+                  <div class="searchIcon pl-2 pt-2 pb-2"></div>
+                  <dx-text-box
+                    placeholder="{{ 'filters.searchLabel' | translate }}"
+                    class="p-1"
+                    [value]="clientTemplateSelectBox(item)"
+                  ></dx-text-box>
+                </div>
+              </div>
+            </dx-select-box>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="flexContent jc-sb flex-end borderFormTabs mt--16px"
+      *ngIf="
+        listTaxForTable?.length > 0 ||
+        listDealsForTable?.length > 0 || formAv.get('available')?.value ||
+        user.IsWorker
+      "
+    >
+      <dx-tabs
+        [dataSource]="tabsData"
+        [selectedIndex]="filterTab"
+        (onItemClick)="onChangeTab($event)"
+        itemTemplate="itemTemplate"
+      >
+        <!--   [dataSource]="[('deposit.collectionDeposit' | translate + ${this.listTaxForTable?.length}), 'deposit.dealsDeposit'| translate]" -->
+        <div *dxTemplate="let item of 'itemTemplate'">
+          <div>
+            {{ item.name }} ({{
+              item.name === this.taxTab
+                ? this.listTaxForTable?.length
+                : this.listDealsForTable?.length
+            }})
+          </div>
+        </div>
+      </dx-tabs>
+    </div>
+    <div
+      class="content"
+      *ngIf="listTaxLength > 0 || listDealsLength > 0 || user.IsWorker"
+    >
+      <div class="toolbarTable flexContent24">
+        <div>
+          <button class="btn h-32px secondary-btn w-280px" id="updateGrid">
+            <div class="flexContent8 ai-c blackColor" (click)="updateInfo()">
+              <!-- [disabled]="disableToolbar" (click)="getData()" -->
+              <div class="toolbar update"></div>
+              {{ "sessions-schedule.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <form [formGroup]="formAv">
+          <div class="checkbox d-flex">
+            <dx-check-box
+              text="{{ 'deposit.notAvailable' | translate }}"
+              iconSize="20px"
+              formControlName="available"
+              (onValueChanged)="onFilterTable($event)"
+            >
+            </dx-check-box>
+          </div>
+        </form>
+      </div>
+
+      <div class="body mt-1">
+        <div class="deposit-body-wrapper">
+          <div class="body_content">
+            <!-- таблица задатка по сбору -->
+            <dx-data-grid
+              *ngIf="filterTab == 0"
+              [dataSource]="listTaxForTable"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [allowColumnResizing]="true"
+              [allowColumnReordering]="true"
+              [showRowLines]="true"
+              (onExporting)="onExportGrid($event, FileTypes.DEPOSIT_LIST_TAX)"
+            >
+              <dxo-header-filter
+                [visible]="true"
+                [allowSearch]="true"
+              ></dxo-header-filter>
+
+              <!-- Работник - участник -->
+              <dxi-column
+                *ngIf="user?.IsWorker"
+                caption="{{
+                  'createOffer.generalInfo.participant' | translate
+                }}"
+                dataField="firmNameShort"
+                cssClass="column text-align-right"
+                [minWidth]="250"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplatePart"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplatePart'">
+                <div>
+                  {{ data.data.firmRegNumber }} - {{ data.data.firmNameShort }}
+                </div>
+              </div>
+
+              <!-- Клиент -->
+              <dxi-column
+                caption="{{ 'filters.brokerClient' | translate }}"
+                dataField="clientNameShort"
+                cssClass="column text-align-right"
+                [minWidth]="240"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateClient"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateClient'">
+                <div *ngIf="data.data.clientRegNumber">
+                  {{ data.data.clientRegNumber }} -
+                  {{ data.data.clientNameShort }}
+                </div>
+              </div>
+
+              <!-- ставка задатка -->
+              <dxi-column
+                caption="{{ 'deposit.rate' | translate }}"
+                dataField="sumRate"
+                cssClass="column date-roboto-mono"
+                [minWidth]="230"
+                alignment="rigth"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cellTemplate="cellTemplateRate"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateRate'">
+                <div *ngIf="data.data.sumRate != null">
+                  {{
+                    data.data.sumRate | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                  }}
+                  {{ data.data.currencyName }}
+                </div>
+              </div>
+
+              <!-- сумма свободного задатка -->
+              <dxi-column
+                caption=" {{ 'deposit.freeDepositAmount' | translate }}"
+                dataField="sumFree"
+                cssClass="column date-roboto-mono"
+                [minWidth]="230"
+                alignment="rigth"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cellTemplate="cellTemplateFre"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateFre'">
+                <div
+                  *ngIf="data.data.sumFree != null"
+                  [ngClass]="{ notAvailableDeposit: data.data.isUnavailable }"
+                >
+                  {{
+                    data.data.sumFree | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                  }}
+                  {{ data.data.currencyName }}
+                </div>
+              </div>
+
+              <dxo-export [enabled]="true"></dxo-export>
+            </dx-data-grid>
+
+            <!-- таблица задатка по сделкам -->
+            <dx-data-grid
+              *ngIf="filterTab == 1"
+              [dataSource]="listDealsForTable"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [allowColumnResizing]="true"
+              [allowColumnReordering]="true"
+              [showRowLines]="true"
+              (onExporting)="onExportGrid($event, FileTypes.DEPOSIT_LIST_DEAL)"
+            >
+              <dxo-header-filter
+                [visible]="true"
+                [allowSearch]="true"
+              ></dxo-header-filter>
+
+              <!-- Работник - участник -->
+              <dxi-column
+                *ngIf="user?.IsWorker"
+                caption="{{
+                  'createOffer.generalInfo.participant' | translate
+                }}"
+                dataField="firmNameShort"
+                cssClass="column text-align-right"
+                [minWidth]="250"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateParticipant"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateParticipant'">
+                <div>
+                  {{ data.data.firmRegNumber }} - {{ data.data.firmNameShort }}
+                </div>
+              </div>
+
+              <!-- Клиент -->
+              <dxi-column
+                caption="{{ 'filters.brokerClient' | translate }}"
+                dataField="clientNameShort"
+                cssClass="column text-align-right"
+                [minWidth]="250"
+                allowSorting="true"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateClient"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateClient'">
+                <div *ngIf="data.data.clientRegNumber">
+                  {{ data.data.clientRegNumber }} -
+                  {{ data.data.clientNameShort }}
+                </div>
+              </div>
+
+              <!-- Сумма задатка для допуска в торги -->
+              <dxi-column
+                caption=" {{ 'deposit.registrDeposit' | translate }}"
+                cssClass="column text-align-right"
+                [minWidth]="260"
+              >
+                <dxi-column
+                  caption=" {{ 'sessions-schedule.sale' | translate }}"
+                  dataField="depositSumRequiredSale"
+                  cssClass="column text-align-right date-roboto-mono"
+                  [minWidth]="180"
+                  alignment="rigth"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateSell"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateSell'">
+                  <div *ngIf="data.data.depositSumRequiredSale != null">
+                    {{
+                      data.data.depositSumRequiredSale | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                    }}
+                    {{ data.data.currencyName }}
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption=" {{ 'sessions-schedule.buy' | translate }}"
+                  dataField="depositSumRequiredBuy"
+                  cssClass="column date-roboto-mono"
+                  [minWidth]="180"
+                  alignment="rigth"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateBuy"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateBuy'">
+                  <div *ngIf="data.data.depositSumRequiredBuy != null">
+                    {{
+                      data.data.depositSumRequiredBuy | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                    }}
+                    {{ data.data.currencyName }}
+                  </div>
+                </div>
+              </dxi-column>
+
+              <!-- Трейдер - расчет задатка по заявкам трейдера -->
+              <dxi-column
+                *ngIf="!user?.IsWorker"
+                caption=" {{ 'deposit.calcOfDeposit' | translate }}"
+                cssClass="column text-align-right"
+                [minWidth]="260"
+              >
+                <dxi-column
+                  caption=" {{ 'sessions-schedule.sale' | translate }}"
+                  dataField="depositSumTraderSale"
+                  cssClass="column text-align-right date-roboto-mono"
+                  [minWidth]="180"
+                  alignment="rigth"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateCalcSell"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateCalcSell'">
+                  <div *ngIf="data.data.depositSumTraderSale != null">
+                    {{
+                      data.data.depositSumTraderSale | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                    }}
+                    {{ data.data.currencyName }}
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption=" {{ 'sessions-schedule.buy' | translate }}"
+                  dataField="depositSumTraderBuy"
+                  cssClass="column date-roboto-mono"
+                  [minWidth]="180"
+                  alignment="rigth"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateCalcBuy"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateCalcBuy'">
+                  <div *ngIf="data.data.depositSumTraderBuy != null">
+                    {{
+                      data.data.depositSumTraderBuy | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                    }}
+                    {{ data.data.currencyName }}
+                  </div>
+                </div>
+              </dxi-column>
+
+              <!-- Трейдер - расчет задатка участника -->
+              <dxi-column
+                *ngIf="!user?.IsWorker"
+                caption=" {{ 'deposit.calcOfDepositPart' | translate }}"
+                dataField="depositSumFirm"
+                cssClass="column text-align-right date-roboto-mono"
+                [minWidth]="230"
+                alignment="rigth"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cellTemplate="cellTemplatePart"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplatePart'">
+                <div *ngIf="data.data.depositSumFirm != null">
+                  {{
+                    data.data.depositSumFirm | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                  }}
+                  {{ data.data.currencyName }}
+                </div>
+              </div>
+
+              <!-- Работник - расчет задатка участника -->
+              <dxi-column
+                *ngIf="user?.IsWorker"
+                caption=" {{ 'deposit.calcOfDepositPart' | translate }}"
+                cssClass="column text-align-right"
+                [minWidth]="260"
+              >
+                <dxi-column
+                  caption=" {{ 'sessions-schedule.sale' | translate }}"
+                  dataField="depositSumSale"
+                  cssClass="column text-align-right date-roboto-mono"
+                  [minWidth]="180"
+                  alignment="rigth"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateCalcSell"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateCalcSell'">
+                  <div *ngIf="data.data.depositSumSale != null">
+                    {{
+                      data.data.depositSumSale | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                    }}
+                    {{ data.data.currencyName }}
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption=" {{ 'sessions-schedule.buy' | translate }}"
+                  dataField="depositSumBuy"
+                  cssClass="column date-roboto-mono"
+                  [minWidth]="180"
+                  alignment="rigth"
+                  [allowFiltering]="false"
+                  [allowSorting]="false"
+                  cellTemplate="cellTemplateCalcBuy"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateCalcBuy'">
+                  <div *ngIf="data.data.depositSumBuy != null">
+                    {{
+                      data.data.depositSumBuy | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                    }}
+                    {{ data.data.currencyName }}
+                  </div>
+                </div>
+              </dxi-column>
+
+              <!-- Свободный задаток -->
+              <dxi-column
+                caption=" {{ 'deposit.freeDepositAmount' | translate }}"
+                dataField="depositSumFree"
+                cssClass="column date-roboto-mono"
+                [minWidth]="230"
+                alignment="rigth"
+                [allowFiltering]="false"
+                [allowSorting]="false"
+                cellTemplate="cellTemplateFree"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateFree'">
+                <div
+                  *ngIf="data.data.depositSumFree != null"
+                  [ngClass]="{ notAvailableDeposit: data.data.isUnavailable }"
+                >
+                  {{
+                    data.data.depositSumFree | ruNumberFormat : data.data.currencyPrecision : data.data.currencyPrecision
+                  }}
+                  {{ data.data.currencyName }}
+                </div>
+              </div>
+
+              <dxo-export [enabled]="true"></dxo-export> </dx-data-grid
+            ><!--  -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

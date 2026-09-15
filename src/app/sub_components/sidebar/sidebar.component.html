@@ -1,0 +1,685 @@
+<!-- eslint-disable -->
+<div id="dark" class="dark"></div>
+
+<div id="mySidebar" class="sidebar">
+  <div class="header d-flex jc-sb">
+    <span>{{ type != 'changedGoodProperty' ?
+      dataForReq?.name :
+      ('createOffer.editingProduct' | translate)}}</span>
+    <i class="close" (click)="closeSidebar()"></i>
+  </div>
+
+  <ng-template #infoGood>
+    <!-- блок Информация -->
+    <div class="main_field" *ngIf="dataForReq">
+      <span class="title">{{'general.information' | translate}}</span>
+
+      <div class="field">
+        <div class="name">
+          <span>{{'filters.nomenclatureGroup' | translate}}</span>
+        </div>
+        <div class="info">
+          <span>{{dataForReq?.nomenclature}}</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="name">
+          <span>{{'filters.goodsGroup' | translate}}</span>
+        </div>
+        <div class="info">
+          <span>{{dataForReq?.group}}</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="name">
+          <span>{{'general.name' | translate}}</span>
+        </div>
+        <div class="info">
+          <span>{{dataForReq?.name}}</span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="content flexContentColumn16" *ngIf="type == 'good'">
+
+    <ng-container *ngTemplateOutlet="infoGood"></ng-container>
+
+    <!-- блок Описание-->
+    <div class="main_field" *ngIf="fullDataGroup?.length == 0">
+
+      <div class="flexContent16 jc-sb">
+        <span class="title">{{ 'general.description' | translate }}</span>
+        <a *ngIf="dataForReq?.isCanEditCharacteristics" class="font-s14 mb-3" (click)="addNsiGoodService.onEditGoodCharacteristic(this.user, dataForReq)" >{{ "btns.edit" | translate }}</a>
+      </div>
+                <div class="field" *ngFor="let item of fullData">
+                    <div class="name">
+                        <span>{{item?.propertyName}}</span>
+                    </div>
+                    <div class="info">
+                        <span>{{item?.propertyValue}}</span>
+                    </div>
+                 </div>
+            </div>
+
+    <!-- сгруппированные блоки по specifyBlockName-->
+    <div *ngIf="fullDataGroup">
+
+      <div class="main_field mb-3" *ngFor="let group of fullDataGroup">
+        <span class="title">{{group[0]}}</span>
+
+        <div class="field" *ngFor="let item of group[1]">
+          <div class="name">
+            <span>{{item?.propertyName}}</span>
+          </div>
+          <div class="info">
+            <span>{{item?.propertyValue}}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="type== 'detail' && dataSourceTabs.length > 0 && (dataForReq?.deliveryConditions.length > 0 || this.dataForReq?.deliverySchedule.length > 0 || this.dataForReq?.delivScope.length > 0)" class="content flexContentColumn32">
+    <div class="editButton" *ngIf="(!this.user?.IsWorker && dataForReq.isCanEdit) || (this.user?.IsWorker && this.Privileges && dataForReq.isCanEdit)">
+      <!--       (click)="onCreateBasis()"-->
+      <button  class="btn btn-withoutBorder h-32px" style="vertical-align: top;" aria-disabled="true"
+              (click)="editFromViewOffer()"><span
+        class="editIcon"></span>{{'btns.editApplication' | translate }}</button>
+    </div>
+<!--    *ngIf="dataForReq?.deliveryConditions.length > 0 || dataForReq?.deliverySchedule.length > 0 || dataForReq?.delivScope.length > 0"-->
+
+    <dx-tabs
+
+      [dataSource]="dataSourceTabs"
+      [selectedIndex]="0"
+      (onItemClick)="tabName = $event.itemIndex;"
+    >
+    </dx-tabs>
+
+
+    <div *ngIf="dataForReq?.deliveryConditions.length > 0 && tabName == 0">
+      <ng-container *ngTemplateOutlet="basis"></ng-container>
+    </div>
+    <div
+      *ngIf="this.dataForReq?.deliverySchedule.length > 0 && ((dataForReq?.deliveryConditions.length > 0 && tabName == 1) || (dataForReq?.deliveryConditions.length == 0 && tabName == 0))">
+      <ng-container *ngTemplateOutlet="schedule"></ng-container>
+    </div>
+    <div *ngIf="this.dataForReq?.delivScope.length > 0 && ((dataForReq?.deliveryConditions.length > 0 && dataForReq?.deliverySchedule.length > 0 && tabName == 2) ||
+     (dataForReq?.deliveryConditions.length > 0 && dataForReq?.deliverySchedule.length == 0 && tabName == 1) ||
+     (dataForReq?.deliveryConditions.length == 0 && dataForReq?.deliverySchedule.length > 0 && tabName == 1) ||
+     (dataForReq?.deliveryConditions.length == 0 && dataForReq?.deliverySchedule.length == 0 && tabName == 0))
+">
+      <ng-container *ngTemplateOutlet="scope"></ng-container>
+    </div>
+
+    <!--     базисы поставки-->
+    <ng-template #basis>
+      <div class="flexContentColumn32 sidebarContent">
+        <div *ngFor="let basis of dataForReq?.deliveryConditions; let i=index;">
+          <dx-data-grid
+            [dataSource]="basis[1]"
+            class="deliveryBasisGrid"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+          >
+            <dxo-sorting mode="none"></dxo-sorting>
+
+            <dxi-column
+              dataField="concatedCondition"
+              [groupIndex]="0"
+              groupCellTemplate="groupCellTemplate"
+            ></dxi-column>
+
+            <div *dxTemplate="let data of 'groupCellTemplate'">
+              <div>{{data.value}}</div>
+            </div>
+
+            <dxi-column
+              headerCellTemplate="headerBasis"
+              dataField="goodName"
+              cssClass="column"
+              alignment="left"
+              width="50%"
+              cellTemplate="goodNameWithTooltip"
+            ></dxi-column>
+            <div *dxTemplate="let item of 'goodNameWithTooltip';">
+              <div id="name{{i}}{{item.data.idDemandOfferGood}}">{{item.data.goodName}}</div>
+              <dx-tooltip target="#name{{i}}{{item.data.idDemandOfferGood}}"
+                          [showEvent]="{name: 'mouseenter', delay: 300}"
+                          hideEvent="mouseleave"
+              >
+                <div *dxTemplate="let data = data; of: 'content'">
+                  <div class="properties">
+                    <span>{{item.data.properties}}</span>
+                         <!--  <span *ngFor="let prop of item.data.properties">
+                             {{prop.propertyName}} {{prop.propertyValue}}.
+                           </span>-->
+                  </div>
+                </div>
+              </dx-tooltip>
+            </div>
+
+            <div *dxTemplate="let item of 'headerBasis'">
+              <div>  {{ basis[1][0].isMain ? ('createOffer.termsDeliveryTime.coreBasis' | translate) : ('createOffer.termsDeliveryTime.additionalbasis' | translate) }}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'createOffer.good.quantity' | translate }}"
+              dataField="volume"
+              cssClass="column date-roboto-mono "
+              cellTemplate="quantityTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div *dxTemplate="let item of 'quantityTemplate'" class="flexContent4 jc-end">
+              <div>{{(Number(item.data.volume)).toLocaleString('ru', { maximumFractionDigits: this.dataForReq?.volumePrecision})}}</div>
+              <div>{{item.data.unitName}}</div>
+            </div>
+
+
+            <dxi-column
+              *ngIf="dataForReq?.pricingTypeId == pricingType?.formulaWithQuotation"
+              caption="{{ 'createOffer.goodInfo.quotation' | translate }}"
+              dataField="quotation"
+              cssClass="column date-roboto-mono "
+              cellTemplate="quotationTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div *dxTemplate="let item of 'quotationTemplate'" class="flexContent4 jc-end">
+              <div>{{(Number(item.data.quotation)).toLocaleString('ru', { minimumFractionDigits: this.dataForReq?.quoteCurrencyPrecision, maximumFractionDigits: this.dataForReq.quoteCurrencyPrecision })}}</div>
+              <div>{{item.data.quoteCurrency}}</div>
+            </div>
+
+
+            <dxi-column
+              *ngIf="dataForReq?.pricingTypeId != pricingType?.price"
+              caption="{{ 'createOffer.goodInfo.amendment' | translate }}"
+              dataField="amendment"
+              cssClass="column date-roboto-mono "
+              cellTemplate="amendmentTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div *dxTemplate="let item of 'amendmentTemplate'" class="flexContent4 jc-end">
+              <div>{{(item.data.amendment).toLocaleString('ru', { minimumFractionDigits: item.data.priceAdjustment.id == 1 ? 0: this.dataForReq.currencyPrecision, maximumFractionDigits: item.data.priceAdjustment.id == 1 ? 0: this.dataForReq.currencyPrecision })}}</div>
+              <div>{{item.data.priceAdjustment == 1 ? '%' : item.data.currency}}</div>
+            </div>
+
+            <dxi-column
+              *ngIf="dataForReq?.pricingTypeId != pricingType?.formulaWithoutQuotation"
+              caption="{{ 'createOffer.good.priceWithoutVAT' | translate }}"
+              dataField="cost"
+              cssClass="column date-roboto-mono "
+              cellTemplate="priceWithoutVATTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div *dxTemplate="let item of 'priceWithoutVATTemplate'" class="flexContent4 jc-end">
+              <div>{{(Number(item.data.priceWithoutVat)).toLocaleString('ru', { minimumFractionDigits: this.dataForReq.currencyPrecision, maximumFractionDigits: this.dataForReq.currencyPrecision })}}</div>
+              <div>{{item.data.currency}}</div>
+            </div>
+
+            <dxi-column
+              *ngIf="dataForReq?.pricingTypeId != pricingType?.formulaWithoutQuotation && this.dataForReq.direction == IdDirection.buy && isMinPrice()"
+              caption="{{ 'createOffer.good.minPriceWithoutVAT' | translate }}"
+              dataField="minPriceWithoutVat"
+              cssClass="column date-roboto-mono "
+              cellTemplate="minPriceWithoutVATTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div *dxTemplate="let item of 'minPriceWithoutVATTemplate'" class="flexContent4 jc-end">
+              <div>{{
+                  item.data.minPriceWithoutVat ?
+                    (Number(item.data.minPriceWithoutVat))?.toLocaleString('ru', {
+                      minimumFractionDigits: this.dataForReq.currencyPrecision,
+                      maximumFractionDigits: this.dataForReq.currencyPrecision
+                    })
+                    : ''
+                }}
+              </div>
+              <div>{{ item.data.minPriceWithoutVat ? item.data.currency : '' }}</div>
+            </div>
+
+            <dxi-column
+              *ngIf="dataForReq?.pricingTypeId != pricingType?.formulaWithoutQuotation"
+              caption="{{ 'createOffer.termsDeliveryTime.costVAT' | translate }}"
+              dataField="costVat"
+              cssClass="column date-roboto-mono"
+              cellTemplate="costVATTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div *dxTemplate="let item of 'costVATTemplate'" class="flexContent4 jc-end">
+              <div>{{(Number(item.data.costVat)).toLocaleString('ru', { minimumFractionDigits: this.dataForReq.currencyPrecision, maximumFractionDigits: this.dataForReq.currencyPrecision })}}</div>
+              <div>{{item.data.currency}}</div>
+            </div>
+
+            <dxo-summary>
+              <dxi-total-item
+                column="costVat"
+                cssClass="blackColor date-roboto-mono d-flex jc-end"
+                summaryType="sum"
+                displayFormat="{{'createOffer.termsDeliveryTime.totalBased' | translate}}: {0} {{basis[1][0].currency}}"
+                alignment="right footer"
+                showInColumn="costVAT"
+              >
+                <dxo-value-format
+                  type="fixedPoint"
+                  precision="{{this.dataForReq?.currencyPrecision}}"
+                >
+                </dxo-value-format>
+              </dxi-total-item>
+            </dxo-summary>
+          </dx-data-grid>
+
+        </div>
+
+      </div>
+    </ng-template>
+
+    <!--     график поставки-->
+    <ng-template #schedule>
+      <div class="flexContentColumn10" *ngIf="this.dataForReq?.deliverySchedule.length > 0">
+        <!--         <div>{{ 'createOffer.paymentDeliveryTerms.deliverySchedule' | translate }}-->
+        <!--           - {{this.dataForReq?.deliverySchedule[0]?.idPeriod}}</div>-->
+
+        <table class="w-100">
+          <thead>
+          <tr>
+            <th id="number">№
+              <dx-tooltip target="#number"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave"
+                          contentTemplate="numberTemplate"
+              >
+                <div *dxTemplate="let data of 'numberTemplate'">
+                  {{ 'createOffer.paymentDeliveryTerms.serialNumberPeriod' | translate }}
+                </div>
+              </dx-tooltip>
+            </th>
+            <th class="w-112px">{{ 'general.beginningPeriod' | translate }}</th>
+            <th class="w-112px">{{ 'general.endPeriod' | translate }}</th>
+            <th class="text-align-left">{{ 'general.nameProduct' | translate }}</th>
+            <th class="text-align-right w-194px">{{ 'general.quantity' | translate }}</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <ng-container *ngFor="let term of this.dataForReq?.deliverySchedule; let i=index">
+            <tr>
+              <td [attr.rowspan]="term[1].length">{{i + 1}}</td>
+              <td [attr.rowspan]="term[1].length"
+                  class="date-roboto-mono">{{(term[1][0].periodDateBegin - 25569) * 24 * 3600 * 1000 | date:'dd.MM.yyyy'}}</td>
+              <td [attr.rowspan]="term[1].length"
+                  class="date-roboto-mono">{{(term[1][0].periodDateEnd - 25569) * 24 * 3600 * 1000 | date:'dd.MM.yyyy'}}</td>
+              <td class="text-align-left">
+                <span id="name{{i+1}}{{term[1][0].idDemandOfferGood}}">{{term[1][0].goodName}}</span>
+                <dx-tooltip target="#name{{i+1}}{{term[1][0].idDemandOfferGood}}"
+                            [showEvent]="{name: 'mouseenter', delay: 500}"
+                            hideEvent="mouseleave">
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    <div class="properties">
+                      <span>{{term[1][0].properties}}</span>
+                       <!-- <span *ngFor="let prop of term[1][0].properties">
+                          {{prop.propertyName}} {{prop.propertyValue}}.
+                        </span>-->
+                    </div>
+                  </div>
+                </dx-tooltip>
+              </td>
+              <td
+                [attr.rowspan]="dataForReq?.isSameGradesInSaleOffer ? term[SCHEDULE_BLOCK.SCHEDULE_INFO].length : null">
+                <div class="flexContent8 jc-end">
+                  <div>{{ term[SCHEDULE_BLOCK.SCHEDULE_INFO][0].periodVolume }}</div>
+                  <span
+                    class="d-flex ai-c w-55px text-align-left">{{ term[SCHEDULE_BLOCK.SCHEDULE_INFO][0].unitName }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngFor="let g of term[1].slice(1);">
+              <td class="text-align-left">
+
+                <span id="name{{i+1}}{{g.idDemandOfferGood}}">{{g?.goodName}}</span>
+
+                <dx-tooltip target="#name{{i+1}}{{g.idDemandOfferGood}}"
+                            [showEvent]="{name: 'mouseenter', delay: 500}"
+                            hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'" class="w-500px text-align-left">
+                    <div class="properties">
+                      <span>{{g.properties}}</span>
+         <!--<span *ngFor="let prop of g.properties">
+           {{prop.propertyName}} {{prop.propertyValue}}.
+         </span>-->
+                    </div>
+                  </div>
+                </dx-tooltip>
+              </td>
+              <td *ngIf="!dataForReq?.isSameGradesInSaleOffer">
+                <div class="flexContent8 jc-end">
+                  <div class="number-style">{{(Number(g.periodVolume)).toLocaleString('ru', { maximumFractionDigits: this.dataForReq?.volumePrecision})}}</div>
+                  <span class="d-flex ai-c w-55px text-align-left">{{g.unitName}}</span>
+                </div>
+              </td>
+
+            </tr>
+
+          </ng-container>
+          </tbody>
+
+        </table>
+      </div>
+    </ng-template>
+
+    <!--     грузополучатели/грузоотправители-->
+    <ng-template #scope>
+      <div class="flexContentColumn32">
+        <div *ngFor="let scope of this.dataForReq?.delivScope">
+          <dx-data-grid
+            [dataSource]="scope[SCOPE_BLOCK.SCOPE_INFO]"
+            [showBorders]="false"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+            (onCellPrepared)="createOfferService.onCellPreparedDelivScope($event, dataForReq.offerGoods?.length, dataForReq?.isSameGradesInSaleOffer)"
+          >
+
+            <div *dxTemplate="let item of 'headerTemplate'" class="flexContent4">
+              <div> {{scope[1][0].firmClientName}}</div>
+            </div>
+
+            <dxi-column
+              headerCellTemplate="headerTemplate"
+              dataField="goodName"
+              cssClass="column text-align-left"
+              alignment="left"
+              cellTemplate="goodNameWithTooltip"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let item of 'goodNameWithTooltip'">
+              <div id="name{{item.data.idFirmClient}}{{item.data.idDemandOfferGood}}">{{item.data.goodName}}</div>
+              <dx-tooltip target="#name{{item.data.idFirmClient}}{{item.data.idDemandOfferGood}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave">
+                <div *dxTemplate="let data = data; of: 'content'">
+                  <div class="properties">
+                    <span>{{item.data.properties}}</span>
+                           <!--<span *ngFor="let prop of item.data.properties">
+                             {{prop.propertyName}} {{prop.propertyValue}}.
+                           </span>-->
+                  </div>
+                </div>
+              </dx-tooltip>
+            </div>
+
+
+            <dxi-column
+              headerCellTemplate="headerSummaryTemplate"
+              width="25%"
+              dataField="volume"
+              cssClass="column text-align-right"
+              alignment="right"
+              cellTemplate="volumeTemplate"
+            ></dxi-column>
+
+            <div *dxTemplate="let item of 'volumeTemplate'" class="flexContent4 jc-end">
+              <div
+                class="number-style">{{ (Number(item.data.volume))
+                .toLocaleString('ru', { maximumFractionDigits: this.dataForReq?.volumePrecision }) }}
+              </div>
+              <div>{{ item.data.unitName }}</div>
+            </div>
+            <div *dxTemplate="let item of 'headerSummaryTemplate'">
+              <div *ngIf="onSameUnits()">
+                {{ 'general.total' | translate }}
+                : {{
+                  dataForReq?.isSameGradesInSaleOffer ? scope[SCOPE_BLOCK.SCOPE_INFO][0].volume : (scope[SCOPE_BLOCK.SCOPE_INFO] | sumVolume: 'volume')
+                 | ruNumberFormat : null : null
+                }} {{ scope[SCOPE_BLOCK.SCOPE_INFO][0].unitName }}
+              </div>
+            </div>
+          </dx-data-grid>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+
+  <div *ngIf="type == 'createTemplate'" class="content">
+    <dx-validation-group class="flexContentColumn32">
+    <div class="flexContentColumn8">
+      <div class="flexContent20">
+        <div class="label">{{ 'viewOffer.templateName' | translate }}</div>
+        <div>{{this.title.length > 0 ? this.title.length : 0 }}/100</div>
+      </div>
+      <dx-text-box
+        placeholder="{{'general.enterTitle' | translate}}"
+        [showClearButton]="false"
+        height="40px"
+        maxLength="100"
+        [(value)]="title"
+      >
+        <dx-validator>
+          <dxi-validation-rule
+            type="required"
+          ></dxi-validation-rule>
+        </dx-validator>
+      </dx-text-box>
+
+    </div>
+    <div class="flexContentColumn8">
+      <div class="flexContent20">
+        <div class="label">{{ 'worker.registration.reason' | translate }}</div>
+        <div>{{this.rejectReason.length > 0 ? this.rejectReason.length : 0 }}/500</div>
+      </div>
+      <dx-text-area
+        height="124px"
+        placeholder="{{ 'general.text' | translate }}"
+        maxLength="500"
+        [(value)]="rejectReason"
+        valueChangeEvent="keyup"
+      >
+        <dx-validator>
+          <dxi-validation-rule
+            type="required"
+          ></dxi-validation-rule>
+        </dx-validator>
+      </dx-text-area>
+    </div>
+
+    <div class="buttons flexContent24 buttonsClass">
+      <dx-button class="w-50" (onClick)="onCreateRejectTemplate($event)"><button class="btn btn-primary submit w-100"
+                                                   >{{'btns.save' | translate}}</button></dx-button>
+      <button class="btn btn-outline-primary w-50" (click)="closeSidebar()">{{'btns.cancel' | translate}}</button>
+    </div>
+    </dx-validation-group>
+
+</div>
+
+  <div *ngIf="type == 'deleteTemplate'" class="content">
+    <div class="flexContentColumn16">
+      <div>{{'viewOffer.deletingTemplateMess' | translate}}</div>
+      <div class="buttons flexContent24 buttonsClass">
+        <button class="btn btn-primary submit w-50" (click)="onRemoveRejectTemplate()"
+        >{{'btns.delete' | translate}}</button>
+        <button class="btn btn-outline-primary w-50" (click)="closeSidebar()">{{'btns.cancel' | translate}}</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="type == 'listOffers'" class="content">
+    <div class="flexContentColumn16">
+      <div *ngFor="let offer of this.dataForReq.chooseOffers">
+        <div class="viewChooseOffer" (click)="openViewOffer(offer.idDemandOffer, offer.directionId)" >№{{offer.lotNumber}} {{offer.names[0]}}  </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="type == 'openAccess'" class="content">
+    <div class="form-group mb-3">
+      <div class="input-group">
+        <dx-text-box placeholder="{{'filters.searchLabel' | translate}}"
+                     [showClearButton]="true"
+                     width="100%"
+                     [(value)]="search"
+                     (onEnterKey)="getFirmsList()"
+                     maxLength="250"
+                     (onValueChanged)="$event.value =='' ? clearFirmList() : null"
+                   >
+          <dxi-button name="search"
+                      location="before"
+                      [options]="searchIcon">
+          </dxi-button>
+          <dxi-button name="clear"></dxi-button>
+        </dx-text-box>
+      </div>
+    </div>
+
+    <dx-data-grid
+    [dataSource]="firmList"
+    keyExpr="idFirm"
+    width="100%"
+    height="1100px"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [showBorders]="false"
+  >
+
+  <dxo-paging [pageSize]="10"></dxo-paging>
+  <dxo-pager [visible]="firmList.length>0"
+             [allowedPageSizes]="[10, 20, 50]"
+             displayMode="compact"
+             [showPageSizeSelector]="true">
+  </dxo-pager>
+
+    <dxi-column caption="{{ 'filters.registrationNumber' | translate }}"
+                dataField="regNumber"
+                cssClass="text-align-left date-roboto-mono"
+                width="155"
+                >
+    </dxi-column>
+
+    <dxi-column caption="{{ 'filters.idFirm' | translate }}"
+                dataField="nameShort"
+                >
+    </dxi-column>
+
+
+    <dxi-column
+                cellTemplate="buttonTemplate"
+                width="160"
+                >
+    </dxi-column>
+
+    <div *dxTemplate="let item of 'buttonTemplate'">
+      <div class="chooseBtn">
+        <button class="btn btn-outline-primary w-100" (click)="onChooseIdFirm(item.data) ">{{'filters.selection' | translate}}</button>
+      </div>
+    </div>
+
+  </dx-data-grid>
+
+
+<!--   <div class="mt-3">
+      <pagination
+            *ngIf="firmList.length>0"
+            [pageSizeVisible]="false"
+            [totalPages]="pagination.totalPages"
+            [currentPage]="pagination.curPage"
+            (changePage)="onChangePage($event) "
+          >
+          </pagination>
+  </div>
+ -->
+  </div>
+
+  <div class="content flexContentColumn16" *ngIf="type == 'changedGoodProperty'">
+    <div *ngIf="removedInfoWhenReplacedGood || removedCharacteristicsWhenReplacedGood"
+      class="notificationBlue notificationBlueMessage borderBlue flexContent16 h-ft">
+      <i class="notificationIcon"></i>
+      <span>{{ 'createOffer.good.someInformationRemoved' | translate }} </span>
+    </div>
+
+    <div *ngIf="addedSameGoodWhenReplacedGood"
+      class="notificationRed borderRed flexContent16 h-ft">
+      <i class="errorIcon"></i>
+      <span>{{ 'createOffer.good.addedSameGoodWhenReplacedGood' | translate }} </span>
+    </div>
+
+    <ng-container *ngTemplateOutlet="infoGood"></ng-container>
+
+    <div class="main_field" *ngIf="fullDataGroup?.length == 0">
+      <span class="title">{{ 'general.description' | translate }}</span>
+
+      <dx-scroll-view
+        [useNative]="true"
+        [height]="'calc(100vh - 490px)'"
+        [showScrollbar]="'always'"
+        [scrollByContent]="true"
+        [bounceEnabled]="false"
+      >
+        <ceit-add-good-nsi-without-analogues
+          *ngIf="fullData?.length > 0"
+          [allCharacteristics]="[]"
+          [addGoodNSIForm]="addGoodNSIForm"
+          [NSIlistProperty]="[]"
+          [user]="user"
+          [sectionId]="dataForReq.sectionId"
+          [direction]="dataForReq.direction"
+          [isDisabledFields]="dataForReq.isDisabledFields"
+          [isAnalogSession]="false"
+          [fullData]="fullData"
+          [isCollectionByCharacteristics]="dataForReq.isDisabledAboutTypeCollection"
+          (changedStandardizedFieldsId)="getChangedStandardizedFieldsId($event)"
+        >
+        </ceit-add-good-nsi-without-analogues>
+      </dx-scroll-view>
+    </div>
+
+      <div class="notificationBlue notificationBlueMessage borderBlue flexContent16 h-ft">
+        <i class="notificationIcon"></i>
+        <span>{{ 'createOffer.good.changingAfterSavingProductBlock' | translate }} </span>
+      </div>
+
+      <div class="buttonsClass flexContent16">
+        <dx-button
+          (onClick)="onChangeGoodCharacteristics()"
+          class="w-50"
+        >
+          <button
+            [disabled]="NSIlistProperty.length !== allCharacteristics.length"
+            class="btn btn-primary submit w-100"
+          >
+            {{
+              "btns.btn_send" | translate
+            }}
+          </button>
+        </dx-button>
+        <button
+          class="btn btn-outline-primary btn-inherit w-50"
+          (click)="closeSidebar()"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+  </div>
+</div>
+
+<ceit-warning-popup
+  *ngIf="isViewWarning"
+  [warningMessage]="'createOffer.good.warningMessageWhenReplacedGood' | translate"
+  [warningTitle]="'general.warning' | translate"
+  (result)="getWarningResult($event)"
+>
+</ceit-warning-popup>
+

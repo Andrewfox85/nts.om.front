@@ -1,0 +1,355 @@
+/* eslint-disable */
+@import "src/assets/scss/_variables.scss";
+
+::ng-deep.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  padding: 12px !important;
+}
+
+::ng-deep.dx-overlay-content.dx-popup-content {
+  padding: 0 !important;
+  margin: 16px !important;
+}
+
+.offers-management-body-wrapper {
+  position: relative;
+
+  ::ng-deep.dx-datagrid-header-panel {
+    padding-bottom: 45px;
+  }
+
+  ::ng-deep.dx-datagrid-filter-panel {
+    left: 0;
+  }
+}
+
+.offers-management-body-wrapper {
+  .body_content {
+    position: relative;
+    --om-right-panel-gap: 0px;
+    padding-right: calc(var(--om-right-panel-width, 60px) + var(--om-right-panel-gap));
+  }
+}
+
+.panel {
+  position: absolute;
+  left: var(--om-right-panel-left, auto);
+  right: auto;
+  top: 0;
+  z-index: 1;
+  width: var(--om-right-panel-width, 60px);
+  height: var(--om-grid-table-height, auto);
+  background: $white;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid $greyBorder;
+  align-items: center;
+  padding: 16px 0;
+  transition: max-width 0.3s cubic-bezier(0, 1, 0, 1);
+
+  .icon {
+    cursor: pointer;
+    // width: 28px;
+    width: 28px;
+    min-height: 20px;
+    max-height: 20px;
+    margin: 0 15px;
+  }
+
+  .showPanel {
+    transform: rotate(180deg);
+
+    &.hide {
+      transform: rotate(0deg);
+    }
+  }
+
+  &.hideAll {
+    background: $white;
+    overflow-y: hidden;
+    height: 55px !important;
+    border-bottom: 1px solid $greyBorder;
+    transition: max-width 0.3s cubic-bezier(1, 0, 1, 0) !important;
+  }
+}
+
+.offers-management-toolbar-table {
+  justify-content: space-between;
+
+  .table-action-buttons-container {
+    .column-chooser-btn {
+      background-color: $lightGrayBackgroundColor;
+      border: 1px solid $lightGrayBackgroundColor;
+      width: 32px;
+      height: 32px;
+    }
+
+    .save-table-btn {
+      background-color: $white !important;
+      border: 1px solid $mainActiveColor;
+      width: 175px;
+      height: 32px;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0;
+
+      &.disabled {
+        border-color: $lightGrayBackgroundColor;
+        color: $lightGrayBackgroundColor !important;
+      }
+    }
+
+    .cancel-unsaved-changes-table-btn {
+      background: transparent url("~src/assets/img/action_icons/cancel_icon.svg") no-repeat center center;
+      background-size: 16px 16px;
+      border: 1px solid $lightGrayBackgroundColor;
+      width: 32px;
+      height: 32px;
+
+      &.disabled {
+        background-color: $white !important;
+        border-color: $lightGrayBackgroundColor;
+        color: $lightGrayBackgroundColor !important;
+      }
+    }
+  }
+
+  .btn {
+    &.disabled {
+      opacity: 0.3 !important;
+    }
+  }
+}
+
+.session {
+  .session-stage {
+    padding: 4px 8px;
+    height: 24px;
+
+    &.default {
+      background-color: $lightGrayBackgroundColor;
+      color: $secondTextColor;
+    }
+  }
+
+  .session-number {
+    padding: 4px 8px;
+    height: 24px;
+
+    .session-info {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      align-items: baseline;
+    }
+  }
+}
+
+.main {
+  border: none !important;
+  width: 100%;
+
+  tr {
+    border-bottom: 1px solid $greyBorder;
+    display: block;
+    padding: 12px;
+    height: 48px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.price {
+      display: flex;
+      gap: 4px;
+      justify-content: flex-end;
+    }
+  }
+}
+
+.twostrings {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+  bottom: 4px;
+}
+
+.overflowText {
+  height: 48px !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.noData {
+  flex: 1 0 auto;
+  display: flex;
+  font-size: 14px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-self: baseline;
+  background: $lightGrayBackgroundColor;
+  padding: 15px 0;
+}
+
+.chooseLotOffer {
+  background-color: $lightGrayBackgroundColor;
+  padding: 16px 24px;
+  margin: -16px;
+  margin-bottom: 16px;
+}
+
+.addProduct {
+  content: url("../../../assets/img/icons/icon_plus.svg");
+  padding-right: 8px;
+}
+
+.template {
+  ::ng-deep.dx-texteditor-input-container {
+    margin-right: 40px;
+  }
+}
+
+.actions {
+  position: absolute;
+  right: 55px;
+  z-index: 10;
+  padding: 9px 0;
+
+  i:hover {
+    background-color: $lightGrayBackgroundColorButton;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+}
+
+.rejectPopup {
+  z-index: 10;
+}
+
+::ng-deep.dx-toast-info {
+  background-color: $backSelectedRowGrid;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-error {
+  background-color: $backgroundColorError;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $colorError;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-icon {
+  display: none;
+}
+
+.export {
+  margin-bottom: 8px;
+
+  .btn {
+    min-width: 36px !important;
+    height: 36px !important;
+  }
+}
+
+.title {
+  width: 100px;
+  font-size: 12px;
+  color: $headerTopColor;
+}
+
+.data {
+  font-size: 14px;
+  width: calc(100% - 100px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+::ng-deep.dx-dropdownbutton-popup-wrapper
+.dx-list:not(.dx-list-select-decorator-enabled)
+.dx-list-item-content {
+  padding: 9px 15px;
+}
+
+::ng-deep.dx-dropdownbutton-action.dx-button .dx-button-content {
+  padding: 10px 16px !important;
+  justify-content: space-between;
+}
+
+::ng-deep.dx-button-text {
+  line-height: 20px;
+}
+
+::ng-deep.dx-popup-bottom.dx-toolbar .dx-toolbar-before {
+  padding-right: 0;
+  width: 100%;
+}
+
+.overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: table-cell;
+  width: 100%;
+}
+
+@media print {
+  ::ng-deep.dx-overlay-content.dx-popup-normal.dx-popup-draggable.dx-resizable.dx-popup-flex-height {
+    height: auto !important;
+    width: 210mm !important;
+    left: -730px !important;
+    top: -400px !important;
+  }
+
+  ::ng-deep.dx-toolbar.dx-widget.dx-visibility-change-handler.dx-collection.dx-popup-title.dx-has-close-button {
+    display: none !important;
+  }
+
+  ::ng-deep.dx-popup-content {
+    margin: 10px !important;
+  }
+
+  .buttons {
+    display: none;
+  }
+}
+
+#dropdownBtn {
+  background-color: $lightGrayBackgroundColor;
+}
+
+.switchers-form {
+  margin-top: 16px;
+  border: 1px solid $lightGrayBackgroundColorButton;
+
+  .switcher-item {
+    padding: 16px;
+
+    span {
+      &.disabled {
+        opacity: 0.5 !important;
+      }
+    }
+  }
+}
+
+.dx-state-disabled.dx-switch,
+.dx-state-disabled.dx-switch.dx-switch-on {
+  opacity: 0.5 !important;
+}
+
+::ng-deep.outOfPriceRange {
+  background-color: $sectionAgriculturalBackground;
+}

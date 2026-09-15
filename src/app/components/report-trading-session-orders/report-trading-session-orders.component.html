@@ -1,0 +1,1011 @@
+<!-- eslint-disable -->
+<main class="offer-management">
+  <div class="main_component">
+    <div class="head" id="head">
+      <h1>
+        {{
+          "report-trading-session-orders.reportTradingSessionOrders" | translate
+        }}
+      </h1>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="mt-25">
+      <app-filters
+        [filtersOn]="REPORT_TRADING_SESSION_ORDERS_FILTERS"
+        [nameOfCachePage]="REPORT_TRADING_SESSION_ORDERS_PAGE_NAME"
+        (componentData)="getFilterData($event)"
+      >
+      </app-filters>
+    </div>
+
+    <div class="body" *ngIf="listDemandOffer; else nodata">
+      <div class="offers-management-body-wrapper">
+        <div class="body_content">
+          <dx-data-grid
+            #dataGridRef
+            id="dataGrid"
+            [dataSource]="listDemandOffer"
+            [showBorders]="false"
+            [showColumnLines]="true"
+            [allowColumnResizing]="true"
+            [allowColumnReordering]="true"
+            [showRowLines]="true"
+            [columnAutoWidth]="true"
+            [wordWrapEnabled]="true"
+            [columnResizingMode]="'widget'"
+            [repaintChangesOnly]="true"
+            (onExporting)="exportGrid($event)"
+          >
+            <dxo-export [enabled]="true"></dxo-export>
+
+            <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+
+            <dxo-toolbar>
+              <dxi-item location="after">
+                <dx-check-box
+                  text="{{
+                    'report-trading-session-orders.hideCheckbox' | translate
+                  }}"
+                  iconSize="20px"
+                  [value]="isHiddenLot"
+                  (onValueChanged)="hideCompositeLot($event)"
+                ></dx-check-box>
+              </dxi-item>
+
+              <dxi-item name="exportButton" location="after"></dxi-item>
+
+              <dxi-item name="columnChooserButton" location="after"></dxi-item>
+            </dxo-toolbar>
+
+            <dxo-column-chooser
+              [enabled]="true"
+              mode="select"
+              sortOrder="asc"
+              [ngClass]="{ 'mb-4': true }"
+            ></dxo-column-chooser>
+
+            <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+
+            <dxo-selection
+              mode="multiple"
+              showCheckBoxesMode="always"
+              selectAllMode="allPages"
+            >
+            </dxo-selection>
+
+            <dxo-scrolling
+              mode="standard"
+              [scrollByContent]="true"
+              showScrollbar="always"
+            ></dxo-scrolling>
+
+            <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+
+            <dxo-header-filter
+              [visible]="true"
+              [allowSearch]="true"
+            ></dxo-header-filter>
+
+            <dxo-state-storing
+              [enabled]="true"
+              type="localStorage"
+              [storageKey]="REPORT_TRADING_SESSION_ORDERS_KEY"
+            ></dxo-state-storing>
+
+            <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+
+            <dxo-pager
+              [visible]="true"
+              [allowedPageSizes]="numberEntriesPage"
+              displayMode="compact"
+              [showPageSizeSelector]="true"
+            >
+            </dxo-pager>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.idSession' | translate
+              }}"
+              dataField="idSession"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.sessionDateTimeBeginString'
+                  | translate
+              }}"
+              dataField="sessionDateTimeBeginString"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.directionName' | translate
+              }}"
+              dataField="directionName"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.dateCreateString' | translate
+              }}"
+              dataField="dateCreateString"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.lotNumber' | translate
+              }}"
+              dataField="lotNumber"
+              cssClass="column text-align-left"
+              width="90"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'general.name' | translate }}"
+              dataField="mainName"
+              cssClass="column text-align-left"
+              width="330"
+              alignment="left"
+              [allowFiltering]="true"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.goodName' | translate
+              }}"
+              dataField="goodName"
+              cssClass="column p-0 text-align-left"
+              width="330"
+              [allowFiltering]="true"
+              cellTemplate="goodNameTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodNameFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodNameTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodName{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodName }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodName{{ good.idDemandOffer }}_{{ i }}"
+                      hideEvent="mouseleave"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodName }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-trading-session-orders.cnfea' | translate }}"
+              dataField="cnfea"
+              cssClass="column p-0 text-align-left"
+              width="150"
+              [allowFiltering]="true"
+              cellTemplate="goodCnfeaTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodCnfeaFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodCnfeaTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodCnfea{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.cnfea }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodCnfea{{ good.idDemandOffer }}_{{ i }}"
+                      hideEvent="mouseleave"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.cnfea }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.goodDescription' | translate
+              }}"
+              cssClass="column p-0 text-align-left"
+              width="330"
+              dataField="goodDescription"
+              [allowFiltering]="true"
+              cellTemplate="goodDescriptionTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodDescriptionFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodDescriptionTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodDescription{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodDescription }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodDescription{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodDescription }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.currencyName' | translate
+              }}"
+              dataField="currencyName"
+              cssClass="column text-align-right"
+              width="100"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.priceWithoutVatOriginal'
+                  | translate
+              }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="priceWithoutVatOriginal"
+              [allowFiltering]="true"
+              cellTemplate="priceWithoutVatOriginalTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="priceWithoutVatOriginalFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'priceWithoutVatOriginalTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="priceWithoutVatOriginal{{ good.idDemandOffer }}_{{
+                        i
+                      }}"
+                      >{{ good.priceWithoutVatOriginal }}</span
+                    >
+                    <dx-tooltip
+                      target="#priceWithoutVatOriginal{{
+                        good.idDemandOffer
+                      }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.priceWithoutVatOriginal }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.priceWithoutVatStarting'
+                  | translate
+              }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="priceWithoutVatStarting"
+              [allowFiltering]="true"
+              cellTemplate="priceWithoutVatStartingTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="priceWithoutVatStartingFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'priceWithoutVatStartingTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="priceWithoutVatStarting{{ good.idDemandOffer }}_{{
+                        i
+                      }}"
+                      >{{ good.priceWithoutVatStarting }}</span
+                    >
+                    <dx-tooltip
+                      target="#priceWithoutVatStarting{{
+                        good.idDemandOffer
+                      }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.priceWithoutVatStarting }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.priceWithoutVatStartingTrading'
+                  | translate
+              }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="priceWithoutVatStartingTrading"
+              [allowFiltering]="true"
+              cellTemplate="priceWithoutVatStartingTradingTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="priceWithoutVatStartingTradingFilter"
+              ></dxo-header-filter>
+          </dxi-column>
+
+          <div *dxTemplate="let data of 'priceWithoutVatStartingTradingTemplate'">
+            <table class="main">
+              <ng-container
+                *ngFor="
+                  let good of data.data.goods;
+                  let i = index;
+                  trackBy: trackByGoodId
+                "
+              >
+                <tr>
+                  <span
+                    class="twostrings"
+                    id="priceWithoutVatStartingTrading{{ good.idDemandOffer }}_{{
+                      i
+                    }}"
+                    >{{ good.priceWithoutVatStartingTrading }}</span
+                  >
+                  <dx-tooltip
+                    target="#priceWithoutVatStartingTrading{{
+                      good.idDemandOffer
+                    }}_{{ i }}"
+                    [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ good.priceWithoutVatStartingTrading }}
+                    </div>
+                  </dx-tooltip>
+                </tr>
+              </ng-container>
+            </table>
+          </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.priceWithoutVatCurrent'
+                  | translate
+              }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="priceWithoutVatCurrent"
+              [allowFiltering]="true"
+              cellTemplate="priceWithoutVatCurrentTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="priceWithoutVatCurrentFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'priceWithoutVatCurrentTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="priceWithoutVatCurrent{{ good.idDemandOffer }}_{{
+                        i
+                      }}"
+                      >{{ good.priceWithoutVatCurrent }}</span
+                    >
+                    <dx-tooltip
+                      target="#priceWithoutVatCurrent{{ good.idDemandOffer }}_{{
+                        i
+                      }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.priceWithoutVatCurrent }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.vatPercent' | translate
+              }}"
+              dataField="vatPercent"
+              cssClass="column text-align-right"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="cellTemplateVatPercent"
+            >
+            </dxi-column>
+            <div *dxTemplate="let data of 'cellTemplateVatPercent'">
+              <div *ngIf="data.data.vatPercent != null">
+                {{ data.data.vatPercent }} %
+              </div>
+              <div *ngIf="data.data.vatPercent == null">{{ 'general.withoutVAT' | translate }}</div>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.goodVolume' | translate
+              }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="goodVolume"
+              [allowFiltering]="true"
+              cellTemplate="goodVolumeTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodVolumeFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodVolumeTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodVolume{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodVolume }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodVolume{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodVolume }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.totalAmount' | translate
+              }}"
+              cssClass="column text-align-right"
+              width="180"
+              dataField="lotSummaryVolume"
+              [allowFiltering]="true"
+              cellTemplate="totalAmountTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              [visible]="true"
+              alignment="left"
+            >
+              <dxo-header-filter
+              [dataSource]="lotSummaryVolumeFilter"
+            ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'totalAmountTemplate'">
+              <div *ngIf="data.data.goods[0].lotSummaryVolume > 0">
+                {{data.data.goods[0].lotSummaryVolume}}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.goodUnitName' | translate
+              }}"
+              cssClass="column p-0 text-align-right"
+              width="140"
+              dataField="goodUnitName"
+              [allowFiltering]="true"
+              cellTemplate="goodUnitNameTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodUnitNameFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodUnitNameTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodUnitName{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodUnitName }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodUnitName{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodUnitName }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.lotSummaryTotalAmount'
+                  | translate
+              }}"
+              cssClass="column text-align-right"
+              width="180"
+              dataField="lotSummaryTotalAmount"
+              [allowFiltering]="true"
+              cellTemplate="lotSummaryTotalAmountTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              [visible]="true"
+              alignment="left"
+            >
+              <dxo-header-filter
+              [dataSource]="lotSummaryTotalAmountFilter"
+            ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'lotSummaryTotalAmountTemplate'">
+              <div *ngIf="data.data.goods[0].lotSummaryTotalAmount > 0">
+                {{data.data.goods[0].lotSummaryTotalAmount}}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.conditionsPayment' | translate
+              }}"
+              dataField="conditionsPayment"
+              cssClass="column text-align-left"
+              width="320"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.conditionsDelivery' | translate
+              }}"
+              dataField="conditionsDelivery"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.isMultiBasis' | translate
+              }}"
+              dataField="concatedDeliveryConditionAdd"
+              cssClass="column p-0 text-align-left"
+              width="220"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              alignment="left"
+              cellTemplate="isMultiBasisTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+            >
+              <dxo-header-filter
+              [dataSource]="goodConcatedAddCondFilter"
+            ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'isMultiBasisTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                    class="twostrings"
+                    id="goodConcatedAddCond{{ good.idDemandOffer }}_{{ i }}"
+                    >{{ good.concatedDeliveryConditionAdd }}</span
+                  >
+                  <dx-tooltip
+                    target="#goodConcatedAddCond{{ good.idDemandOffer }}_{{ i }}"
+                    [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      {{ good.concatedDeliveryConditionAdd }}
+                    </div>
+                  </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.conditionsDeliveryPeriod'
+                  | translate
+              }}"
+              dataField="conditionsDeliveryPeriod"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.transactionDetails' | translate
+              }}"
+              dataField="transactionDetails"
+              cssClass="column text-align-left"
+              width="230"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.concatedFirmName' | translate
+              }}"
+              dataField="concatedFirmName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.concatedClientName' | translate
+              }}"
+              dataField="concatedClientName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.branchName' | translate
+              }}"
+              dataField="branchName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.traderName' | translate
+              }}"
+              dataField="traderName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.isParticipateInTrading'
+                  | translate
+              }}"
+              dataField="isParticipateInTrading"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="isParticipateInTradingTemplate"
+            >
+            </dxi-column>
+
+            <div
+              *dxTemplate="
+                let data of 'isParticipateInTradingTemplate'
+              "
+            >
+              <div *ngIf="data.data.isParticipateInTrading">
+                {{ "btns.yes" | translate }}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.transactionNumber' | translate
+              }}"
+              dataField="transactionNumber"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.rejectionDateString' | translate
+              }}"
+              dataField="rejectionDateString"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.rejectionReason' | translate
+              }}"
+              dataField="rejectionReason"
+              cssClass="column text-align-left"
+              width="180"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.isTargeted' | translate
+              }}"
+              dataField="isTargeted"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="isTargetedTemplate"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'isTargetedTemplate'">
+              <div *ngIf="data.data.isTargeted">
+                {{ "btns.yes" | translate }}
+              </div>
+            </div>
+
+            <dxi-column
+              *ngFor="let i of dynamicFields"
+              caption="{{ i.showName }}"
+              dataField="{{ i.fieldName }}"
+              cssClass="column p-0 text-align-left"
+              width="180"
+              cellTemplate="dynamicFieldTemplate"
+              alignment="left"
+              [calculateFilterExpression]="calculateFilterExpressionDynamic"
+            >
+              <dxo-header-filter
+                [dataSource]="getDataSourceDynFilter(i.fieldName)"
+              >
+              </dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'dynamicFieldTemplate'">
+              <div *ngFor="let i of dynamicFields">
+                <table class="main">
+                  <ng-container
+                    *ngFor="
+                      let fields of data.data.goods;
+                      trackBy: trackByGoodId
+                    "
+                  >
+                    <tr *ngIf="i.fieldName == data.column.dataField">
+                      <span class="twostrings">
+                        {{
+                          i.fieldName | actualDimensions : fields.dynamicFields
+                        }}
+                      </span>
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+            </div>
+          </dx-data-grid>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #nodata>
+      <div class="noData mt-5">
+        {{ "report-trading-session-orders.noAnyDeals" | translate }}
+      </div>
+    </ng-template>
+  </div>
+</main>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+  (onShown)="onLoadPanelShown()"
+>
+</dx-load-panel>

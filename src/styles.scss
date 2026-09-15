@@ -1,0 +1,17 @@
+@import 'assets/scss/fonts';
+@import 'assets/scss/icons';
+@import 'assets/scss/constants';
+@import "assets/scss/_dropdown.scss";
+@import "assets/scss/errors-modal";
+@import "assets/scss/modal";
+@import "assets/scss/tooltip";
+@import "assets/scss/variables";
+@import "assets/scss/overwriteDevExpress";
+
+// Стилизация кнопок
+@import 'assets/scss/buttons';
+//html, body { height: 100%; }
+body { margin: 0; color: #212121;}
+*,*:before,*:after {
+  box-sizing: border-box;
+}

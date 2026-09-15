@@ -1,0 +1,228 @@
+/* eslint-disable */
+@import '../../../assets/scss/variables';
+@import '../../../assets/scss/config';
+
+.nameSession {
+  line-height: 20px;
+  margin-bottom: 0;
+  color: $secondTextColor;
+  span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.status {
+  background-color: $sectionForestBackground;
+  color: $sectionForest;
+  border-radius: 2px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.direction{
+  background-color: $colorGray;
+  color: $secondTextColor;
+  border-radius: 2px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.isWaitForSyncTemplate{
+  background-color: $backgroundColorError;
+  color: $secondTextColor;
+  border-radius: 2px;
+  padding: 2px 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.nameLot{
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.view_info{
+  width: 70%;
+}
+
+.label{
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  color: $secondTextColor;
+}
+
+.widthLabel{
+  min-width: 250px;
+  max-width: 250px;
+}
+
+.notification{
+  height: auto;
+  padding: 8px;
+}
+
+.file{
+  text-decoration: underline !important;
+}
+.text{
+  width: 100%;
+
+  /*.text-info{
+    display: flex;
+    width: 100% ;*/
+    .name{
+      overflow: hidden;
+      display: inherit;
+      max-height: 80px;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      transition: max-height 0.3s ease-out;
+
+      &.opened{
+        height: auto;
+        max-height: 2000px;
+        margin-bottom: 0px;
+        overflow: hidden;
+        display: inherit;
+      }
+    }
+
+    .client{
+      overflow: hidden;
+      display: inherit;
+      -webkit-line-clamp:1;
+      max-height: 20px;
+      -webkit-box-orient: vertical;
+      transition: max-height 0.3s ease-out;
+
+      &.opened{
+        height: auto;
+        max-height: 1000px;
+        margin-bottom: 0px;
+        overflow: hidden;
+        display: inherit;
+        //margin-bottom: 0px;
+        //overflow: hidden;
+        //display: block;
+        //transition: max-height 0.2s ease-out
+      }
+    }
+
+  //}
+}
+
+.action {
+  display: block;
+  width: 100px;
+  height: 1.5rem;
+  text-align: center;
+  margin: 0 auto;
+}
+
+input[type="checkbox"]:checked ~additionalInfo {
+  max-height: 500px;
+}
+.blockWithBorder{
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid $lightGrayBackgroundColorButton;
+  width: 100%;
+}
+.box {
+  box-sizing: border-box;
+}
+.box:nth-child(1) {
+  border-right: 1px solid $lightGrayBackgroundColorButton;
+  width: 70%;
+  padding-right: 16px;
+}
+
+.main_info{
+  .description {
+    font-size: 14px;
+    line-height: 20px;
+    .propName {
+      font-size: 14px;
+      color: $headerTopColor;
+    }
+  }
+}
+.fieldName{
+  min-width: 270px;
+  color: $headerTopColor;
+}
+
+.nameBlock{
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.total{
+  max-width: 322px;
+  min-width: 322px;
+}
+
+
+.addProduct {
+  content: url("../../../assets/img/icons/icon_plus.svg");
+  padding-right: 8px;
+}
+.template{
+::ng-deep.dx-texteditor-input-container{
+  margin-right: 40px;
+}
+}
+
+.actions{
+  position: absolute;
+  right: 55px;
+  z-index: 10;
+  padding: 9px 0;
+
+  i:hover{
+    background-color: $lightGrayBackgroundColorButton;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+}
+
+.rejectPopup{
+  z-index: 10
+}
+
+
+::ng-deep.dx-toast-info{
+  background-color: $backSelectedRowGrid;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-icon {
+  background-image: url('../../../assets/img/icons/Check-thin.svg') !important;
+  width: 20px;
+  height: 20px;
+}
+
+.deletedTag{
+  width: 130px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2px;
+  background: $sectionAgriculturalBackground;
+  color: $sectionAgricultural;
+  font-size: 12px;
+}

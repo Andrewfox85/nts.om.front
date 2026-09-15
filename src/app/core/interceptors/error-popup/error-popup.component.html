@@ -1,0 +1,32 @@
+<!-- eslint-disable -->
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{  errorState === ErrorStates.error ?
+   ('errors.error' | translate) :
+    ('errors.message' | translate)
+}}"
+  maxWidth="450px"
+  height="auto"
+  (onHidden)="logOut()"
+  [showCloseButton]="true"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+
+  <div *dxTemplate="let data of 'errorContent'">
+    <div  *ngIf="errorState === ErrorStates.error" class="borderRed errorPopup">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+
+    <div *ngIf="errorState === ErrorStates.warning" class="borderOrange errorPopup">
+      <i class="unavailableIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+  </div>
+</dx-popup>

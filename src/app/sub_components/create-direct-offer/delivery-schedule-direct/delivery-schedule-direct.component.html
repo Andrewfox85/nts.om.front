@@ -1,0 +1,223 @@
+<!-- eslint-disable -->
+<dx-popup
+  [visible]="true"
+  contentTemplate="deliveryTermContent"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  [maxWidth]="985"
+  title="{{ 'createOffer.paymentDeliveryTerms.deliverySchedule' | translate }}"
+  height="auto"
+  maxHeight="90vh"
+  (onHiding)="this.save.emit(false)"
+  [showCloseButton]="true">
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'deliveryTermContent'" class="flexContentColumn16">
+    <div class="flexContentColumn8" id="head">
+      <div *ngIf="isVisibleRecreateNotification"
+           class="notificationRed borderRed flexContent8 center">
+        <i class="errorIcon"></i><span>{{ 'createOffer.paymentDeliveryTerms.recreateSchedule' | translate }}</span>
+      </div>
+      <form [formGroup]="typePeriod" class="flexContent20 w-fit-cnt">
+
+        <div class="form-group">
+          <label>{{ 'createOffer.paymentDeliveryTerms.deliveryPeriodType' | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="deliverySchedule"
+              displayExpr="name"
+              valueExpr="id"
+              height="40px"
+              width="294px"
+              placeholder="{{'filters.selection' | translate}}"
+              formControlName="term"
+            >
+              <dx-validator>
+                <dxi-validation-rule
+                  type="required"
+                ></dxi-validation-rule>
+              </dx-validator>
+            </dx-select-box>
+          </div>
+        </div>
+
+        <div class="h-100 d-flex flex-end">
+          <button class="btn btn-primary submit w-155px"
+                  (click)="onCreateSchedule()">{{'btns.form' | translate}}</button>
+        </div>
+      </form>
+      <div class="font-s12 text-gray_1">{{ 'createOffer.paymentDeliveryTerms.userMessageSchedule' | translate }}</div>
+    </div>
+
+    <div class="flexContent20">
+      <div class="label w-100">{{ 'createOffer.paymentDeliveryTerms.deliverySchedule' | translate }}</div>
+      <a class="buttonsClass w-fit-cnt" (click)="clearSchedule()">{{'general.clear' | translate}}</a>
+    </div>
+    <!--   (onShown)="onContentReady()" *ngIf="typePeriod.controls.term.value"   (onHidden)="onRemovetableTerm()"-->
+    <!--          <form [formGroup] ="tableForm">-->
+    <!--    <div #scheuleTable>-->
+    <dx-scroll-view [useNative]="true" height="{{tableTerm.offsetHeight > 500 ? 500 : 'auto'}}">
+      <table #tableTerm>
+        <thead>
+        <tr>
+          <th id="number">№
+            <dx-tooltip target="#number"
+                        showEvent="mouseenter"
+                        hideEvent="mouseleave"
+            >
+              <div *dxTemplate="let data = data; of: 'content'">
+                {{ 'createOffer.paymentDeliveryTerms.serialNumberPeriod' | translate }}
+              </div>
+            </dx-tooltip>
+          </th>
+          <th class="w-112px">{{ 'general.beginningPeriod' | translate }}</th>
+          <th class="w-112px">{{ 'general.endPeriod' | translate }}</th>
+          <th class="text-align-left">{{ 'general.nameProduct' | translate }}</th>
+          <th class="text-align-right w-194px">{{ 'general.quantity' | translate }}</th>
+          <!--        w-165px-->
+        </tr>
+        </thead>
+
+        <tbody>
+        <ng-container *ngFor="let term of this.scheduleData; let i=index" style=" overflow-y: auto">
+          <tr>
+            <td [attr.rowspan]="goodsList.length">{{i + 1}}</td>
+            <td [attr.rowspan]="goodsList.length" class="date-roboto-mono">{{term.startDate}}</td>
+            <td [attr.rowspan]="goodsList.length" class="date-roboto-mono">{{term.endDate}}</td>
+            <td class="text-align-left">
+              <span id="name{{i+1}}{{term.goods[0].id}}">{{term.goods[0].name}}</span>
+              <dx-tooltip target="#name{{i+1}}{{term.goods[0].id}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave">
+                <div *dxTemplate="let data = data; of: 'content'">
+                  <div class="properties">
+                  <span *ngFor="let prop of term.goods[0].properties">
+                    {{prop.propertyName}} {{prop.propertyValue}}.
+                  </span>
+                  </div>
+                </div>
+              </dx-tooltip>
+            </td>
+            <td class="text-align-right">
+              <div class="flexContent8 number-style">
+                <dx-number-box id="{{i+1}}_{{term.goods[0].id}}"
+                               dxNumberBoxClear
+                               placeholder="0.0000" [min]="0"
+                               [value]="term.goods[0].volume"
+                               [width]="115"
+                               (onValueChanged)="onChangeVolume($event, i, term.goods[0].id)"
+                               valueChangeEvent="input"
+                               class="date-roboto-mono">
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="4">
+                  </dxo-format>
+                </dx-number-box>
+                <span class="h-36px d-flex ai-c w-55px text-align-left">{{term.goods[0].units.name}}</span>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngFor="let g of term.goods.slice(1)  ">
+            <td class="text-align-left">
+
+              <span id="name{{i+1}}{{g.id}}">{{g?.name}}</span>
+
+              <dx-tooltip target="#name{{i+1}}{{g.id}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave"
+              >
+                <div *dxTemplate="let data = data; of: 'content'" class="w-500px text-align-left">
+                  <div class="properties">
+      <span *ngFor="let prop of g.properties">
+        {{prop.propertyName}} {{prop.propertyValue}}.
+      </span>
+                  </div>
+                </div>
+              </dx-tooltip>
+            </td>
+            <td class="text-align-right">
+              <div class="flexContent8 number-style">
+                <dx-number-box id="{{i+1}}_{{g.id}}" placeholder="0.0000" [min]="0"
+                               dxNumberBoxClear
+                               [value]="g.volume"
+                               [width]="115"
+                               (onValueChanged)="onChangeVolume($event, i, g.id)"
+                               valueChangeEvent="input"
+                               class="date-roboto-mono">
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="4">
+                  </dxo-format>
+                </dx-number-box>
+                <span class="h-36px d-flex ai-c w-55px text-align-left">{{g.units.name}}</span>
+              </div>
+            </td>
+
+          </tr>
+
+        </ng-container>
+        </tbody>
+
+      </table>
+    </dx-scroll-view>
+    <!--      </div>-->
+
+    <div class="label">{{ 'createOffer.paymentDeliveryTerms.totalDeliverySchedule' | translate }}</div>
+
+    <dx-scroll-view height="{{totalTable.offsetHeight > 300 ? 300 : 'auto'}}" [useNative]="true">
+      <table #totalTable>
+        <thead class="relative">
+        <tr>
+          <th class="text-align-left">{{ 'general.nameProduct' | translate }}</th>
+          <th class="text-align-right"
+              width="20%">{{ 'createOffer.paymentDeliveryTerms.quantityApplication' | translate }}</th>
+          <th class="text-align-right"
+              width="20%">{{ 'createOffer.paymentDeliveryTerms.quantityDeliverySchedule' | translate }}</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr *ngFor="let item of goodsList">
+          <td class="text-align-left">{{item.name}}</td>
+          <td
+            class="text-align-right date-roboto-mono">{{(item.volume).toLocaleString('ru', {maximumFractionDigits: 4})}} {{item.units.name}}</td>
+          <ng-container *ngFor="let sum of sumVolumeGoodTerm">
+            <td *ngIf="sum.id == item.id" class="text-align-right date-roboto-mono"
+                [ngClass]="{'redBorder':  sum.sumValue != item.volume }" id="sum{{item.id}}">
+              {{ (sum.sumValue).toLocaleString('ru', {minimumFractionDigits: 4})}} {{item.units.name}}
+
+              <dx-tooltip target="#sum{{item.id}}"
+                          [showEvent]="{name: 'mouseenter', delay: 500}"
+                          hideEvent="mouseleave"
+                          *ngIf="sum.sumValue != item.volume"
+              >
+                <div *dxTemplate="let data = data; of: 'content'" class="w-500px text-align-left">
+                  <span>{{ 'createOffer.paymentDeliveryTerms.errorMessageSchedule' | translate }}</span>
+                </div>
+              </dx-tooltip>
+
+            </td>
+          </ng-container>
+        </tr>
+        </tbody>
+      </table>
+    </dx-scroll-view>
+
+    <div class="flexContent20 buttonsClass jc-end">
+      <button class="btn btn-primary submit w-155px" (click)="onSave()">{{'btns.save' | translate}}</button>
+      <button class="btn btn-outline-primary submit w-155px" (click)="this.save.emit(false)">{{'btns.close' | translate}}</button>
+    </div>
+
+
+  </div>
+</dx-popup>
+
+<dx-toast [(visible)]="isVisible"
+          [message]="message"
+          [type]="type"
+          [width]="500"
+          [height]="90"
+          [displayTime]="5000">
+  <!-- [closeOnClick]="true" -->
+  <dxo-position my="top right" at="right top" of="window" offset="-30 30"></dxo-position>
+</dx-toast>

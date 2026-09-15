@@ -1,0 +1,46 @@
+.msgBack {
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000bf;
+  .msgBox {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
+    box-shadow: 0 30px 40px rgba(0,0,0,.05), 0 -20px 40px rgba(0,0,0,.03), -30px 4px 40px rgba(0,0,0,.02), 30px 0 40px rgba(0,0,0,.03);
+    border-radius: 10px;
+    background-color: #fff;
+    z-index: 2;
+    min-width: 320px;
+    max-width: 500px;
+    &.error {
+      .msgBox__header {
+        background-color: red;
+      }
+    }
+    .msgBox__header {
+      padding: 10px 15px;
+      background-color: $mainActiveColor;
+      text-align: center;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+      color: #fff;
+    }
+
+    .msgBox__text {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .msgBox__footer {
+      margin: 10px 0;
+      display: flex;
+      justify-content: center;
+    }
+  }
+}

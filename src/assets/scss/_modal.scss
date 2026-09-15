@@ -1,0 +1,159 @@
+// .notify-open      - body class for killing the scroll
+// .notify           - container to scroll within
+// .notify-dialog    - positioning shell for the actual notify
+// .notify-content   - actual notify w/ bg and corners and stuff
+
+
+// Kill the scroll on the body
+.modal-open {
+  overflow: hidden;
+  padding: 0!important;
+  overflow-y: scroll!important;
+}
+
+// Container that the notify scrolls within
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;//10400000;
+  display: none;
+  overflow: hidden;
+  outline: 0;
+
+  .modal-open & {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+.modal-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  border-top-left-radius: calc(0.3rem - 1px);
+  border-top-right-radius: calc(0.3rem - 1px);
+}
+
+.modal-title {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
+.modal-header h4 {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.btn-close {
+  box-sizing: content-box;
+  width: 18px;
+  height: 18px;
+  padding: 0.25em 0.25em;
+  color: #000;
+  background: transparent url("~src/assets/img/action_icons/cancel_icon.svg");
+  border: 0;
+  border-radius: 0.25rem;
+  opacity: .7;
+}
+
+.btn-close:hover {
+  color: #000;
+  text-decoration: none;
+  opacity: 1;
+}
+
+.visually-hidden, .visually-hidden-focusable:not(:focus):not(:focus-within) {
+  position: absolute!important;
+  width: 1px!important;
+  height: 1px!important;
+  padding: 0!important;
+  margin: -1px!important;
+  overflow: hidden!important;
+  clip: rect(0,0,0,0)!important;
+  white-space: nowrap!important;
+  border: 0!important;
+}
+
+// Shell div to position the notify with bottom padding
+.modal-dialog {
+  position: relative;
+  width: 450px;
+  margin: 5rem auto 2rem;
+  //transform: translate(0, 100%);
+  transition: opacity .15s linear;;
+
+  &.modal-order-create {
+    top: 100%;
+    transform: translate(0);
+  }
+
+  &.modal-reconnect{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%) !important;
+  }
+
+  .modal.in & {
+    transition: 0.2s ease-in;
+    transform: translate(0, 50%);
+
+    &.modal-order-create {
+      width: 810px;
+      top: 5%;
+      transform: translate(0);
+    }
+  }
+}
+
+// Actual notify
+.modal-content {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+
+  .close {
+    background-image: url('~src/assets/img/action_icons/cancel_icon.svg');
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+}
+
+// Modal background
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: black;
+  transition: 0.2s ease-in;
+
+  // Fade for backdrop
+  &.in {
+    opacity: 0.5;
+    transition: 0.2s ease-in;
+  }
+}
+
+// Measure scrollbar width for padding body during notify show/hide
+.modal-scrollbar-measure {
+  position: absolute;
+  top: -9999px;
+  width: 50px;
+  height: 50px;
+  overflow: scroll;
+}

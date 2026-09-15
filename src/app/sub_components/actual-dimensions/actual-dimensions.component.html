@@ -1,0 +1,147 @@
+<!-- eslint-disable -->
+<form [formGroup]="goodForm" class="form-gap">
+  <label>{{ interfaceField.interfaceField.fieldName }}</label>
+  <div class="flexContentColumn4 w-100">
+    <dx-select-box
+      *ngIf="isViewTypeBox(props)"
+      [dataSource]="[{id: actualDimensionsType.TSTRING, img:'TString', name:this.translate.instant('general.textType'), visible: isVisibleTString(props, interfaceField.interfaceField.fieldId)},
+                                   {id: actualDimensionsType.TRANGE, img:'TRange', name:this.translate.instant('general.range'), visible:  this.user?.IsWorker ? true : isVisibleTRange(interfaceField.interfaceField.fieldId, props)},
+                                   {id: actualDimensionsType.TINTEGER, img:'TInteger', name:this.translate.instant('general.number'), visible: this.user?.IsWorker ? true : isVisibleTInteger(interfaceField.interfaceField.fieldId, props)}]"
+      valueExpr="id"
+      height="40px"
+      itemTemplate="itemTemplateActualSize"
+      fieldTemplate="field"
+      width="70px"
+      class="typeActualSize"
+      [disabled]="isDisabledActualSize(interfaceField.interfaceField.fieldId)"
+      formControlName="type{{interfaceField.interfaceField.fieldId}}"
+      placeholder="{{'filters.selection' | translate}}"
+      [searchEnabled]="false"
+      [showClearButton]="false"
+      (dataSourceChange)="onDataSourceChange(interfaceField.interfaceField.fieldId, $event)"
+      (onValueChanged)="clearField(interfaceField.interfaceField.fieldId, props)"
+    >
+      <div *dxTemplate="let data of 'field'">
+        <dx-text-box
+          [visible]="!this.goodForm.controls['type' + interfaceField.interfaceField.fieldId.toString()]?.value"
+          width="40px"
+          [value]="!this.goodForm.controls['type' + interfaceField.interfaceField.fieldId.toString()]?.value? '...' :''"></dx-text-box>
+        <div
+          *ngIf="this.goodForm.controls['type' + interfaceField.interfaceField.fieldId.toString()]?.value; else noValue"
+          style="height: 38px;" class="pr-0  pl-2 d-flex wordBreak">
+          <div class="font-s10 w-30px d-flex ai-c"
+               id="{{data.id}}_{{interfaceField.interfaceField.fieldId}}">{{ data.name }}
+          </div>
+          <dx-tooltip
+            target="#{{data.id}}_{{interfaceField.interfaceField.fieldId}}"
+            [showEvent]="{name: 'mouseenter', delay: 500}"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let tooltip = data; of: 'content'">{{ data.name }}</div>
+          </dx-tooltip>
+        </div>
+
+        <ng-template #noValue>
+          <div class="noValuePadding">...</div>
+        </ng-template>
+
+      </div>
+      <div *dxTemplate="let data of 'itemTemplateActualSize'" class="listContent">
+        <div class="font-s10 d-flex ai-c" id="{{data.id}}_{{interfaceField.interfaceField.fieldId}}">{{ data.name }}
+        </div>
+        <dx-tooltip
+          target="#{{data.id}}_{{interfaceField.interfaceField.fieldId}}"
+          [showEvent]="{name: 'mouseenter', delay: 500}"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let tooltip = data; of: 'content'">{{ data.name }}</div>
+        </dx-tooltip>
+      </div>
+      <dx-validator>
+        <dxi-validation-rule
+          *ngIf="interfaceField.isRequired"
+          type="required"
+        ></dxi-validation-rule>
+      </dx-validator>
+    </dx-select-box>
+
+    <span>
+      <dx-text-box
+        [attr.id]="'box' + interfaceField.interfaceField.fieldId"
+        [style.margin-left]="user?.IsWorker || props?.length == 0 || props[0]?.dataType == actualDimensionsType.TRANGE ? '66px' : '0'"
+        class="ml-66px"
+        height="40px"
+        placeholder="{{getPlaceHolder(interfaceField.interfaceField.fieldId)}}"
+        [value]="interfaceField.selectedValues"
+        formControlName="{{interfaceField.interfaceField.fieldId}}"
+        (onKeyDown)="onKeyPress(props, $event, interfaceField.interfaceField.fieldId)"
+        [disabled]="isDisabledTextBox(props, interfaceField.interfaceField.fieldId)"
+        (onValueChanged)="onValueChangeActualDimensions($event, props)"
+        (onContentReady)="initField(props, interfaceField.interfaceField.fieldId)"
+      >
+        <dx-validator>
+          <dxi-validation-rule
+            *ngIf="interfaceField.isRequired"
+            type="required"
+          ></dxi-validation-rule>
+          <dxi-validation-rule
+            *ngIf="isValidateNumber"
+            type="custom"
+            [validationCallback]="validateNumber"
+            message="{{'createOffer.goodInfo.enterNumber' | translate}}"
+          ></dxi-validation-rule>
+          <dxi-validation-rule
+            *ngIf="isValidateRange"
+            type="custom"
+            [validationCallback]="validateTwoNumbers"
+            message="{{'createOffer.goodInfo.validateTwoNumbers' | translate}}"
+          ></dxi-validation-rule>
+          <dxi-validation-rule
+            *ngIf="isValidateRange"
+            type="custom"
+            [validationCallback]="validateRangeFormat"
+            message="{{'createOffer.goodInfo.validateRangeFormat' | translate}}"
+          ></dxi-validation-rule>
+          <dxi-validation-rule
+            *ngIf="isValidateRangeMultipleFormat"
+            type="custom"
+            [validationCallback]="validateRangeMultipleFormat.bind(this, props[0].multiplicator, goodForm.controls['type' + interfaceField.interfaceField.fieldId.toString()]?.value, interfaceField.interfaceField.fieldId)"
+            message="{{'createOffer.goodInfo.validateRangeMultipleFormat' | translate}} {{props[0].multiplicator}}"
+          ></dxi-validation-rule>
+        </dx-validator>
+
+      </dx-text-box>
+
+      <ng-container *ngTemplateOutlet="tooltip;
+                                  context: {
+                                    showEventName: { name: 'click' },
+                                    hideEvent: 'blur'
+                                  }">
+      </ng-container>
+
+      <ng-container *ngTemplateOutlet="tooltip;
+                                  context: {
+                                    showEventName: {name: 'mouseenter', delay: 500},
+                                    hideEvent: 'mouseleave'
+                                  }">
+      </ng-container>
+
+      <ng-template #tooltip
+                   let-showEventName="showEventName"
+                   let-hideEvent="hideEvent"
+                  >
+           <dx-tooltip *ngIf="props[0]?.placeholder"
+             target="#box{{interfaceField.interfaceField.fieldId}}"
+             [showEvent]="showEventName"
+             [hideEvent]="hideEvent"
+             position="top"
+           >
+        <div *dxTemplate="let tooltip = data; of: 'content'">{{ props[0]?.placeholder }}</div>
+      </dx-tooltip>
+      </ng-template>
+    </span>
+
+    <div *ngIf="!interfaceField.isRequired" class="optinalField">{{ 'general.optionalField' | translate }}</div>
+
+  </div>
+</form>

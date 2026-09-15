@@ -1,0 +1,47 @@
+{
+  "uas_front": "http://192.168.5.59/uasfront/index",
+  "OrderManagement": "OrderManagement/api",
+  "backendINV": "http://192.168.5.59/nts.gatewayapi/",
+  "DemandsManagement": "dm/api/v1",
+  "SessionsManagement": "sm/api/v1",
+  "NSIManagement": "nsi/api/v1",
+  "uasService": "uas.service/api",
+  "domain": "http://192.168.5.59/",
+  "nts": "nts",
+  "trading": "ts/api",
+  "auctions": "auctions/",
+  "ppDomain": "http://192.168.5.218/pp_nts/",
+  "ppRedirectUrl": "Auth/PersonalPageEnterPoint",
+  "sockets": "http://192.168.5.59/sockets/",
+
+  "idGoodGroup": [444],
+  "idGoods": [
+    445, 479, 492, 519518, 493, 519520, 494, 519521, 505, 507, 517, 526, 519523,
+    539, 519524, 1410, 519537, 1421, 519538, 4305, 519556, 4306, 519555, 1435,
+    519552, 1434, 519551, 1433, 1432, 4623, 519517, 4624, 519516, 106890, 106893,
+    519542, 106900, 519543, 106901, 519544, 106910, 519545, 106911, 519546,
+    106912, 519547, 106913, 519548, 4300, 1413, 4317, 519550, 61943, 1409,
+    61947, 1408, 61889, 1410, 61901, 1411, 61905, 1412, 61926, 1828
+  ],
+  "readyId": [2836, 561],
+  "notReadyId": [2837, 562],
+  "idGoodsForString": [
+    445, 479, 492, 519518, 493, 519520, 494, 519521, 505, 507, 517, 526, 519523,
+    539, 519524, 1410, 519537, 1421, 519538
+  ],
+  "idGoodsForRangeWidth": [
+    445, 479, 492, 519518, 493, 519520, 494, 519521, 505, 507, 517, 526, 519523,
+    539, 519524, 1435, 519552, 1434, 519551, 4623, 519517, 4624, 519516, 61889,
+    1410, 61901, 1411
+  ],
+  "idGoodsForRangeThickness": [
+    445, 479, 492, 519518, 493, 519520, 494, 519521, 505, 507, 517, 526, 519523,
+    539, 519524
+  ],
+  "refIdActualDimensions": {
+    "REF_WIDTH": 117,
+    "REF_THICKNESS": 116,
+    "REF_DIAMETER": 108,
+    "REF_LENGTH": 109
+  }
+}

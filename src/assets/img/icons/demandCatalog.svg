@@ -1,0 +1,12 @@
+<svg width="30" height="20" viewBox="0 0 30 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame">
+<g id="Group 5742">
+<path id="Vector" d="M3.125 5H16.875" stroke="#212121" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M3.125 10H8.75" stroke="#212121" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M3.125 15H10" stroke="#212121" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M14.375 13.75C15.7557 13.75 16.875 12.6307 16.875 11.25C16.875 9.86929 15.7557 8.75 14.375 8.75C12.9943 8.75 11.875 9.86929 11.875 11.25C11.875 12.6307 12.9943 13.75 14.375 13.75Z" stroke="#212121" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_5" d="M16.1431 13.0179L18.1251 15" stroke="#212121" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<path id="Arrow 1" d="M29 9.5C29.2761 9.5 29.5 9.72386 29.5 10C29.5 10.2761 29.2761 10.5 29 10.5L29 9.5ZM21.6464 10.3536C21.4512 10.1583 21.4512 9.84171 21.6464 9.64645L24.8284 6.46447C25.0237 6.2692 25.3403 6.2692 25.5355 6.46447C25.7308 6.65973 25.7308 6.97631 25.5355 7.17157L22.7071 10L25.5355 12.8284C25.7308 13.0237 25.7308 13.3403 25.5355 13.5355C25.3403 13.7308 25.0237 13.7308 24.8284 13.5355L21.6464 10.3536ZM29 10.5L22 10.5L22 9.5L29 9.5L29 10.5Z" fill="#212121"/>
+</g>
+</svg>

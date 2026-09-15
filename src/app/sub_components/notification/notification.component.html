@@ -1,0 +1,14 @@
+<!-- eslint-disable -->
+<div class="notification-container" *ngIf="(notifications$ | async)?.length">
+  <div
+    *ngFor="let notificationItem of (notifications$ | async)!"
+    class="notification"
+    [ngClass]="notificationItem.type"
+  >
+    <div class="notification__content">
+      <span class="notification_line"></span>
+      <i class="notification__icon"></i>
+      <span class="notification__text">{{ notificationItem.message | translate }}</span>
+    </div>
+  </div>
+</div>

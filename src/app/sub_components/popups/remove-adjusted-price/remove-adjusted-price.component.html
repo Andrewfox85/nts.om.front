@@ -1,0 +1,30 @@
+<!-- eslint-disable -->
+<dx-popup
+  contentTemplate="contentTemplate"
+  [visible]="isVisible"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'login_form.notification' | translate }}"
+  maxWidth="450px"
+  height="auto"
+  (onHidden)="onEmitValue(false)"
+  [showCloseButton]="true">
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'contentTemplate'">
+    <div>{{ 'createOffer.good.removeAdjustedPrice' | translate }}</div>
+    <div class="flexContent24 buttonsClass jc-sb mt-3">
+      <button
+        class="btn btn-primary submit w-50"
+        (click)="onEmitValue(true)"
+      >
+        <div class="flexContent8 ai-c">{{ "btns.continue" | translate }}</div>
+      </button>
+      <button
+        class="btn btn-outline-primary w-50"
+        (click)="onEmitValue(false)"
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

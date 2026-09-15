@@ -1,0 +1,157 @@
+<!-- eslint-disable -->
+<div
+  class="greyColor jc-c d-flex"
+  *ngIf="allCharacteristics.length == 0"
+>
+  {{
+    "createOffer.productCharacteristicsAppear" | translate
+  }}
+</div>
+<div
+  *ngIf="allCharacteristics.length > 0"
+  class="flexContentColumn16"
+>
+  <div class="notificationBlue borderBlue h-100">
+    <div class="notificationBlueMessage">
+      {{ "createOffer.notificationAddGoodNSI" | translate }}
+    </div>
+  </div>
+  <dx-validation-group class="form">
+    <form
+      [formGroup]="characteristicsNSI"
+      class="flexContentColumn16"
+    >
+      <div class="form-group">
+        <div class="flexContent24">
+          <label>{{
+              "general.nameProduct" | translate
+            }}</label>
+          <dx-check-box
+            *ngIf="
+                                  this.characteristicsNSI?.controls[goodRefId]
+                                    ?.value?.length == 1
+                                "
+            text="{{ 'createOffer.analogues' | translate }}"
+            class="secondTextColor"
+            iconSize="14px"
+            formControlName="{{ 'analogs' + goodRefId }}"
+          >
+          </dx-check-box>
+        </div>
+        <dx-text-box
+          height="40px"
+          [value]="addGoodNSIForm.get('goods').value?.valueName"
+
+          [disabled]="true"
+        >
+        </dx-text-box>
+        <div class="border-bottom mt-3"></div>
+      </div>
+
+      <div
+        *ngFor="
+                              let ref of allCharacteristics;
+                              let i = index
+                            "
+        class="w-100"
+      >
+        <div class="form-group">
+          <div
+            paddingLeft
+            [ref]="ref"
+            class="flexContent16 ai-c"
+          >
+            <div *ngIf="ref.isDepend" class="arrowRight h-20px"></div>
+            <div class="w-100">
+              <div class="flexContent24">
+                <label>{{ ref.name }}</label>
+                <dx-check-box
+                  *ngIf="
+                                      this.characteristicsNSI?.controls[
+                                        ref.id.toString()
+                                      ]?.value?.length == 1
+                                    "
+                  formControlName="{{ 'analogs' + ref.id }}"
+                  text="{{
+                                      'createOffer.analogues' | translate
+                                    }}"
+                  class="secondTextColor"
+                  iconSize="14px"
+                >
+                </dx-check-box>
+              </div>
+              <dx-tag-box
+                [dataSource]="ref.values | uniqueById"
+                valueExpr="id"
+                displayExpr="name"
+                width="100%"
+                height="40px"
+                placeholder="{{'filters.selection' | translate}}"
+                formControlName="{{ ref.id }}"
+                [showSelectionControls]="true"
+                [searchEnabled]="true"
+                [showClearButton]="true"
+                (onValueChanged)="addNsiGoodService.onChangedValueWithAnalogues(ref, addGoodNSIForm.get('goods')?.value.idValue)"
+                [showDropDownButton]="true"
+                [maxDisplayedTags]="3"
+                id="characteristics{{ ref.id }}"
+              >
+              </dx-tag-box>
+              <dx-tooltip
+                *ngIf="
+                                    characteristicsNSI.controls[
+                                      ref.id.toString()
+                                    ]?.value?.length > 0
+                                  "
+                target="#characteristics{{ ref.id }}"
+                [showEvent]="{
+                                    name: 'mouseenter',
+                                    delay: 500
+                                  }"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                >
+                  {{ getNameValue(ref.id) }}
+                </div>
+              </dx-tooltip>
+              <div class="optinalField">
+                {{ "general.optionalField" | translate }}
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="i != allCharacteristics.length - 1"
+            class="border-bottom mt-3"
+          ></div>
+        </div>
+      </div>
+    </form>
+
+    <div class="buttonsClass flexContent16 mt-25">
+      <dx-button
+        (onClick)="onAddGoodFromNSI($event)"
+        class="w-50"
+      >
+        <button
+          [disabled]="this.NSIlistProperty.length < 1"
+          class="btn btn-primary submit w-100"
+        >
+          {{
+            this.commonService.ucFirst(
+              "createOffer.good.addGoodLink" | translate
+            )
+          }}
+        </button>
+      </dx-button
+      >
+      <button
+        class="btn btn-outline-primary btn-inherit w-50"
+        (click)="addNsiGoodService.clearAddGoodNSI(addGoodNSIForm.get('goods')?.value?.idValue)"
+      >
+        {{ "filters.reset" | translate }}
+      </button>
+    </div>
+  </dx-validation-group>
+</div>

@@ -1,0 +1,524 @@
+<!-- eslint-disable -->
+<main class="sessions-schedule">
+  <div class="main_component">
+    <div class="head">
+      <h1>{{ "header.top_line.menu.sessionsSchedule" | translate }}</h1>
+    </div>
+
+    <div
+      class="flexContent jc-sb flex-end borderFormTabs mt--16px"
+      *ngIf="user && sessions"
+    >
+      <dx-tabs
+        [dataSource]="
+          !isAccredited || user?.IsWorker || !user.token
+            ? ['sessions-schedule.allSessions' | translate]
+            : [
+                'sessions-schedule.allSessions' | translate,
+                'sessions-schedule.mySessions' | translate,
+                'sessions-schedule.participantSessions' | translate
+              ]
+        "
+        [selectedIndex]="selectedIndex"
+        (onItemClick)="onChangeTab($event)"
+      >
+      </dx-tabs>
+      <div class="search">
+        <div class="form-group">
+          <div class="input-group">
+            <dx-text-box
+              placeholder="{{ 'filters.searchLabel' | translate }}"
+              [showClearButton]="true"
+              width="320"
+              (onKeyDown)="
+                $event.event.key === '*' ? $event.event.preventDefault() : null
+              "
+              [(value)]="search"
+              maxLength="250"
+              (onEnterKey)="getData()"
+              (onValueChanged)="getData()"
+            >
+              <dxi-button
+                name="search"
+                location="before"
+                [options]="searchIcon"
+              >
+              </dxi-button>
+              <dxi-button name="clear"></dxi-button>
+            </dx-text-box>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="toolbarTable flexContent8" *ngIf="sessions">
+        <!--          *ngIf="!user.token"-->
+        <div>
+          <button
+            class="btn h-32px secondary-btn w-280px"
+            id="updateGrid"
+            [disabled]="disableUpdate"
+            (click)="disableUpdate = true; getData()"
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar update"></div>
+              {{ "sessions-schedule.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+          <dx-tooltip
+            target=".dx-datagrid-toolbar-button"
+            [showEvent]="{ name: 'mouseenter', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">
+              {{ "general.columnChooser" | translate }}
+            </div>
+          </dx-tooltip>
+        </div>
+        <div *ngIf="user.token && !this.user.IsWorker && isAccredited">
+          <button
+            class="btn h-32px secondary-btn w-fit-cnt"
+            id="buyerRegistr"
+            [disabled]="
+              disableUpdate || !options || this.disabledBuyerRegistration()
+            "
+            (click)="
+              this.chooseSession = this.selectedRows;
+              openRegistationForm(IdDirection?.buy)
+            "
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar buyerRegistr"></div>
+              {{ "sessions-schedule.registrBuyer" | translate }}
+            </div>
+          </button>
+        </div>
+
+        <div *ngIf="user.token && !this.user.IsWorker && isAccredited">
+          <button
+            class="btn h-32px secondary-btn w-fit-cnt"
+            id="sellerRegistr"
+            [disabled]="
+              disableUpdate || !options || this.disabledSallerRegistration()
+            "
+            (click)="
+              chooseSession = this.selectedRows;
+              openRegistationForm(IdDirection.sale)
+            "
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar sellerRegistr"></div>
+              {{ "sessions-schedule.registrSaller" | translate }}
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div [ngClass]="{ 'mt-25': sessions }">
+        <app-filters
+          [filtersOn]="
+            user?.IsWorker
+              ? {
+                  hideFilters: 'hideFilters',
+                  sectionsMulti: 'sectionsMulti',
+                  dateFrom: 'dateFrom',
+                  dateTo: 'dateTo',
+                  bidding: 'bidding',
+                  preparation: 'preparation',
+                  registration_seller: 'registration_seller',
+                  registration_buyer: 'registration_buyer',
+                  submitRequestsSale: 'submitRequestsSale',
+                  purchaseOrdersSubmitted: 'purchaseOrdersSubmitted',
+                  nomenclatureGroup: 'nomenclatureGroup',
+                  goodsGroup: 'goodsGroup',
+                  goods: 'goods',
+                  idFirm: 'idFirm',
+                  workerBrokerClient: 'workerBrokerClient',
+                  workerListClientBranch: 'workerListClientBranch'
+                }
+              : !!this.user?.token && isAccredited
+              ? {
+                  hideFilters: 'hideFilters',
+                  sectionsMulti: 'sectionsMulti',
+                  dateFrom: 'dateFrom',
+                  dateTo: 'dateTo',
+                  bidding: 'bidding',
+                  preparation: 'preparation',
+                  registration_seller: 'registration_seller',
+                  registration_buyer: 'registration_buyer',
+                  submitRequestsSale: 'submitRequestsSale',
+                  purchaseOrdersSubmitted: 'purchaseOrdersSubmitted',
+                  nomenclatureGroup: 'nomenclatureGroup',
+                  goodsGroup: 'goodsGroup',
+                  goods: 'goods',
+                  listBranch: 'listBranch',
+                  brokerClient: 'brokerClient',
+                  ListClientBranch: 'ListClientBranch'
+                }
+              : {
+                  hideFilters: 'hideFilters',
+                  sectionsMulti: 'sectionsMulti',
+                  dateFrom: 'dateFrom',
+                  dateTo: 'dateTo',
+                  bidding: 'bidding',
+                  preparation: 'preparation',
+                  nomenclatureGroup: 'nomenclatureGroup',
+                  goodsGroup: 'goodsGroup',
+                  goods: 'goods'
+                }
+          "
+          (componentData)="getFilterData($event)"
+          [nameOfCachePage]="'sessions-schedule'"
+        >
+        </app-filters>
+      </div>
+
+      <div class="body" *ngIf="sessions; else nodata">
+        <div class="session-schedule-body-wrapper">
+          <div class="body_content">
+            <div *ngIf="sectionFilter?.length > 0; else nodata">
+              <dx-data-grid
+                id="dataGrid"
+                [dataSource]="sessions"
+                [showBorders]="false"
+                [showColumnLines]="true"
+                [showRowLines]="true"
+                [allowColumnReordering]="true"
+                [allowColumnResizing]="true"
+                [columnResizingMode]="'widget'"
+                [width]="100 + '%'"
+                (onCellPrepared)="onCellPrepared($event)"
+                (onSelectionChanged)="onSelectionChanged($event)"
+                (onContextMenuPreparing)="onContextMenuPreparing($event)"
+                (onContentReady)="onContentReady($event)"
+                (pagingChange)="pagingChange()"
+              >
+                <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+                <dxo-header-filter
+                  [visible]="true"
+                  [allowSearch]="true"
+                ></dxo-header-filter>
+                <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+                <dxo-selection
+                  *ngIf="user?.token && !user?.IsWorker && isAccredited"
+                  mode="multiple"
+                  showCheckBoxesMode="always"
+                  selectAllMode="allPages"
+                >
+                </dxo-selection>
+                <dxo-column-chooser
+                  [enabled]="true"
+                  mode="select"
+                  sortOrder="asc"
+                >
+                </dxo-column-chooser>
+                <dxo-state-storing
+                  [enabled]="true"
+                  type="localStorage"
+                  storageKey="sessionsSchedule"
+                ></dxo-state-storing>
+                <dxo-scrolling
+                  [scrollByContent]="true"
+                  mode="standard"
+                  showScrollbar="always"
+                ></dxo-scrolling>
+
+                <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+                <dxo-pager
+                  [visible]="true"
+                  [allowedPageSizes]="numberEntriesPage"
+                  displayMode="compact"
+                  [showPageSizeSelector]="true"
+                >
+                </dxo-pager>
+                <dxi-column
+                  caption="{{ 'sessions-schedule.sessionNumber' | translate }}"
+                  dataField="sessionId"
+                  cssClass="column text-align-left"
+                  width="100"
+                  [allowHiding]="false"
+                  alignment="left"
+                  [allowFiltering]="false"
+                >
+                </dxi-column>
+                <dxi-column
+                  caption="{{
+                    'sessions-schedule.DateTimeSession' | translate
+                  }}"
+                  cellTemplate="dateTimeTemplate"
+                  cssClass="column"
+                  width="180"
+                  [allowSorting]="true"
+                  calculateSortValue="sessionDateTime"
+                  [allowFiltering]="false"
+                  [allowHiding]="false"
+                >
+                </dxi-column>
+                <div *dxTemplate="let item of 'dateTimeTemplate'">
+                  <div class="dateTimeTemplate">
+                    <span class="date-roboto-mono">{{
+                      (item.data.sessionDateTime - 25569) * 24 * 3600 * 1000 + 1
+                        | date : "dd.MM.yyyy HH:mm" : "+0000"
+                    }}</span>
+                    <span
+                      class="sectionNameDateTime"
+                      [ngClass]="{
+                        metal: item.data.sectionId == 1,
+                        forest: item.data.sectionId == 2,
+                        agricultural: item.data.sectionId == 3,
+                        promisingGoods: item.data.sectionId == 7
+                      }"
+                      >{{ item.data.sectionName }}
+                    </span>
+                  </div>
+                </div>
+                <dxi-column
+                  caption="{{ 'sessions-schedule.sessionName' | translate }}"
+                  dataField="sessionName"
+                  cssClass="column"
+                  width="180"
+                  [allowHiding]="false"
+                >
+                </dxi-column>
+
+                <dxi-column
+                  caption="{{ 'sessions-schedule.sessionStage' | translate }}"
+                  dataField="sessionStageName"
+                  cssClass="column"
+                  width="200"
+                  [allowHiding]="false"
+                >
+                </dxi-column>
+
+                <dxi-column
+                  dataField="isAllowedAnalogues"
+                  cellTemplate="cellTemplateAnalogues"
+                  caption="{{ 'createOffer.analogues' | translate }}"
+                  [allowSorting]="false"
+                  [visible]="false"
+                  width="120"
+                >
+                </dxi-column>
+                <div *dxTemplate="let data of 'cellTemplateAnalogues'">
+                  <div *ngIf="data.data.isAllowedAnalogues">
+                    {{ "btns.yes" | translate }}
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption="{{
+                    'sessions-schedule.addressedTransactions' | translate
+                  }}"
+                  dataField="isAllowedTargetTransact"
+                  alignment="left"
+                  cssClass="column text-align-left"
+                  cellTemplate="AllowedTargetTemplate"
+                  width="90"
+                  [visible]="false"
+                >
+                </dxi-column>
+                <div *dxTemplate="let item of 'AllowedTargetTemplate'">
+                  <div>
+                    {{
+                      item.data.isAllowedTargetTransact
+                        ? ("btns.yes" | translate)
+                        : ("btns.no" | translate)
+                    }}
+                  </div>
+                </div>
+
+                <dxi-column
+                  *ngIf="!!user.token"
+                  caption="{{
+                    user?.IsWorker
+                      ? ('sessions-schedule.appRegistr' | translate)
+                      : ('sessions-schedule.MyAppRegistr' | translate)
+                  }}"
+                  cssClass="column myCellFixShadowRight"
+                  [fixed]="true"
+                  width="240"
+                  [allowFixing]="false"
+                  fixedPosition="right"
+                  [allowHiding]="false"
+                >
+                  <dxi-column
+                    caption="{{ 'sessions-schedule.buy' | translate }}"
+                    dataField="numberRegistrationBuy"
+                    cssClass="column v-al-top"
+                    width="120"
+                    cellTemplate="numberRegistrationBuy"
+                    alignment="left"
+                    [allowHiding]="false"
+                    [allowFiltering]="false"
+                    [allowSorting]="false"
+                    [showInColumnChooser]="false"
+                  >
+                  </dxi-column>
+                  <dxi-column
+                    caption="{{ 'sessions-schedule.sale' | translate }}"
+                    dataField="numberRegistrationSale"
+                    cssClass="column v-al-top"
+                    width="120"
+                    cellTemplate="numberRegistrationSale"
+                    alignment="left"
+                    [allowHiding]="false"
+                    [allowFiltering]="false"
+                    [allowSorting]="false"
+                    [showInColumnChooser]="false"
+                  >
+                  </dxi-column>
+                </dxi-column>
+
+                <div *dxTemplate="let item of 'numberRegistrationBuy'">
+                  <p *ngIf="item.data.numberDemands > 0" class="m-0">
+                    {{ "sessions-schedule.request" | translate }} ({{
+                      item.data.numberDemands
+                    }})
+                  </p>
+                  <p
+                    *ngIf="
+                      user?.IsWorker && item.data.numberRegistrationBuy > 0
+                    " class="m-0"
+                  >
+                    {{ "sessions-schedule.registrations" | translate }} ({{
+                      item.data.numberRegistrationBuy
+                    }})
+                  </p>
+
+                  <a
+                    *ngIf="
+                      !user?.IsWorker && item.data.numberRegistrationBuy > 0
+                    "
+                    class="underline"
+                    (click)="openViewRegistrations(item.data, ID_DIRECTION.buy)"
+                    >{{ "sessions-schedule.registrations" | translate }} ({{
+                      item.data.numberRegistrationBuy
+                    }})</a
+                  >
+                </div>
+
+                <div *dxTemplate="let item of 'numberRegistrationSale'">
+                  <p *ngIf="item.data.numberOffers > 0" class="m-0">
+                    {{ "sessions-schedule.request" | translate }} ({{
+                      item.data.numberOffers
+                    }})
+                  </p>
+                  <p
+                    *ngIf="
+                      user?.IsWorker && item.data.numberRegistrationSale > 0
+                    " class="m-0"
+                  >
+                    {{ "sessions-schedule.registrations" | translate }} ({{
+                      item.data.numberRegistrationSale
+                    }})
+                  </p>
+
+                  <a
+                    *ngIf="
+                      !user?.IsWorker && item.data.numberRegistrationSale > 0
+                    "
+                    class="underline"
+                    (click)="openViewRegistrations(item.data, ID_DIRECTION.sale)"
+                    >{{ "sessions-schedule.registrations" | translate }} ({{
+                      item.data.numberRegistrationSale
+                    }})</a
+                  >
+                </div>
+                <dxi-column
+                  caption="{{ 'general.typeAuction' | translate }}"
+                  dataField="auctionTypeName"
+                  [visible]="false"
+                  width="200"
+                  cssClass="column"
+                >
+                </dxi-column>
+                <dxi-column
+                  caption="{{ 'general.marketType' | translate }}"
+                  dataField="concatedMarketTypes"
+                  [visible]="true"
+                  width="200"
+                  cssClass="column"
+                >
+                </dxi-column>
+                <dxi-column
+                  caption="{{ 'sessions-schedule.collectedLot' | translate }}"
+                  dataField="lotAvailabilityName"
+                  [visible]="false"
+                  width="150"
+                  cssClass="column"
+                >
+                </dxi-column>
+                <dxi-column
+                  caption="{{
+                    'sessions-schedule.multi-basicLots' | translate
+                  }}"
+                  dataField="multiBasisAvailabilityName"
+                  [visible]="false"
+                  width="170"
+                  cssClass="column"
+                >
+                </dxi-column>
+                <dxo-toolbar>
+                  <dxi-item
+                    name="columnChooserButton"
+                    [options]="{ hint: '' }"
+                  ></dxi-item>
+                </dxo-toolbar>
+              </dx-data-grid>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #nodata>
+        <div class="noData">Нет данных</div>
+      </ng-template>
+    </div>
+
+    <dx-toast
+      [(visible)]="isVisible"
+      [message]="message"
+      [type]="type"
+      [width]="320"
+      [height]="72"
+      [displayTime]="5000"
+    >
+      <!-- [closeOnClick]="true" -->
+      <dxo-position my="top right" at="right top" of="#head"></dxo-position>
+    </dx-toast>
+
+    <registration-form
+      *ngIf="registrationForm"
+      [user]="user"
+      [idDirection]="idDirection"
+      [chooseSession]="chooseSession"
+      (close)="closeRegistrationForm($event)"
+    >
+    </registration-form>
+  </div>
+</main>
+
+<!-- выбор архивной заявки для подачи адресной с/х -->
+<app-choose-offer-popup
+  [sessionInfo]="chooseSession"
+  [archiveOffers]="archiveOffersForDirect"
+  [chooseOfferPopup]="chooseOfferPopup"
+  (close)="closeChooseOfferPopup($event)"
+></app-choose-offer-popup>
+
+<!-- подача заявки -->
+<app-start-create-offer
+  [chooseTheWay]="chooseTheWay"
+  [sessionInfo]="chooseSession"
+  (close)="closeChooseTheWay($event)"
+></app-start-create-offer>
+
+<!-- просмотр регистраций трейдером -->
+<app-trader-view-registrations
+  [viewRegistrationsPopup]="viewRegistrationsPopup"
+  [sessionInfo]="chooseSession[0]"
+  (close)="closeViewRegistrations($event)"
+></app-trader-view-registrations>

@@ -1,0 +1,20 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+
+.note-text{
+    .field-title{
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+
+        span {
+          font-size: var(--smallFontSize);
+          color: $secondTextColor;
+        }
+    }
+  }
+
+
+  ::ng-deep.dx-scrollview-content{
+    max-height: 250px;
+  }

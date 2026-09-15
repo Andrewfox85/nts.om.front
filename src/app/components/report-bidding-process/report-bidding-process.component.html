@@ -1,0 +1,577 @@
+<!-- eslint-disable -->
+<main class="offer-management">
+  <div class="main_component">
+    <div class="head" id="head">
+      <h1>{{ "report-bidding-process.biddingProcess" | translate }}</h1>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="mt-25">
+      <app-filters
+        [filtersOn]="REPORT_BIDDING_PROCESS_FILTERS"
+        [nameOfCachePage]="REPORT_BIDDING_PROCESS_PAGE_NAME"
+        (componentData)="getFilterData($event)"
+      >
+      </app-filters>
+    </div>
+
+    <div class="body" *ngIf="biddingProcessesList; else nodata">
+      <div class="offers-management-body-wrapper">
+        <div class="body_content">
+          <dx-data-grid
+            #dataGridRef
+            id="dataGrid"
+            [dataSource]="biddingProcessesList"
+            [showBorders]="false"
+            [showColumnLines]="true"
+            [allowColumnResizing]="true"
+            [allowColumnReordering]="true"
+            [showRowLines]="true"
+            [columnAutoWidth]="true"
+            [wordWrapEnabled]="true"
+            [columnResizingMode]="'widget'"
+            [repaintChangesOnly]="true"
+            (onExporting)="exportGrid($event)"
+          >
+            <dxo-export [enabled]="true"></dxo-export>
+
+            <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+
+            <dxo-toolbar>
+              <dxi-item name="exportButton" location="after"></dxi-item>
+
+              <dxi-item name="columnChooserButton" location="after"></dxi-item>
+            </dxo-toolbar>
+
+            <dxo-column-chooser
+              [enabled]="true"
+              mode="select"
+              sortOrder="asc"
+              [ngClass]="{ 'mb-4': true }"
+            ></dxo-column-chooser>
+
+            <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+
+            <dxo-scrolling
+              mode="standard"
+              [scrollByContent]="true"
+              showScrollbar="always"
+            ></dxo-scrolling>
+
+            <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+
+            <dxo-header-filter
+              [visible]="true"
+              [allowSearch]="true"
+            ></dxo-header-filter>
+
+            <dxo-state-storing
+              [enabled]="true"
+              type="localStorage"
+              [storageKey]="REPORT_BIDDING_PROCESS_KEY"
+            ></dxo-state-storing>
+
+            <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+
+            <dxo-pager
+              [visible]="true"
+              [allowedPageSizes]="numberEntriesPage"
+              displayMode="compact"
+              [showPageSizeSelector]="true"
+            >
+            </dxo-pager>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.direction' | translate }}"
+              dataField="directionName"
+              cssClass="column text-align-left"
+              width="130"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.sessionPeriod' | translate }}"
+              dataField="nameSessionPeriod"
+              cssClass="column text-align-left"
+              width="150"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.dateTimeActivate' | translate }}"
+              dataField="dateTimeActivateString"
+              cssClass="column text-align-left"
+              width="130"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.dateTimeDeActivate' | translate }}"
+              dataField="dateTimeDeActivateString"
+              cssClass="column text-align-left"
+              width="130"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.lot' | translate }}"
+              dataField="lotNumber"
+              cssClass="column text-align-left"
+              width="100"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.deal' | translate }}"
+              dataField="transactionNumber"
+              cssClass="column text-align-left"
+              width="150"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.status' | translate }}"
+              dataField="statusName"
+              cssClass="column text-align-left"
+              width="150"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="cellTemplateStatus"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateStatus'">
+              <div *ngIf="data.data.transactionWithRestoration" class="flexContent4 center">
+                <i
+                  class="restoredTransaction"
+                  id="status_{{ data.row.rowIndex }}"
+                ></i>
+
+                <dx-tooltip
+                  target="#status_{{ data.row.rowIndex }}"
+                  hideEvent="mouseleave"
+                  [showEvent]="{ name: 'mouseover', delay: 500 }"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ 'report-bidding-process.restoreTransaction' | translate }}
+                  </div>
+                </dx-tooltip>
+
+              </div>
+              {{ data.data.statusName }}
+            </div>
+
+
+           <dxi-column
+              caption="{{ 'general.nameProduct' | translate }}"
+              dataField="nameDemandOffer"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="cellTemplateNameOffer"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateNameOffer'">
+              <div class="flexContent4">
+                <div *ngIf="data.data.lotGoodsNumber > 1" class="lot"></div>
+                {{ data.data.nameDemandOffer }}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.shortDesc' | translate }}"
+              dataField="goodDescriptionBrief"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+             <dxi-column
+                caption="{{ 'report-bidding-process.totalVolume' | translate }}"
+                dataField="totalVolume"
+                cssClass="column text-align-right"
+                width="140"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="true"
+                alignment="left"
+                cellTemplate="cellTemplateTotalVolume"
+              >
+              </dxi-column>
+  
+              <div *dxTemplate="let data of 'cellTemplateTotalVolume'">
+                <div [class.isDifferent]="data.data.isDiffVolume">
+                  {{ data.data.totalVolume | ruNumberFormat : VOLUME_PRECISION : VOLUME_PRECISION }}
+                </div>
+              </div>
+
+              <dxi-column
+                caption="{{ 'general.unit' | translate }}"
+                dataField="nameUnit"
+                cssClass="column text-align-left"
+                width="120"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="true"
+                alignment="left"
+              >
+              </dxi-column>
+
+              <dxi-column
+                caption="{{ 'filters.currency' | translate }}"
+                dataField="nameCurrency"
+                cssClass="column text-align-left"
+                width="120"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="true"
+                alignment="left"
+                cellTemplate="cellTemplateCurrency"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateCurrency'">
+                <div [class.isDifferent]="data.data.isDiffCurrency">
+                  {{ data.data.nameCurrency }}
+                </div>
+              </div>
+
+              <dxi-column
+                  caption="{{ 'report-bidding-process.priceWithoutVAT' | translate }}"
+                  dataField="priceWithoutVat"
+                  cssClass="column text-align-right"
+                  width="120"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                  alignment="left"
+                  cellTemplate="cellTemplatePrice"
+                >
+                </dxi-column>
+                <div *dxTemplate="let data of 'cellTemplatePrice'">
+                  <div *ngIf="data.data.priceWithoutVat !== null" class="price">
+                      <div *ngIf="data.data.diffPriceTrend !== null" class="blackBack" 
+                           [class.tr-rt270]="data.data.diffPriceTrend === DIFF_PRICE_TREND.DOWNWARD"
+                           [class.tr-rt90]="data.data.diffPriceTrend === DIFF_PRICE_TREND.UPWARD">
+                      </div>
+
+                      {{
+                        data.data.priceWithoutVat | ruNumberFormat : CURRENCY_PRECISION : CURRENCY_PRECISION
+                      }}
+                  </div>
+                </div>
+
+                <dxi-column
+                  caption="{{ 'report-bidding-process.amendment' | translate }}"
+                  dataField="priceAdjustment"
+                  cssClass="column text-align-right"
+                  width="120"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="false"
+                  alignment="left"
+                  cellTemplate="cellTemplatePriceAdjustment"
+                >
+                </dxi-column>
+                <div *dxTemplate="let data of 'cellTemplatePriceAdjustment'">
+                  <div *ngIf="data.data.priceAdjustment !== null" class="flexContent8 center">
+                      {{
+                        data.data.priceAdjustment | ruNumberFormat : CURRENCY_PRECISION : CURRENCY_PRECISION
+                      }}
+                  </div>
+                </div>
+
+
+                <dxi-column
+                  caption="{{ 'report-deals.vatPercent' | translate }}"
+                  dataField="vatPercent"
+                  cssClass="column text-align-right"
+                  width="120"
+                  [allowSorting]="true"
+                  [allowFiltering]="true"
+                  [visible]="true"
+                  alignment="left"
+                  cellTemplate="cellTemplateVatPercent"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let data of 'cellTemplateVatPercent'">
+                  <div *ngIf="data.data.vatPercent !== null">
+                    {{ data.data.vatPercent }} %
+                  </div>
+                  <div *ngIf="data.data.vatPercent === null">{{ 'general.withoutVAT' | translate }}</div>
+                </div>
+
+              <dxi-column
+                caption="{{ 'report-bidding-process.amountVAT' | translate }}"
+                dataField="vatAmount"
+                cssClass="column text-align-right"
+                width="120"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="true"
+                alignment="left"
+                cellTemplate="cellTemplateVatAmount"
+              >
+              </dxi-column>
+  
+              <div *dxTemplate="let data of 'cellTemplateVatAmount'">
+                <div *ngIf="data.data.vatAmount !== null" class="flexContent8 center">
+                    {{
+                      data.data.vatAmount | ruNumberFormat : CURRENCY_PRECISION : CURRENCY_PRECISION
+                    }}
+                </div>
+              </div>
+
+               <dxi-column
+                caption="{{ 'report-bidding-process.totalAmount' | translate }}"
+                dataField="totalAmount"
+                cssClass="column text-align-right"
+                width="150"
+                [allowSorting]="true"
+                [allowFiltering]="true"
+                [visible]="true"
+                alignment="left"
+                cellTemplate="cellTemplateTotalAmount"
+              >
+              </dxi-column>
+  
+              <div *dxTemplate="let data of 'cellTemplateTotalAmount'">
+                <div
+                  class="d-flex ai-c"
+                  [class.isDifferent]="data.data.isDiffPrices"
+                >
+                    {{ data.data.totalAmount | ruNumberFormat : CURRENCY_PRECISION : CURRENCY_PRECISION }}
+                </div>
+              </div>
+          
+            <dxi-column
+              caption="{{ 'report-deals.conditionsDelivery' | translate }}"
+              dataField="concatedDeliveryConditionRu"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="cellTemplateСonditionsDelivery"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateСonditionsDelivery'">
+              <div class="flexContent4">
+                <div *ngIf="data.data.lotGoodsBasisesNumber > 1" class="multibasis"></div>
+                
+                <div
+                  class="d-flex ai-c"
+                  [class.isDifferent]="data.data.isDiffDeliveryConditions"
+                >
+                  {{ data.data.concatedDeliveryConditionRu }}
+                </div>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-deals.conditionsDeliveryPeriod' | translate
+              }}"
+              dataField="concatedDeliveryPeriodRu"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              cellTemplate="cellTemplateСonditionsPeriod"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateСonditionsPeriod'">
+              <div class="flexContent4"> 
+                <div
+                  class="d-flex ai-c"
+                  [class.isDifferent]="data.data.isDiffDeliveryPeriod"
+                >
+                  {{ data.data.concatedDeliveryPeriodRu }}
+                </div>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.conditionsPayment' | translate }}"
+              dataField="concatedPaymentConditionsRu"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="cellTemplateСonditionsPayment"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateСonditionsPayment'">
+              <div class="flexContent4"> 
+                <div
+                  class="d-flex ai-c"
+                  [class.isDifferent]="data.data.isDiffPaymentConditions"
+                >
+                  {{ data.data.concatedPaymentConditionsRu }}
+                </div>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.nameFinanceSources' | translate }}"
+              dataField="nameFinanceSources"
+              cssClass="column text-align-left"
+              width="170"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.concatedFirmName' | translate }}"
+              dataField="concatedNameFirm"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.nameClientContractType' | translate }}"
+              dataField="nameClientContractType"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.concatedClientName' | translate }}"
+              dataField="concatedNameFirmClient"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.branchName' | translate }}"
+              dataField="nameBranch"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.traderName' | translate }}"
+              dataField="traderFio"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.maklerFio' | translate }}"
+              dataField="maklerFio"
+              cssClass="column text-align-left"
+              width="170"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-bidding-process.descriptionExtended' | translate }}"
+              dataField="descriptionExtended"
+              cssClass="column text-align-left"
+              width="200"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+          </dx-data-grid>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #nodata>
+      <div class="noData mt-5">
+        {{ "report-bidding-process.noBiddingProcess" | translate }}
+      </div>
+    </ng-template>
+  </div>
+</main>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+  (onShown)="onLoadPanelShown()"
+>
+</dx-load-panel>

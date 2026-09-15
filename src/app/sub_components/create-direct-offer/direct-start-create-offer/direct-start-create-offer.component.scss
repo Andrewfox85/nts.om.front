@@ -1,0 +1,46 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+
+.main_component {
+
+  .main_info {
+    /*width: 650px;
+    height: 500px; //!change*/
+    //margin: 36px auto;
+    margin: 10% auto;
+    padding: 64px;
+    border-radius: 2px;
+    border: 1px solid $lightGrayBackgroundColorButton;
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      span {
+        font-size: 14px;
+        color: $secondTextColor;
+      }
+    }
+
+    .body {
+      form {
+        .form-group {
+          .input-group {
+            div {
+              margin-top: 8px;
+            }
+          }
+        }
+      }
+    }
+
+    .buttons {
+      margin-top: 16px;
+
+      .btn {
+        width: 50%;
+      }
+    }
+  }
+}

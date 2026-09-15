@@ -1,0 +1,21 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+
+.scrollButton{
+  height: 48px;
+  width: 48px;
+  background-color: $lightGrayBackgroundColor;
+  position: fixed;
+  border: none;
+  cursor: pointer;
+  bottom: 17%;
+  right: 10%;
+  border-radius: 2px;
+}
+.scrollDown{
+  content: url("~src/assets/img/icons/scrollDown.svg");
+}
+
+.scrollUp{
+  transform: rotate(180deg);
+}

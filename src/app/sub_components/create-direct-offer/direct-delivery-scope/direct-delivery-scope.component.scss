@@ -1,0 +1,39 @@
+/* eslint-disable */
+@import 'src/assets/scss/_config.scss';
+@import 'src/assets/scss/_variables.scss';
+
+table {
+  width: 100%;
+  border: 1px solid $borderTable;
+  border-collapse: collapse;
+
+  .redBorder {
+    border: 2px solid $colorError;
+  }
+
+  ::ng-deep.dx-numberbox {
+    background-color: $layerHoverTable;
+  }
+
+}
+::ng-deep.dx-toast-error{
+  background-color: $backgroundColorError;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $colorError;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-message{
+  width: 450px;
+}
+
+
+
+::ng-deep.dx-toast-icon {
+  background-image: url('../../../../assets/img/icons/info-thin.svg') !important;
+  width: 20px;
+  height: 20px;
+}

@@ -1,0 +1,597 @@
+/* eslint-disable */
+@import "src/assets/scss/_variables.scss";
+@import "src/assets/scss/_config.scss";
+
+::ng-deep.dx-dialog-buttons {
+  ::ng-deep.dx-toolbar-items-container {
+    ::ng-deep.dx-toolbar-before {
+      display: none !important;
+    }
+  }
+}
+
+.main_component {
+  width: 100%;
+
+  .head {
+    h1 {
+      max-width: 100%;
+    }
+  }
+
+  .nameGoodGroup {
+    display: flex;
+    gap: 8px;
+    line-height: 20px;
+    margin-bottom: 0;
+    align-items: baseline;
+
+    span:first-child {
+      color: $secondTextColor;
+    }
+
+    span:last-child {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.background {
+  background-color: $layerHoverTable;
+}
+
+.viewGood {
+  content: url("~src/assets/img/icons/view_grey.svg");
+  border: none;
+  cursor: pointer;
+}
+
+.editGood {
+  content: url("~src/assets/img/icons/edit_grey.svg");
+  border: none;
+  cursor: pointer;
+}
+
+.deleteGood {
+  content: url("~src/assets/img/icons/trash_grey.svg");
+  border: none;
+  cursor: pointer;
+}
+
+table {
+  .viewRow {
+    background-color: $layerHoverTable;
+  }
+
+  .viewGoodInfo {
+    padding: 16px;
+    background: $layerHoverTable;
+    color: $mainTextColor;
+
+    .name {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: space-between;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+      }
+
+      .cancel {
+        background-image: url("~src/assets/img/icons/cancel_grey.svg");
+        background-position-x: 0;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 20px;
+
+      .propName {
+        font-size: 14px;
+        color: $secondTextColor;
+      }
+    }
+
+    .goodInfoTable {
+      .titleGoodInfo {
+        font-size: 12px;
+        line-height: 16px;
+        color: $secondTextColor;
+        min-width: 240px;
+
+        display: flex;
+        justify-content: space-between;
+
+        .line {
+          flex: 1 0;
+          margin-left: 4px;
+          margin-bottom: 4px;
+          border-bottom: 0.5px solid $lightGrayBackgroundColorButton;
+        }
+      }
+
+      .info {
+        font-size: 14px;
+        line-height: 20px;
+        color: $mainTextColor;
+      }
+    }
+
+    .actualFields:empty {
+      margin-bottom: -16px;
+    }
+
+    /* table {
+        width: 100%;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        tr, td {
+          border: none;
+          padding: 0;
+          text-align: left;
+        }
+
+        tr {
+          display: flex;
+          flex-direction: row;
+          gap: 10px;
+
+
+          .title {
+            font-size: 12px;
+            line-height: 16px;
+            color: $secondTextColor;
+            min-width: 240px;
+
+            display: flex;
+            justify-content: space-between;
+
+            .line {
+              flex: 1 0;
+              margin-left: 4px;
+              margin-bottom: 4px;
+              border-bottom: 0.5px solid $lightGrayBackgroundColorButton;
+            }
+          }
+
+          .info {
+            font-size: 14px;
+            line-height: 20px;
+            color: $mainTextColor;
+          }
+
+
+        }
+      }*/
+  }
+}
+
+.noData {
+  font-size: 14px;
+  line-height: 20px;
+  color: $headerTopColor;
+}
+
+.noErrorField {
+  ::ng-deep.dx-show-invalid-badge {
+    display: none;
+  }
+}
+
+::ng-deep.dx-overlay-wrapper {
+  z-index: 1502 !important;
+}
+
+.bodyChooseGood {
+  height: 100%;
+  overflow: hidden;
+  .order_content {
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    height: 100%;
+
+    &__left {
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      .column {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .filters {
+        margin-bottom: 108px;
+        position: relative;
+        width: 280px;
+
+        .label {
+          font-size: 16px;
+          font-weight: 500;
+          line-height: 24px;
+        }
+
+        .good-refs {
+          margin-bottom: 16px;
+          border-top: 1px solid $borderTable;
+
+          &:first-child {
+            margin-top: 16px;
+          }
+
+          .ref-title {
+            label {
+              font-style: normal;
+              font-weight: 400;
+              font-size: 14px;
+              line-height: 16px;
+              color: $mainTextColor;
+              padding: 8px 0;
+            }
+          }
+        }
+      }
+
+      .buttonsSpace {
+        position: fixed;
+        width: 280px;
+        bottom: 16px;
+        padding-top: 16px;
+        background-color: $white;
+      }
+    }
+
+    &__right {
+      width: 760px;
+      height: 100%;
+
+      .countGood {
+        position: fixed;
+        top: 69px;
+        background-color: #ffffff;
+        width: calc(71% - 42px);
+        height: 42px;
+        padding: 12px 0;
+        z-index: 12;
+      }
+
+      .addGood {
+        position: fixed;
+        bottom: 15px;
+        background-color: $white;
+        width: calc(71% - 42px);
+        height: 40px;
+        padding: 12px;
+      }
+
+      .goodsList {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 40px;
+        margin-bottom: 45px;
+
+        .good {
+          border: 1px solid $colorGray;
+          border-radius: 4px;
+          padding: 16px;
+
+          display: flex;
+          gap: 16px;
+          width: 100%;
+
+          .main_info {
+            width: calc(100% - 180px);
+            border-right: 1px solid $colorGray;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-right: 16px;
+
+            span {
+              font-size: 12px;
+              line-height: 16px;
+              color: $mainTextColor;
+
+              label {
+                font-weight: 400;
+                font-size: 12px;
+                line-height: 16px;
+                color: $secondTextColor;
+                margin-right: 3px;
+              }
+            }
+
+            a {
+              font-size: 16px;
+              line-height: 24px;
+              margin-bottom: 16px;
+              font-weight: 500;
+              color: $mainTextColor !important;
+            }
+
+            a:hover {
+              color: $linkHover !important;
+              text-decoration: underline !important;
+            }
+
+            .desc {
+              .propName {
+                font-size: 14px;
+                color: $secondTextColor;
+              }
+
+              .propValue {
+                font-size: 14px;
+              }
+            }
+          }
+
+          .button {
+            width: 180px;
+            position: relative;
+
+            .btn {
+              width: 100%;
+              position: absolute;
+              bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.message {
+  .message_info {
+    padding: 12px;
+    border: 1px solid $greyBorder;
+    border-top: none;
+  }
+
+  .message_info:first-child {
+    border-top: 1px solid $greyBorder;
+  }
+}
+
+/*::ng-deep.dx-row.dx-datagrid-group-footer {
+    ::ng-deep.dx-datagrid .dx-column-lines > td {
+      border-left: none;
+    }
+  }*/
+
+::ng-deep.dx-treeview {
+  height: 88%;
+  max-height: 300px;
+}
+
+.deliveryBasisGrid {
+  //border-bottom: 1px solid $greyBorder;
+  border: none;
+
+  ::ng-deep.dx-datagrid {
+    border-top: 1px solid $greyBorder;
+  }
+}
+
+::ng-deep.dx-texteditor.dx-state-readonly {
+  border: none;
+}
+
+.edit {
+  content: url("~src/assets/img/action_icons/green_edit.svg");
+  vertical-align: middle;
+}
+
+.trash {
+  content: url("~src/assets/img/action_icons/trash.svg");
+  vertical-align: middle;
+}
+
+.blockWithBorder {
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid $lightGrayBackgroundColorButton;
+  width: 100%;
+}
+
+/*
+  .add_file{
+    align-items: center;
+    padding: 12px 50px;
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid $borderColor;
+  */
+
+.upload {
+  padding: 12px 16px;
+
+  input {
+    display: none;
+    visibility: hidden;
+    z-index: -1;
+  }
+
+  > label {
+    width: 100%;
+  }
+
+  .files {
+    padding: 8px 0;
+    width: 100%;
+    border-bottom: 1px solid $lightGrayBackgroundColorButton;
+
+    .fileName {
+      cursor: pointer;
+      color: $mainActiveColor;
+    }
+
+    .errorText {
+      font-size: 10px;
+    }
+
+    i {
+      width: 16px;
+      height: 16px;
+      margin: 0 4px;
+    }
+  }
+
+  .files:last-child {
+    border: none;
+  }
+
+  .colorError {
+    color: $colorError !important;
+  }
+
+  .colorGrey {
+    color: $headerTopColor;
+  }
+}
+
+.fieldfile {
+  align-items: center;
+}
+
+.nextButton {
+  content: url("~src/assets/img/icons/nextIcon.svg");
+}
+
+.preButton {
+  content: url("~src/assets/img/icons/previousButton.svg");
+}
+
+.update {
+  content: url("~src/assets/img/icons/update.svg");
+}
+
+@media (min-width: 1920px) {
+  .changePosition {
+    display: flex !important;
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .form-group {
+      width: 50% !important;
+      flex-basis: 49%;
+    }
+
+    .fullString {
+      flex-basis: 100%;
+    }
+  }
+}
+
+/*::ng-deep.dx-datagrid-group-opened::before{
+    content: "\f016";
+  }
+  ::ng-deep.dx-datagrid-group-closed::before{
+    content: "\f014";
+  }
+
+  ::ng-deep.dx-datagrid-group-opened{
+    top: 4px;
+  }
+  ::ng-deep.dx-datagrid-group-closed{
+    top: 4px;
+  }*/
+
+.accordionButton {
+  ::ng-deep.dx-button-mode-contained {
+    background-color: transparent;
+  }
+}
+
+.accordion {
+  ::ng-deep.dx-datagrid-total-footer > .dx-datagrid-content {
+    padding: 0;
+  }
+}
+
+.basisTable {
+  ::ng-deep.dx-datagrid-content .dx-datagrid-table .dx-row > td:last-child {
+    border-right: none !important;
+  }
+
+  ::ng-deep.dx-datagrid-content .dx-datagrid-table .dx-row > td:first-child {
+    border-left: none !important;
+  }
+
+  /*  ::ng-deep.dx-datagrid {
+        border-top: 1px solid $greyBorder;
+      }*/
+}
+
+::ng-deep.dx-toast-info {
+  background-color: $sectionMetalBackground !important;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $sectionMetal !important;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-message {
+  width: fit-content;
+}
+
+::ng-deep.dx-toast-info .dx-toast-icon {
+  background-image: url("~src/assets/img/icons/information.svg") !important;
+  width: 20px;
+  height: 20px;
+}
+
+.visible1525 {
+  z-index: 1525;
+}
+
+.verticalLine {
+  border-right: 1px solid $lightGrayBackgroundColorButton;
+}
+
+.errorValue {
+  background-color: $backgroundColorError;
+  color: $redColorError;
+  margin: -12px -16px -12px -8px;
+  padding: 12px 16px 12px 8px;
+}
+
+.infoValue {
+  background-color: $sectionAgriculturalBackground;
+  color: $sectionAgricultural;
+  margin: -12px -16px -12px -8px;
+  padding: 12px 16px 12px 8px;
+}
+
+.tagOne {
+  background-color: $white;
+  padding: 10px 10px;
+  z-index: 10;
+  position: relative;
+  min-width: 71px;
+}
+
+.enBtn {
+  line-height: 16px;
+  font-size: 12px;
+}

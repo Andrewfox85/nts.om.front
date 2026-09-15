@@ -1,0 +1,17 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+
+.session-stage {
+  //width: 100%;
+  padding: 4px 8px;
+  height: 24px;
+
+  &.default {
+    background-color: $lightGrayBackgroundColor;
+    color: $secondTextColor;
+  }
+}
+
+.session{
+  padding: 4px 8px;
+}

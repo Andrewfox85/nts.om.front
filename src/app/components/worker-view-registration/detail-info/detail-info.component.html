@@ -1,0 +1,102 @@
+<!-- eslint-disable -->
+<main class="sessions-schedule">
+  <div class="main_component">
+    <div class="head">
+      <h1 *ngIf="outputArray && title == ''">
+        {{ "worker.errorReason" | translate }}
+        {{
+          outputArray[0]?.deletionReason
+            ? ("worker.restorationRegistrations" | translate)
+            : ("worker.cancellationRegistrations" | translate)
+        }}
+        №{{ session.idSession }}
+        {{
+          (session.sessionDate - 25569) * 24 * 3600 * 1000
+            | date : "dd.MM.yyyy" : "+0000"
+        }}
+      </h1>
+      <h1 *ngIf="title != ''">{{ title }}</h1>
+    </div>
+  </div>
+
+  <dx-data-grid
+    id="gridContainer"
+    [dataSource]="outputArray"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [width]="1200"
+  >
+    <dxo-state-storing
+      [enabled]="true"
+      type="localStorage"
+      storageKey="detailInfoOrder"
+    ></dxo-state-storing>
+
+    <!-- style="table-layout: fixed; width: 50%" -->
+    <dxi-column
+      caption="{{ 'worker.registration.participant' | translate }}"
+      dataField="firmName"
+      cssClass="column text-align-left"
+      width="auto"
+    >
+    </dxi-column>
+
+    <dxi-column
+      caption="{{ 'worker.registration.participantBranch' | translate }}"
+      dataField="firmBranchName"
+      cssClass="column text-align-left"
+      width="auto"
+    >
+    </dxi-column>
+
+    <dxi-column
+      caption="{{ 'worker.registration.contractType' | translate }}"
+      dataField="clientContractTypeName"
+      cssClass="column text-align-left"
+      width="auto"
+    >
+    </dxi-column>
+
+    <dxi-column
+      caption="{{ 'worker.registration.client' | translate }}"
+      dataField="clientName"
+      cssClass="column text-align-left"
+      width="auto"
+    >
+    </dxi-column>
+
+    <dxi-column
+      caption="{{ 'worker.registration.clientBranch' | translate }}"
+      dataField="clientBranchName"
+      cssClass="column text-align-left"
+      width="auto"
+    >
+    </dxi-column>
+
+    <dxi-column
+      caption="{{ 'worker.registration.trader' | translate }}"
+      dataField="traderName"
+      cssClass="column text-align-left"
+      width="auto"
+    >
+    </dxi-column>
+
+    <dxi-column
+      caption="{{ 'worker.errorReason' | translate }}"
+      cssClass="column text-align-left"
+      width="auto"
+      cellTemplate="resultTemplate"
+      minWidth="200"
+    >
+    </dxi-column>
+    <!--  dataField="description"-->
+    <div *dxTemplate="let item of 'resultTemplate'">
+      <span>{{
+        item.data.result
+          ? ("worker.successfully" | translate)
+          : item.data.description
+      }}</span>
+    </div>
+  </dx-data-grid>
+</main>

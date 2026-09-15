@@ -1,0 +1,157 @@
+<!-- eslint-disable -->
+<!-- <main class="startCreateOffer" *ngIf="!loadingVisible">
+
+    <div class="main_component">
+        <div class="main_info flexContentColumn16">
+            <div class="header">
+                <h3 class="font-s24">{{'createOffer.createOffer' | translate}}</h3>
+                <span class="subtitle l-h20">{{'createOffer.createOffer_subtitle' | translate}}</span>
+            </div>
+            <div class="body">
+                <form [formGroup]="firstStepForm">
+                    <div class="form-group">
+                         <div class="input-group">
+                              <label>{{'general.marketType' | translate}}</label>
+                                <div>
+                                  <dx-select-box
+                                    #selectBox
+                                    [dataSource]="marketTypesResult"
+                                    displayExpr="marketsTypes"
+                                    valueExpr="modelId"
+                                    width="520px"
+                                    height="40px"
+                                    formControlName="marketTypeId"
+                                    placeholder="{{'createOffer.createOffer_choose-market-type' | translate}}"
+                                    [searchEnabled]="true"
+                                    (onValueChanged)="onChangeSelectBox($event)"
+                                    [showClearButton]="true"
+                                    [showDataBeforeSearch]="true"
+                                    [minSearchLength]="4"
+                                  >
+                                  </dx-select-box>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="form-group" *ngIf="description.length> 0 && selectBox.selectedItem?.notes?.length > 0">
+                        <label>{{'general.description' | translate }}</label>
+                        <span *ngIf="selectBox.selectedItem">{{ selectBox.selectedItem.notes }}</span>
+                    </div>
+                </form>
+            </div>
+            <div class="buttons flexContent20">
+                <button class="btn btn-primary submit" (click)="goToLink()" [disabled]="!firstStepForm.valid || disabledBtn">{{'btns.continue' | translate}}</button>
+                <button class="btn btn-outline-primary btn-inherit" (click)="cancelForm()">{{'btns.cancel' | translate}}</button>
+            </div>
+        </div>
+    </div>
+
+</main> -->
+
+<dx-popup
+  id="chooseMarketType"
+  contentTemplate="chooseMarketTypeContent"
+  [(visible)]="chooseTheWay"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  dragAndResizeArea="false"
+  title="{{ 'createOffer.filingApplication' | translate }}"
+  maxWidth="560px"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="onCloseChoosing()">
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'chooseMarketTypeContent'">
+    <div class="main_info flexContentColumn16">
+      <div class="market-body">
+          <form [formGroup]="firstStepForm">
+
+            <div class="form-group">
+              <div class="input-group flexContentColumn8">
+              <label class="pb-0">{{'createOffer.filingApplication' | translate}} </label>
+              <div>
+            <span class="flexContent8"><input type="radio" name="submitWay" id="newOffer" formControlName="submitWay" [value]="1">
+              <label for="newOffer"  class="pb-0 blackColor font-s14">{{'createOffer.createNewOffer' | translate}}</label></span>
+              </div>
+              <div>
+              <span class="flexContent8"><input
+                type="radio" name="submitWay" id="archiveOffer" formControlName="submitWay"
+                [value]="2">
+              <label for="archiveOffer"
+                     class="pb-0 blackColor font-s14">{{'createOffer.createNewOfferBasedArchived' | translate}}</label></span>
+              </div>
+          </div>
+        </div>
+
+              <div class="flexContentColumn16 form-group" *ngIf="this.marketTypesResult.length > 1">
+                   <div class="input-group">
+                        <label class="pb-0">{{'general.marketType' | translate}}</label>
+                          <div>
+                            <dx-select-box
+                              #selectBox
+                              [dataSource]="marketTypesResult"
+                              displayExpr="marketsTypes"
+                              valueExpr="modelId"
+                              width="524px"
+                              height="40px"
+                              formControlName="marketTypeId"
+                              placeholder="{{'createOffer.createOffer_choose-market-type' | translate}}"
+                              [searchEnabled]="true"
+                              (onValueChanged)="onChangeSelectBox($event)"
+                              [showClearButton]="true"
+                              [showDataBeforeSearch]="true"
+                              [minSearchLength]="4"
+                            >
+                            </dx-select-box>
+                       </div>
+                  </div>
+
+                  <div class="form-group" *ngIf="description.length> 0 && selectBox.selectedItem?.notes?.length > 0">
+                    <label class="pb-0">{{'general.description' | translate }}</label>
+                    <span *ngIf="selectBox.selectedItem">{{ selectBox.selectedItem.notes }}</span>
+                </div>
+              </div>
+          </form>
+      </div>
+      <div class="buttons flexContent20">
+          <button class="btn btn-primary submit w-50" (click)="goToLink()" [disabled]="!firstStepForm.valid || disabledBtn">{{'btns.continue' | translate}}</button><!--   -->
+          <button class="btn btn-outline-primary btn-inherit w-50" (click)="cancelForm()">{{'btns.cancel' | translate}}</button>
+      </div>
+  </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'errors.error' | translate }}"
+  maxWidth="450px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onClose(errorType)">
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="borderRed errorPopup">
+      <i class="errorIcon"></i><div [innerHTML]="this.messageError"></div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [position]="{ of: '#employee' }"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+>
+</dx-load-panel>
+
+
+
+<!-- выбор архивной заявки -->
+<app-choose-archive-offer-popup [sessionInfo]="sessionInfo"  [direction]="direction" [modelId]="this.createOfferService.modelId" [chooseArchiveOfferPopup]="chooseArchiveOfferPopup" (close)="closeChooseOfferPopup($event)"></app-choose-archive-offer-popup>

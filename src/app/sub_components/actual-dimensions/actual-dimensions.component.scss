@@ -1,0 +1,30 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+.typeActualSize {
+  z-index: 10;
+  position: absolute;
+}
+
+.ml-66px {
+  margin-left: 66px;
+}
+
+.listContent {
+  display: inline-flex;
+}
+
+.list-dropdown-content {
+  ::ng-deep .dx-list-item {
+    border: none;
+  }
+
+  ::ng-deep .dx-list-item-content {
+    padding: 9px 0 !important;
+  }
+}
+
+.noValuePadding {
+  padding: 10px;
+}

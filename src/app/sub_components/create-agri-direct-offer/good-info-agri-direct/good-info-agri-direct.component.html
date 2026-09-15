@@ -1,0 +1,834 @@
+<!-- eslint-disable -->
+<div class="goodInfo flexContentColumn16">
+  <div class="name flexContent16 jc-sb ai-c">
+    <label>{{ good.name }}</label>
+    <!-- <a (click)="clearForm()">{{'general.clearFields' | translate}}</a> -->
+  </div>
+
+  <form [formGroup]="goodForm">
+    <dx-validation-group class="form w-100">
+      <div class="block flexContentColumn24">
+        <div class="properties" *ngIf="!good.characteristicsNSI">
+          <span *ngFor="let prop of good.properties">
+            <span class="propName"> {{ prop.propertyName }}</span>
+            <span> {{ prop.propertyValue }}.</span>
+          </span>
+          <a (click)="openSidebar(good)">
+            {{ "btns.moreDetails" | translate }}</a
+          >
+        </div>
+
+        <div class="properties" *ngIf="good.characteristicsNSI">
+          <span *ngFor="let prop of good.properties">
+            <span class="propName"> {{ prop.propertyName }}</span>
+            <span
+              *ngIf="!prop.propertyValue || prop.propertyValue?.length == 0"
+            >
+              {{ "createOffer.any" | translate }}.</span
+            >
+            <span *ngIf="prop.propertyValue?.length > 0">
+              <span *ngFor="let val of prop.propertyValue; let i = index">
+                {{ val
+                }}<span *ngIf="i != prop.propertyValue?.length - 1">,</span>
+              </span>
+              <span *ngIf="prop.isAllowAnalogs"
+                >, {{ "createOffer.others" | translate }}</span
+              >
+              <span>.</span>
+            </span>
+          </span>
+        </div>
+
+        <div
+          *ngFor="let fieldGroup of modelFieldsGroup; let iFieldGroup = index"
+        >
+          <div class="flexContent16 contentFlex flex-start">
+            <div
+              *ngFor="let m of fieldGroup[1]"
+              class="item"
+              [ngClass]="{
+                addCond:
+                  m.interfaceField.controlFieldType == 'dxTextBox' &&
+                  m.interfaceField.fieldSize > 1000
+              }"
+            >
+              <!--          *ngIf="!(m.interfaceField.fieldId == 3 && modelsResult?.pricingTypeId == pricingType?.formulaWithoutQuotation)"       todo для цены по формуле без котировки-->
+              <div
+                class="form-group"
+                *ngIf="m.interfaceField.controlFieldType == 'dxNumberBox'"
+              >
+                <div class="flexContent4 center">
+                  <label>{{ m.interfaceField.fieldName }}</label>
+                  <div
+                    *ngIf="
+                      priceAgriStatistics &&
+                      priceWarning &&
+                      m.interfaceField.fieldId == 3
+                    "
+                    class="infoIconThin mb-2"
+                    id="priceAgriStatistics"
+                  ></div>
+
+                  <dx-tooltip
+                    target="#priceAgriStatistics"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div
+                      *dxTemplate="let data = data; of: 'content'"
+                      class="whiteTextColor text-align-left"
+                    >
+                      <span>
+                        Минимально допустимая цена: <br />
+                        {{ priceLimitationName }} {{ priceAgriStatistics }}
+                        {{ goodInfo.currency.name }}
+                        {{ goodInfo.units.name }}</span
+                      >
+                    </div>
+                  </dx-tooltip>
+                </div>
+
+                <div class="flexContentColumn4 number-style">
+                  <dx-number-box
+                    placeholder="0{{
+                      m.interfaceField.fieldPrecision == 2
+                        ? '.00'
+                        : m.interfaceField.fieldPrecision == 3
+                        ? '.000'
+                        : m.interfaceField.fieldPrecision == 4
+                        ? '.0000'
+                        : ''
+                    }}"
+                    height="40px"
+                    [value]="m.selectedValues"
+                    [min]="
+                      m.interfaceField.fieldId == 54 &&
+                      this.goodForm?.get('53')?.value == 1
+                        ? null
+                        : 0
+                    "
+                    formControlName="{{ m.interfaceField.fieldId }}"
+                    (onKeyDown)="!m.isRequired ? onKeyDown($event, m) : null"
+                    (onValueChanged)="
+                      modelsResult?.pricingTypeId !=
+                        pricingType?.formulaWithoutQuotation &&
+                      m.interfaceField.fieldId == 3
+                        ? vatCalculator()
+                        : modelsResult?.pricingTypeId ==
+                            pricingType?.formulaWithQuotation &&
+                          m.interfaceField.fieldId == 56
+                        ? priceCalculator()
+                        : null
+                    "
+                    class="date-roboto-mono"
+                    (onFocusIn)="
+                      modelsResult?.pricingTypeId !=
+                        pricingType?.formulaWithoutQuotation &&
+                      m.interfaceField.fieldId == 1
+                        ? openVolumePopup()
+                        : null
+                    "
+                    [disabled]="![1, 3].includes(m.interfaceField.fieldId)"
+                    valueChangeEvent="input"
+                  >
+                    <dxo-format
+                      type="fixedPoint"
+                      [precision]="m.interfaceField.fieldPrecision"
+                    >
+                    </dxo-format>
+                    <!--   точность числа          m.interfaceField.fieldDataType == 'TCURRENCY' ? fieldPrecision(m.interfaceField.fieldId, m.interfaceField.fieldDataType) :-->
+                    <dx-validator>
+                      <dxi-validation-rule
+                        *ngIf="m.isRequired"
+                        type="required"
+                      ></dxi-validation-rule>
+                      <!--размерность поля-->
+                      <dxi-validation-rule
+                        *ngIf="isValidateRuleVisible(m)"
+                        type="stringLength"
+                        [max]="m.interfaceField.fieldSize"
+                        message="{{ 'errors.fieldSize' | translate }}"
+                      ></dxi-validation-rule>
+                      <!--поле не отрицательное (кроме поля поправка в процентном значении)-->
+                      <dxi-validation-rule
+                        *ngIf="isValidateRuleVisible(m)"
+                        type="compare"
+                        [comparisonType]="'>'"
+                        [comparisonTarget]="zeroComparison"
+                        message="{{ 'errors.positive' | translate }}"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-number-box>
+                  <div *ngIf="!m.isRequired" class="optinalField">
+                    {{ "general.optionalField" | translate }}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="form-group"
+                *ngIf="
+                  m.interfaceField.controlFieldType == 'dxSelectBox' &&
+                  !m.interfaceField.isAvailableMultiSelection
+                "
+              >
+                <label>{{ m.interfaceField.fieldName }}</label>
+                <div class="flexContentColumn4" *ngIf="m.interfaceField.isAvailableFreeInput">
+                  <dx-drop-down-box
+                    formControlName="{{m.interfaceField.fieldId}}"
+                    placeholder="{{'filters.enterTextOrSelection' | translate}}"
+                    [acceptCustomValue]="true"
+                    (onInitialized)="initDropDownBox(m)"
+                    [(opened)]="isDropDownOpened"
+                    [maxLength]="m.interfaceField.fieldSize"
+                    [value]="m.selectedValue"
+                    (onOpened)="onOpened(m.interfaceField.fieldId, m.filterDataSource)"
+                    [disabled]="true"
+                    height="40px"
+                    displayExpr="name">
+
+                    <div *dxTemplate="let data of 'content'" class="list-dropdown-content flexContentColumn12">
+                      <div class="search-section">
+                        <dx-text-box
+                          placeholder="{{ 'filters.searchLabel' | translate }}"
+                          (onInitialized)="m.filterDataSource = m.dataSource"
+                          (onValueChanged)="onSearch($event, m)"
+                          valueChangeEvent="input"
+                          [showClearButton]="true">
+                        </dx-text-box>
+                      </div>
+
+                      <dx-list
+                        height="300"
+                        [dataSource]="m.filterDataSource"
+                        displayExpr="name"
+                        keyExpr="id"
+                        [searchEnabled]="false"
+                        [selectedItemKeys]="selectedItemKeys"
+                        selectionMode="single"
+                        (onSelectionChanged)="selectionChangeInUserInputComponent($event, m.interfaceField.fieldId)"
+                        [pageLoadMode]="'scrollBottom'"
+                        [nextButtonText]="''"
+                        [scrollByContent]="false"
+                        [useNativeScrolling]="true"
+                        [showScrollbar]="'always'">
+                        <dxo-paging [enabled]="false"></dxo-paging>
+                        <div *dxTemplate="let item of 'item'">
+                          <div>{{ item.name }}</div>
+                        </div>
+
+                      </dx-list>
+                    </div>
+                    <dx-validator *ngIf="m.isRequired">
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-drop-down-box>
+                  <div *ngIf="!m.isRequired" class="optinalField">{{ 'general.optionalField' | translate }}</div>
+                </div>
+
+                <div class="flexContentColumn4" *ngIf="!m.interfaceField.isAvailableFreeInput">
+                  <dx-select-box
+                    [dataSource]="
+                      m.dataSource ? m.dataSource : getDataSourceSelectBox(m)
+                    "
+                    displayExpr="name"
+                    valueExpr="id"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    [searchEnabled]="true"
+                    [showClearButton]="!m.isRequired"
+                    [value]="m.selectedValues"
+                    formControlName="{{ m.interfaceField.fieldId }}"
+                    [disabled]="m.interfaceField.fieldId != 62"
+                  >
+                    <dx-validator *ngIf="m.isRequired">
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-select-box>
+                  <div *ngIf="!m.isRequired" class="optinalField">
+                    {{ "general.optionalField" | translate }}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="form-group"
+                *ngIf="
+                  m.interfaceField.controlFieldType == 'dxSelectBox' &&
+                  m.interfaceField.isAvailableMultiSelection
+                "
+              >
+                <label>{{ m.interfaceField.fieldName }}</label>
+                <div class="flexContentColumn4">
+                  <dx-tag-box
+                    [dataSource]="
+                      m.dataSource ? m.dataSource : getDataSourceSelectBox(m)
+                    "
+                    displayExpr="name"
+                    valueExpr="id"
+                    height="40px"
+                    placeholder="{{ 'filters.selection' | translate }}"
+                    [searchEnabled]="true"
+                    [showClearButton]="!m.isRequired"
+                    [value]="m.selectedValues"
+                    formControlName="{{ m.interfaceField.fieldId }}"
+                    [showSelectionControls]="true"
+                    [showDropDownButton]="true"
+                    [maxDisplayedTags]="1"
+                    (onValueChanged)="
+                      onTagBoxValueChanged($event);
+                      lessDestination ? (lessDestination = false) : null
+                    "
+                  >
+                    <dx-validator *ngIf="m.isRequired">
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-tag-box>
+                  <div *ngIf="!m.isRequired" class="optinalField">
+                    {{ "general.optionalField" | translate }}
+                  </div>
+                  <div
+                    *ngIf="lessDestination && m.interfaceField.fieldId == 62"
+                    class="redField"
+                  >
+                    Выберите одно значение
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="form-group"
+                *ngIf="m.interfaceField.controlFieldType == 'dxCheckBox'"
+              >
+                <dx-check-box
+                  (onInitialized)="checkboxIdElement(m.interfaceField.fieldId)"
+                  text="{{ m.interfaceField.fieldName }}"
+                  iconSize="20px"
+                  height="40px"
+                  formControlName="{{ m.interfaceField.fieldId }}"
+                  [disabled]="true"
+                >
+                </dx-check-box>
+              </div>
+
+              <div
+                class="form-group"
+                *ngIf="
+                  m.interfaceField.controlFieldType == 'dxTextBox' &&
+                  m.interfaceField.fieldSize < 1000
+                "
+              >
+                <label>{{ m.interfaceField.fieldName }}</label>
+                <div class="flexContentColumn4">
+                  <dx-text-box
+                    height="40px"
+                    placeholder="{{ 'general.text' | translate }}"
+                    [value]="m.selectedValues"
+                    formControlName="{{ m.interfaceField.fieldId }}"
+                    (onValueChanged)="clearValueNull($event)"
+                  >
+                    <dx-validator *ngIf="m.isRequired">
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-text-box>
+                  <div *ngIf="!m.isRequired" class="optinalField">
+                    {{ "general.optionalField" | translate }}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="form-group"
+                *ngIf="
+                  m.interfaceField.controlFieldType == 'dxTextBox' &&
+                  m.interfaceField.fieldSize > 1000
+                "
+              >
+                <div class="flexContent20">
+                  <label>{{ m.interfaceField.fieldName }}</label>
+                  <div>
+                    {{
+                      this.goodForm.controls[m.interfaceField.fieldId]?.value
+                        ? this.goodForm.controls[m.interfaceField.fieldId]
+                            ?.value.length
+                        : 0
+                    }}
+                    /{{ m.interfaceField.fieldSize }}
+                  </div>
+                </div>
+                <div class="flexContentColumn4">
+                  <dx-text-area
+                    height="124px"
+                    [maxLength]="m.interfaceField.fieldSize"
+                    placeholder="{{ 'general.text' | translate }}"
+                    [value]="m.selectedValues"
+                    formControlName="{{ m.interfaceField.fieldId }}"
+                    valueChangeEvent="keyup"
+                    [disabled]="true"
+                    (onValueChanged)="clearValueNull($event)"
+                  >
+                    <dx-validator *ngIf="m.isRequired">
+                      <dxi-validation-rule
+                        type="required"
+                      ></dxi-validation-rule>
+                    </dx-validator>
+                  </dx-text-area>
+                  <div *ngIf="!m.isRequired" class="optinalField">
+                    {{ "general.optionalField" | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              *ngIf="fieldGroup[0] == 4 && costBlock"
+              class="flexContent16 contentFlex w-100 costBlock"
+            >
+              <div class="item">
+                <div class="form-group number-style">
+                  <label>{{ "createOffer.total.costNoVAT" | translate }}</label>
+                  <div>
+                    <dx-number-box
+                      [disabled]="true"
+                      placeholder="0"
+                      formControlName="costNoVAT"
+                      height="40px"
+                      class="date-roboto-mono"
+                    >
+                      <dxo-format
+                        type="fixedPoint"
+                        [precision]="pricePrecision"
+                      >
+                      </dxo-format>
+                    </dx-number-box>
+                  </div>
+                </div>
+              </div>
+
+              <div class="item">
+                <div class="form-group number-style">
+                  <label>{{ "createOffer.total.amountVAT" | translate }}</label>
+                  <div>
+                    <dx-number-box
+                      [disabled]="true"
+                      placeholder="0"
+                      formControlName="amountVAT"
+                      height="40px"
+                      class="date-roboto-mono"
+                    >
+                      <dxo-format
+                        type="fixedPoint"
+                        [precision]="pricePrecision"
+                      >
+                      </dxo-format>
+                    </dx-number-box>
+                  </div>
+                </div>
+              </div>
+
+              <div class="item">
+                <div class="form-group number-style">
+                  <label>{{ "createOffer.total.costVAT" | translate }}</label>
+                  <div>
+                    <dx-number-box
+                      [disabled]="true"
+                      placeholder="0"
+                      formControlName="costVAT"
+                      height="40px"
+                      class="date-roboto-mono"
+                    >
+                      <dxo-format
+                        type="fixedPoint"
+                        [precision]="pricePrecision"
+                      >
+                      </dxo-format>
+                    </dx-number-box>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <hr
+            *ngIf="iFieldGroup != modelFieldsGroup.length - 1"
+            class="w100 mt-4"
+          />
+        </div>
+      </div>
+
+      <div class="flexContent16 buttonsClass jc-end mt-4">
+        <dx-button (onClick)="onSave($event)"
+          ><button class="btn btn-primary w-120px">
+            {{ "btns.save" | translate }}
+          </button></dx-button
+        >
+        <button class="btn btn-outline-primary w-155px" (click)="checkPrice()">
+          {{ "btns.checkPrice" | translate }}
+        </button>
+        <button class="btn btn-outline-primary w-200px" (click)="OnClose()">
+          {{
+            goodInfo
+              ? ("btns.cancelEdit" | translate)
+              : ("btns.close" | translate)
+          }}
+        </button>
+      </div>
+    </dx-validation-group>
+  </form>
+</div>
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'errors.error' | translate }}"
+  maxWidth="450px"
+  height="auto"
+  (onHidden)="error = false"
+  [showCloseButton]="true"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="borderRed errorPopup">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  id="priceLimitation"
+  contentTemplate="priceLimitationPopup"
+  [(visible)]="priceLimitationPopup"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{
+    errorState == 1
+      ? ('errors.error' | translate)
+      : ('errors.message' | translate)
+  }}"
+  maxWidth="450px"
+  height="auto"
+  (onHidden)="priceLimitationPopup = false"
+  [showCloseButton]="true"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'priceLimitationPopup'">
+    <div class="borderRed errorPopup" *ngIf="errorState == 1">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+
+    <div class="borderOrange errorPopup" *ngIf="errorState == 0">
+      <i class="unavailableIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+
+    <!-- <div class="borderOrange notificationOrange">
+       <div>
+        Цена без НДС не соответствует ценовому контролю.
+        Минимально допустимая цена: {{priceLimitationName}} {{priceAgriStatistics}} {{goodInfo.currency.name}} {{goodInfo.units.name}}
+       </div>
+     </div> -->
+  </div>
+</dx-popup>
+
+<dx-popup
+  id="volumesPopup"
+  contentTemplate="volumesPopup"
+  [(visible)]="volumesPopup"
+  [showTitle]="true"
+  title="{{ 'directOffers.volumesPopupTitle' | translate }}"
+  maxWidth="970px"
+  height="auto"
+  (onHidden)="closeVolumePopup()"
+  [showCloseButton]="true"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'volumesPopup'">
+    <div class="flexContentColumn16 w-100">
+      <div class="d-flex jc-end">
+        <button
+          class="btn h-32px secondary-btn w-fit-cnt"
+          (click)="createVolumesArray('toBasic')"
+        >
+          {{ "directOffers.toBaselineVolumes" | translate }}
+        </button>
+      </div>
+      <!-- уведомления -->
+      <div>
+        <!-- голубое уведомление -->
+        <div
+          *ngIf="!isHiddenNotification && !hasError()"
+          class="notificationBlue borderBlue flexContent8 center h-52 jc-sb"
+        >
+          <div class="flexContent8 center">
+            <i class="notificationIcon"></i>
+            <span>{{
+              "directOffers.volumesPopupNotification" | translate
+            }}</span>
+          </div>
+          <div class="close" (click)="isHiddenNotification = true"></div>
+        </div>
+
+        <!--красное сообщение  -->
+        <div
+          *ngIf="hasError()"
+          class="notificationRed borderRed flexContent8 center h-52"
+        >
+          <i class="errorIcon"></i>
+          <span
+            >Введенный объем товара не соответствует допустимым значениям.</span
+          >
+        </div>
+      </div>
+
+      <div class="w-100">
+        <form [formGroup]="volumeForm">
+          <dx-data-grid
+            [dataSource]="volumes"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+            (onRowPrepared)="onRowPrepared($event)"
+            ><!--  -->
+            <dxo-state-storing
+              [enabled]="true"
+              type="localStorage"
+              storageKey="goodInfoAgriOrderManagment"
+            >
+            </dxo-state-storing>
+
+            <dxi-column
+              caption="{{ 'createOffer.good.good' | translate }}"
+              dataField="goodName"
+              cssClass="column"
+              [width]="280"
+              cellTemplate="nameTemplate"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let item of 'nameTemplate'">
+              <div class="flexContent4 center">
+                <div class="twostrings">{{ item.data.goodName }}</div>
+                <div
+                  *ngIf="item.data.isBasic && !item.data.isMainBasic"
+                  class="basicGood"
+                  id="name{{ item.data.goodId }}"
+                >
+                  {{ item.data.goodName }}
+                </div>
+                <div
+                  *ngIf="item.data.isMainBasic"
+                  class="mainBasicGood"
+                  id="name{{ item.data.goodId }}"
+                >
+                  {{ item.data.goodName }}
+                </div>
+              </div>
+
+              <dx-tooltip
+                target="#name{{ item.data.goodId }}"
+                [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                  class="whiteTextColor text-align-left"
+                >
+                  <span>{{
+                    item.data.isMainBasic
+                      ? "Главный базовый товар"
+                      : item.data.isBasic
+                      ? "Базовый товар"
+                      : ""
+                  }}</span>
+                </div>
+              </dx-tooltip>
+            </div>
+
+            <dxi-column
+              caption="{{ 'createOffer.good.quantity' | translate }}"
+              dataField="volume"
+              cssClass="column date-roboto-mono v-al-middle"
+              cellTemplate="quantityTemplate"
+              alignment="right"
+              [width]="180"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'quantityTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div class="flexContent4 center">
+                <dx-number-box
+                  height="32px"
+                  formControlName="volume_{{ item.data.goodId }}"
+                  [min]="0"
+                  [inputAttr]="{ class: 'text-align-right date-roboto-mono' }"
+                  [disabled]="!item.data.isBasic && !hasMainBasic()"
+                  (onValueChanged)="
+                    !this.toBasic
+                      ? changeMainBasicGood($event, item.data.goodId)
+                      : null
+                  "
+                  [ngClass]="{ redBack: !item.data.isValid }"
+                >
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="item.data.volumePrecision"
+                  >
+                  </dxo-format>
+                  <dx-validator>
+                    <dxi-validation-rule type="required"></dxi-validation-rule>
+
+                    <dxi-validation-rule
+                      type="compare"
+                      [comparisonType]="'!='"
+                      [comparisonTarget]="zeroComparison"
+                      message="{{ 'errors.null' | translate }}"
+                    ></dxi-validation-rule>
+                  </dx-validator>
+                </dx-number-box>
+
+                <div>{{ item.data.unitName }}</div>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="min"
+              dataField="minVolume"
+              cssClass="column date-roboto-mono v-al-middle"
+              cellTemplate="minQuantityTemplate"
+              alignment="right"
+              [width]="120"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'minQuantityTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div class="flexContent4 center">
+                <dx-number-box
+                  height="32px"
+                  formControlName="minVolume_{{ item.data.goodId }}"
+                  [min]="0"
+                  [readOnly]="true"
+                  [inputAttr]="{ class: 'text-align-right date-roboto-mono' }"
+                >
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="item.data.volumePrecision"
+                  >
+                  </dxo-format>
+                </dx-number-box>
+                <div class="pt-1">{{ item.data.unitName }}</div>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="max"
+              dataField="maxVolume"
+              cssClass="column date-roboto-mono v-al-middle"
+              cellTemplate="maxQuantityTemplate"
+              alignment="right"
+              [width]="180"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'maxQuantityTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div class="flexContent4 center">
+                <dx-number-box
+                  height="32px"
+                  formControlName="maxVolume_{{ item.data.goodId }}"
+                  [min]="0"
+                  [readOnly]="true"
+                  [inputAttr]="{ class: 'text-align-right date-roboto-mono' }"
+                >
+                  <dxo-format
+                    type="fixedPoint"
+                    [precision]="item.data.volumePrecision"
+                  >
+                  </dxo-format>
+                </dx-number-box>
+                <div class="pt-1" *ngIf="item.data.maxVolume">
+                  {{ item.data.unitName }}
+                </div>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'directOffers.baselineVolumes' | translate }}"
+              dataField="basicVolume"
+              cssClass="column date-roboto-mono v-al-middle"
+              cellTemplate="baselineVolumesTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'baselineVolumesTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div>
+                {{
+                  item.data.basicVolume.toLocaleString("ru", {
+                    maximumFractionDigits: item.data.volumePrecision
+                  })
+                }}
+              </div>
+              <div>{{ item.data.unitName }}</div>
+            </div>
+          </dx-data-grid>
+        </form>
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit w-50"
+          [disabled]="hasError()"
+          (click)="saveVolumePopup()"
+        >
+          {{ "btns.save" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="closeVolumePopup()"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="toastVisible"
+  message="{{ 'directOffers.successPriceMess' | translate }}"
+  [type]="'success'"
+  [width]="350"
+  [height]="80"
+  [displayTime]="7000"
+>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>

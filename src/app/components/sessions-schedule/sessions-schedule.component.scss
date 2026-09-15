@@ -1,0 +1,27 @@
+/* eslint-disable */
+@import './../../../assets/scss/variables';
+
+::ng-deep.dx-toast-error{
+    background-color: $backgroundColorError;
+    color: $mainTextColor;
+    font-weight: 400;
+    border-radius: 2px;
+    border-left: 3px solid $colorError;
+    padding: 15px;
+    display: flex;
+}
+
+::ng-deep.dx-toast-icon {
+    display: none;
+   /*  background-image: url('../../../assets/img/icons/error.svg') !important;
+    width: 20px;
+    height: 20px; */
+}
+
+/*.session-schedule-body-wrapper{
+  ::ng-deep.dx-datagrid-filter-panel{
+    margin-top: 42px;
+    left: 0;
+    position: absolute;
+  }
+}*/

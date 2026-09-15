@@ -1,0 +1,282 @@
+/* eslint-disable */
+@import '../../../assets/scss/variables';
+@import '../../../assets/scss/config';
+
+.nameSession {
+  line-height: 20px;
+  margin-bottom: 0;
+  color: $secondTextColor;
+  span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.change{
+  background-color: $backgroundColorGreen;
+}
+
+.status {
+  background-color: $sectionForestBackground;
+  color: $sectionForest;
+  border-radius: 2px;
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.direction{
+  background-color: $colorGray;
+  color: $secondTextColor;
+  border-radius: 2px;
+  padding: 4px 8px;
+  font-size: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.nameLot{
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.blockWithBorder{
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid $lightGrayBackgroundColorButton;
+  width: 100%;
+}
+
+
+.compareTable{
+  border: none;
+  tr, th, td{
+    border: none;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th{
+    background-color: transparent;
+    font-size: 16px;
+    font-style: normal;
+    line-height: 24px;
+    padding: 8px 8px;
+  }
+  td{
+    font-size: 14px;
+    line-height: 20px;
+    padding: 8px 8px;
+  }
+
+  td:first-child{
+    color: $secondTextColor;
+  }
+
+}
+.padding0{
+  padding: 0 8px!important;
+}
+
+.deleteTag{
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 2px;
+  background: $backgroundColorError;
+  color: $colorError;
+}
+
+.addTag{
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 2px;
+  background: $backgroundColorGreen;
+  color:$stepActive;
+}
+
+.changeTag{
+  padding: 4px 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 2px;
+  background: $sectionMetalBackground;
+  color:$sectionMetal;
+}
+
+
+.clientAddedTag{
+  background-color: $notificationGreenBorder;
+}
+
+.list{
+  width: 100%;
+  .client{
+    overflow: hidden;
+    display: flex;
+    -webkit-line-clamp:1;
+    max-height: 25px;
+    -webkit-box-orient: vertical;
+    transition: max-height 0.3s ease-out;
+
+    &.opened{
+      height: auto;
+      max-height: 1000px;
+      margin-bottom: 0px;
+      overflow: hidden;
+      display: flex;
+    }
+  }
+}
+
+
+.nameGood{
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.description {
+  font-size: 14px;
+  line-height: 20px;
+  .propName {
+    font-size: 14px;
+    color: $headerTopColor;
+  }
+}
+
+.details{
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: $mainTextColor;
+}
+
+
+.basisRow {
+  tbody {
+    tr:first-child {
+      td {
+        padding: 12px 16px 12px 8px;
+      }
+    }
+
+    tr {
+      td {
+        padding: 12px 16px 12px 24px;
+      }
+    }
+  }
+}
+
+
+.basisTableCurrent {
+  ::ng-deep.dx-datagrid-content .dx-datagrid-table{
+    border-collapse: collapse!important;
+  }
+
+  ::ng-deep.dx-datagrid-total-footer > .dx-datagrid-content{
+    padding: 0;
+  }
+  ::ng-deep.dx-datagrid-group-opened::before{
+    content: none;
+  }
+  ::ng-deep.dx-datagrid-rowsview .dx-row.dx-group-row:not(.dx-row-focused){
+    background-color: transparent;
+    color: $columnNameTextColor;
+    line-height: 20px;
+  }
+
+  ::ng-deep.dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-expand{
+    min-width: 0px!important;
+    width: 0px!important;
+    pointer-events: none;
+  }
+}
+
+.maxHeight230{
+  max-height: 230px;
+}
+.detailsText{
+  ::ng-deep.dx-texteditor.dx-state-readonly {
+    border: 1px solid $borderColor;
+  }
+
+
+  ::ng-deep.td-wrapper{
+    grid-row-gap: 10px;
+    grid-template-columns: repeat(2, [ col ] 50%);
+    grid-template-rows: repeat(2, [ row ] auto);
+    border: 1px solid $borderColor !important;
+  /*  overflow: auto;
+    max-height: 230px;*/
+  }
+
+
+  .compare{
+    width: 972px !important;
+    border: 1px solid $borderColor;
+    border-radius: 2px;
+  }
+
+  ::ng-deep.td-table-wrapper{
+    margin: 16px 0 !important;
+  }
+
+  ::ng-deep.td-table{
+    border: none !important;
+    width: 972px !important;
+    word-break: break-word;
+  }
+
+  ::ng-deep.line-number-col-left, ::ng-deep.line-number-col, ::ng-deep.prefix-col{
+    display: none !important;
+  }
+
+
+  ::ng-deep.content-col{
+    padding: 0px 12px !important;
+    text-align: left;
+    white-space: wrap !important;
+    border: none !important;
+    line-height: 18px !important;
+    color: $mainTextColor !important;
+    font-size: 14px;
+  }
+
+  ::ng-deep.insert-row, ::ng-deep.delete-row{
+    background-color: $white !important;
+    text-align: left;
+  }
+}
+
+.greenEllipse{
+  content: url("~src/assets/img/icons/EllipseGreen.svg");
+}
+.redEllipse{
+  content: url("~src/assets/img/icons/EllipseRed.svg");
+}
+
+
+.actions {
+  position: absolute;
+  right: 55px;
+  z-index: 10;
+  padding: 9px 0;
+
+  i:hover {
+    background-color: $lightGrayBackgroundColorButton;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+}

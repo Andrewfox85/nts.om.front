@@ -1,0 +1,910 @@
+<!-- eslint-disable -->
+<main class="offer-management">
+  <div class="main_component">
+    <div class="head" id="head">
+      <h1>{{ "report-deals.reportDeals" | translate }}</h1>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="mt-25">
+      <app-filters
+        [filtersOn]="REPORT_DEALS_FILTERS"
+        [nameOfCachePage]="RERORT_DEALS_PAGE_NAME"
+        (componentData)="getFilterData($event)"
+      >
+      </app-filters>
+    </div>
+
+    <div class="body" *ngIf="listTransactions; else nodata">
+      <div class="offers-management-body-wrapper">
+        <div class="body_content">
+          <dx-data-grid
+            #dataGridRef
+            id="dataGrid"
+            [dataSource]="listTransactions"
+            [showBorders]="false"
+            [showColumnLines]="true"
+            [allowColumnResizing]="true"
+            [allowColumnReordering]="true"
+            [showRowLines]="true"
+            [columnAutoWidth]="true"
+            [wordWrapEnabled]="true"
+            [columnResizingMode]="'widget'"
+            [repaintChangesOnly]="true"
+            (onExporting)="exportGrid($event)"
+          >
+            <dxo-export [enabled]="true"></dxo-export>
+
+            <dxo-column-chooser [enabled]="true"></dxo-column-chooser>
+
+            <dxo-toolbar>
+              <dxi-item location="after">
+                <dx-check-box
+                  text="{{ 'report-deals.hideCheckbox' | translate }}"
+                  iconSize="20px"
+                  [value]="isHiddenLot"
+                  (onValueChanged)="hideCompositeLot($event)"
+                ></dx-check-box>
+              </dxi-item>
+
+              <dxi-item name="exportButton" location="after"></dxi-item>
+
+              <dxi-item name="columnChooserButton" location="after"></dxi-item>
+            </dxo-toolbar>
+
+            <dxo-column-chooser
+              [enabled]="true"
+              mode="select"
+              sortOrder="asc"
+              [ngClass]="{ 'mb-4': true }"
+            ></dxo-column-chooser>
+
+            <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+
+            <dxo-selection
+              mode="multiple"
+              showCheckBoxesMode="always"
+              selectAllMode="allPages"
+            >
+            </dxo-selection>
+
+            <dxo-scrolling
+              mode="standard"
+              [scrollByContent]="true"
+              showScrollbar="always"
+            ></dxo-scrolling>
+
+            <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+
+            <dxo-header-filter
+              [visible]="true"
+              [allowSearch]="true"
+            ></dxo-header-filter>
+
+            <dxo-state-storing
+              [enabled]="true"
+              type="localStorage"
+              [storageKey]="REPORT_DEALS_KEY"
+            ></dxo-state-storing>
+
+            <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+
+            <dxo-pager
+              [visible]="true"
+              [allowedPageSizes]="numberEntriesPage"
+              displayMode="compact"
+              [showPageSizeSelector]="true"
+            >
+            </dxo-pager>
+
+            <dxi-column
+              caption="{{ 'report-deals.idSession' | translate }}"
+              dataField="idSession"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.transactionNumber' | translate }}"
+              dataField="transactionNumber"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.transactionStatus' | translate }}"
+              dataField="transactionStatus"
+              cssClass="column text-align-left"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-deals.transactionDateCreateString' | translate
+              }}"
+              dataField="transactionDateCreateString"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-deals.transactionDateTerminateString' | translate
+              }}"
+              dataField="transactionDateTerminateString"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-deals.transactionTerminationReason' | translate
+              }}"
+              dataField="transactionTerminationReason"
+              cssClass="column text-align-left"
+              width="150"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.lotNumber' | translate }}"
+              dataField="lotNumber"
+              cssClass="column text-align-left"
+              width="90"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'general.name' | translate }}"
+              dataField="mainName"
+              cssClass="column text-align-left"
+              width="330"
+              alignment="left"
+              [allowFiltering]="true"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.goodName' | translate }}"
+              dataField="goodName"
+              cssClass="column p-0 text-align-left"
+              width="330"
+              [allowFiltering]="true"
+              cellTemplate="goodNameTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodNameFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodNameTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodName{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodName }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodName{{ good.idDemandOffer }}_{{ i }}"
+                      hideEvent="mouseleave"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodName }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.cnfea' | translate }}"
+              dataField="cnfea"
+              cssClass="column p-0 text-align-left"
+              width="150"
+              [allowFiltering]="true"
+              cellTemplate="goodCnfeaTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodCnfeaFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodCnfeaTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodCnfea{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.cnfea }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodCnfea{{ good.idDemandOffer }}_{{ i }}"
+                      hideEvent="mouseleave"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.cnfea }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.goodDescription' | translate }}"
+              cssClass="column p-0 text-align-left"
+              width="330"
+              dataField="goodDescription"
+              [allowFiltering]="true"
+              cellTemplate="goodDescriptionTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodDescriptionFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodDescriptionTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodDescription{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodDescription }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodDescription{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodDescription }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.currencyName' | translate }}"
+              dataField="currencyName"
+              cssClass="column text-align-right"
+              width="100"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.lotSummaryTotalAmount' | translate }}"
+              cssClass="column text-align-right"
+              width="180"
+              dataField="lotSummaryTotalAmount"
+              [allowFiltering]="true"
+              [calculateFilterExpression]="calculateFilterExpression"
+              cellTemplate="goodLotSummaryTotalAmountTemplate"
+              [visible]="true"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="lotSummaryTotalAmountFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodLotSummaryTotalAmountTemplate'">
+              <div *ngIf="data.data.goods[0].lotSummaryTotalAmount > 0">
+                {{data.data.goods[0].lotSummaryTotalAmount}}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.priceWithoutVat' | translate }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="priceWithoutVat"
+              [allowFiltering]="true"
+              cellTemplate="priceWithoutVatTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodPriceWithoutVatFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'priceWithoutVatTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="priceWithoutVat{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.priceWithoutVat }}</span
+                    >
+                    <dx-tooltip
+                      target="#priceWithoutVat{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.priceWithoutVat }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{
+                'report-deals.lotSummaryTotalAmountByn' | translate
+              }}"
+              cssClass="column text-align-right"
+              width="180"
+              dataField="lotSummaryTotalAmountByn"
+              [allowFiltering]="true"
+              [calculateFilterExpression]="calculateFilterExpression"
+              cellTemplate="goodLotSummaryTotalAmountBynTemplate"
+              [visible]="true"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="lotSummaryTotalAmountBynFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div
+              *dxTemplate="let data of 'goodLotSummaryTotalAmountBynTemplate'"
+            >
+              <div *ngIf="data.data.goods[0].lotSummaryTotalAmountByn > 0">
+                {{data.data.goods[0].lotSummaryTotalAmountByn}}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.vatPercent' | translate }}"
+              dataField="vatPercent"
+              cssClass="column text-align-right"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="cellTemplateVatPercent"
+            >
+            </dxi-column>
+            <div *dxTemplate="let data of 'cellTemplateVatPercent'">
+              <div *ngIf="data.data.vatPercent != null">
+                {{ data.data.vatPercent }} %
+              </div>
+              <div *ngIf="data.data.vatPercent == null">{{ 'general.withoutVAT' | translate }}</div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.goodVolume' | translate }}"
+              cssClass="column p-0 text-align-right"
+              width="180"
+              dataField="goodVolume"
+              [allowFiltering]="true"
+              cellTemplate="goodVolumeTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodVolumeFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodVolumeTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodVolume{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodVolume }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodVolume{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodVolume }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.totalAmount' | translate }}"
+              cssClass="column text-align-right"
+              width="180"
+              dataField="lotSummaryVolume"
+              [allowFiltering]="true"
+              cellTemplate="goodTotalVolumeTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              [visible]="true"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="lotSummaryVolumeFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodTotalVolumeTemplate'">
+              <div *ngIf="data.data.goods[0].lotSummaryVolume > 0">
+                {{data.data.goods[0].lotSummaryVolume}}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.goodUnitName' | translate }}"
+              cssClass="column p-0 text-align-right"
+              width="140"
+              dataField="goodUnitName"
+              [allowFiltering]="true"
+              cellTemplate="goodUnitNameTemplate"
+              [calculateFilterExpression]="calculateFilterExpression"
+              alignment="left"
+            >
+              <dxo-header-filter
+                [dataSource]="goodUnitNameFilter"
+              ></dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'goodUnitNameTemplate'">
+              <table class="main">
+                <ng-container
+                  *ngFor="
+                    let good of data.data.goods;
+                    let i = index;
+                    trackBy: trackByGoodId
+                  "
+                >
+                  <tr>
+                    <span
+                      class="twostrings"
+                      id="goodUnitName{{ good.idDemandOffer }}_{{ i }}"
+                      >{{ good.goodUnitName }}</span
+                    >
+                    <dx-tooltip
+                      target="#goodUnitName{{ good.idDemandOffer }}_{{ i }}"
+                      [showEvent]="{ name: 'mouseover', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ good.goodUnitName }}
+                      </div>
+                    </dx-tooltip>
+                  </tr>
+                </ng-container>
+              </table>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.conditionsDelivery' | translate }}"
+              dataField="conditionsDelivery"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-deals.conditionsDeliveryPeriod' | translate
+              }}"
+              dataField="conditionsDeliveryPeriod"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.conditionsPayment' | translate }}"
+              dataField="conditionsPayment"
+              cssClass="column text-align-left"
+              width="250"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.transactionDetails' | translate }}"
+              dataField="transactionDetails"
+              cssClass="column text-align-left"
+              width="230"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.isTargeted' | translate }}"
+              dataField="isTargeted"
+              cssClass="column text-align-left"
+              width="140"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="isTargetedTemplate"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'isTargetedTemplate'">
+              <div *ngIf="data.data.isTargeted">
+                {{ "btns.yes" | translate }}
+              </div>
+            </div>
+
+            <dxi-column
+              *ngFor="let i of dynamicFields"
+              caption="{{ i.showName }}"
+              dataField="{{ i.fieldName }}"
+              cssClass="column p-0 text-align-left"
+              width="180"
+              cellTemplate="dynamicFieldTemplate"
+              alignment="left"
+              [calculateFilterExpression]="calculateFilterExpressionDynamic"
+            >
+              <dxo-header-filter
+                [dataSource]="getDataSourceDynFilter(i.fieldName)"
+              >
+              </dxo-header-filter>
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'dynamicFieldTemplate'">
+              <div *ngFor="let i of dynamicFields">
+                <table class="main">
+                  <ng-container
+                    *ngFor="
+                      let fields of data.data.goods;
+                      trackBy: trackByGoodId
+                    "
+                  >
+                    <tr *ngIf="i.fieldName == data.column.dataField">
+                      <span class="twostrings">
+                        {{
+                          i.fieldName | actualDimensions : fields.dynamicFields
+                        }}
+                      </span>
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerFirmName' | translate }}"
+              dataField="buyerFirmName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerConcatedClientName' | translate }}"
+              dataField="buyerConcatedClientName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerRegNumber' | translate }}"
+              dataField="buyerRegNumber"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerBranchName' | translate }}"
+              dataField="buyerBranchName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerTin' | translate }}"
+              dataField="buyerTin"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerLegalAddress' | translate }}"
+              dataField="buyerLegalAddress"
+              cssClass="column text-align-left"
+              width="230"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerCountry' | translate }}"
+              dataField="buyerCountry"
+              cssClass="column text-align-left"
+              width="180"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerAffiliation' | translate }}"
+              dataField="buyerAffiliation"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.buyerTraderName' | translate }}"
+              dataField="buyerTraderName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerFirmName' | translate }}"
+              dataField="sellerFirmName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-deals.sellerConcatedClientName' | translate
+              }}"
+              dataField="sellerConcatedClientName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerRegNumber' | translate }}"
+              dataField="sellerRegNumber"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerBranchName' | translate }}"
+              dataField="sellerBranchName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerTin' | translate }}"
+              dataField="sellerTin"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerLegalAddress' | translate }}"
+              dataField="sellerLegalAddress"
+              cssClass="column text-align-left"
+              width="230"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerCountry' | translate }}"
+              dataField="sellerCountry"
+              cssClass="column text-align-left"
+              width="180"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerAffiliation' | translate }}"
+              dataField="sellerAffiliation"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-deals.sellerTraderName' | translate }}"
+              dataField="sellerTraderName"
+              cssClass="column text-align-left"
+              width="210"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+          </dx-data-grid>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #nodata>
+      <div class="noData mt-5">
+        {{ "report-deals.noAnyDeals" | translate }}
+      </div>
+    </ng-template>
+  </div>
+</main>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+  (onShown)="onLoadPanelShown()"
+>
+</dx-load-panel>

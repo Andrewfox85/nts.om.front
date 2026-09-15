@@ -1,0 +1,299 @@
+<!-- eslint-disable -->
+<dx-popup
+  contentTemplate="editPriceStepPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="editPriceStepPopup"
+  [showTitle]="true"
+  title="{{ 'offer-management.editPriceStepTitle' | translate }}"
+  width="800"
+  height="auto"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="closePopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'editPriceStepPopup'">
+    <div *ngIf="dataForDisplay" class="edit-price-step-popup flexContentColumn24">
+      <dx-validation-group class="form" #stepFormValid>
+        <form [formGroup]="stepForm">
+          
+          <div *ngFor="let delivery of dataForDisplay.deliveryConditions" class="accordion">
+            
+            <!-- без базиса - только таблица товаров -->
+            <ng-container *ngIf="delivery[0] === NO_BASIS; else accordionTemplate">
+              <div class="noBasisTable">
+                <ng-container *ngTemplateOutlet="goodsGrid; context: { $implicit: delivery[1], form: stepForm, isBasis: false }"></ng-container>
+              </div>
+            </ng-container>
+    
+            <!-- заявка с базисами - отображаем аккордион с базисом -->
+            <ng-template #accordionTemplate>
+              <dx-accordion
+                [dataSource]="[delivery[1]]"
+                [multiple]="true"
+                [collapsible]="true"
+                [animationDuration]="300"
+                id="accordion-container"
+              >
+                <div *dxTemplate="let basis of 'title'">
+                  <div class="flexContent20">
+                    <div
+                      class="font-s12 l-h16"
+                      [ngClass]="{
+                        'flexContentColumn8': basis[0].isMain,
+                        'flexContent8': !basis[0].isMain
+                      }"
+                    >
+                      <div *ngIf="basis[0].isMain">
+                        {{ "createOffer.termsDeliveryTime.coreBasis" | translate }}
+                      </div>
+                      <div>{{ basis[0].concatedCondition }}</div>
+                    </div>
+                  </div>
+                </div>
+    
+                <div *dxTemplate="let basis of 'item'">
+                  <div class="basisTable">
+                    <ng-container *ngTemplateOutlet="goodsGrid; context: { $implicit: basis, form: stepForm, isBasis: true }"></ng-container>
+                  </div>
+                </div>
+              </dx-accordion>
+            </ng-template>
+          </div>
+    
+          <div class="buttons flexContent24 buttonsClass">
+            <button class="btn btn-primary submit w-50" [disabled]="!validationGroup?.instance.validate().isValid" (click)="editPriceStep()">
+              {{ "btns.save" | translate }}
+            </button>
+            <button class="btn btn-outline-primary w-50" (click)="closePopup()">
+              {{ "btns.close" | translate }}
+            </button>
+          </div>
+
+        </form>
+      </dx-validation-group>
+    </div>
+    
+    <!-- таблица товаров-->
+    <ng-template #goodsGrid let-gridData let-formInstance="form" let-isBasis="isBasis">
+      <dx-data-grid
+        #dataGridDeliveryCondition
+        [dataSource]="gridData"
+        class="deliveryBasisGrid"
+        [showColumnLines]="true"
+        [showRowLines]="true"
+      >
+        <dxo-state-storing
+          [enabled]="true"
+          type="localStorage"
+          storageKey="editPriceOrderManagment"
+        ></dxo-state-storing>
+    
+        <dxi-column
+          caption="{{ 'createOffer.good.good' | translate }}"
+          dataField="goodName"
+          cssClass="column"
+          cellTemplate="nameTemplate"
+        ></dxi-column>
+    
+        <div *dxTemplate="let item of 'nameTemplate'">
+          <div class="twostrings" id="name{{ item.data.idBasisLink }}">
+            {{ item.data.goodName }}
+          </div>
+    
+          <dx-tooltip
+            target="#name{{ item.data.idBasisLink }}"
+            [showEvent]="{ name: 'mouseenter', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'" class="whiteTextColor text-align-left">
+              {{ item.data.goodName }}
+            </div>
+          </dx-tooltip>
+        </div>
+    
+        <dxi-column
+          caption="{{ 'createOffer.good.quantity' | translate }}"
+          dataField="volume"
+          cssClass="column date-roboto-mono v-al-middle"
+          cellTemplate="quantityTemplate"
+          alignment="right"
+        ></dxi-column>
+        
+        <div *dxTemplate="let item of 'quantityTemplate'" class="flexContent4 jc-end">
+          <div>
+            {{ 
+              item.data.volume | ruNumberFormat : 0 : dataForDisplay.volumePrecision
+            }}
+          </div>
+          <div>{{ item.data.unitName }}</div>
+        </div>
+    
+        <dxi-column
+          caption="{{ 'offer-management.priceStep' | translate }}"
+          cssClass="column date-roboto-mono v-al-middle"
+          cellTemplate="priceStepTemplate"
+          alignment="right"
+        ></dxi-column>
+    
+        <div *dxTemplate="let item of 'priceStepTemplate'" class="flexContent4 jc-end">
+          <div class="flexContent4 center" [formGroup]="formInstance">
+            <!-- показываем инпут для ввода шага цены -->
+            <dx-number-box
+              *ngIf="(isBasis && item.data.isMain) || !isBasis"
+              dxNumberBoxClear
+              height="32px"
+              formControlName="{{ item.data.goodId }}"
+              [min]="0"
+              [inputAttr]="{ class: 'text-align-right' }"
+              class="custom-number-box"
+              (onValueChanged)="setReadForm($event, item.data.goodId)"
+            >
+              <dxo-format type="fixedPoint" [precision]="dataForDisplay.currencyPrecision"></dxo-format>
+              <dx-validator>
+                <dxi-validation-rule type="required"></dxi-validation-rule>
+                <dxi-validation-rule
+                  type="compare"
+                  [comparisonType]="'!='"
+                  [comparisonTarget]="zeroComparison"
+                  message="{{ 'errors.null' | translate }}"
+                ></dxi-validation-rule>
+              </dx-validator>
+            </dx-number-box>
+    
+            <!-- если это неосновной базис в режиме с базисами -->
+            <dx-number-box
+              *ngIf="isBasis && !item.data.isMain"
+              dxNumberBoxClear
+              height="32px"
+              [inputAttr]="{ class: 'text-align-right date-roboto-mono' }"
+              formControlName="{{ item.data.goodId }}"
+              [readOnly]="true"
+            >
+              <dxo-format type="fixedPoint" [precision]="dataForDisplay.currencyPrecision"></dxo-format>
+            </dx-number-box>
+    
+            <div>{{ item.data.currency }}</div>
+          </div>
+        </div>
+
+        <dxi-column
+          *ngIf="dataForDisplay?.pricingTypeId === pricingType?.formulaWithQuotation"
+          caption="{{ 'createOffer.goodInfo.quotation' | translate }}"
+          dataField="quotation"
+          cssClass="column date-roboto-mono v-al-middle"
+          cellTemplate="quotationTemplate"
+          alignment="right"
+        ></dxi-column>
+        
+        <div *dxTemplate="let item of 'quotationTemplate'" class="flexContent4 jc-end">
+          <div>
+            {{ 
+              getNumber(item.data.quotation) | ruNumberFormat : dataForDisplay.quoteCurrencyPrecision : dataForDisplay.quoteCurrencyPrecision
+            }}
+          </div>
+          <div>{{ item.data.quoteCurrency }}</div>
+        </div>
+
+        <dxi-column
+          *ngIf="dataForDisplay?.pricingTypeId !== pricingType?.price"
+          caption="{{ 'createOffer.goodInfo.amendment' | translate }}"
+          dataField="amendment"
+          cssClass="column date-roboto-mono v-al-middle"
+          cellTemplate="amendmentTemplate"
+          alignment="right"
+        ></dxi-column>
+        
+        <div *dxTemplate="let item of 'amendmentTemplate'" class="flexContent4 jc-end">
+          <div>
+            {{ 
+              getNumber(item.data.amendment) | ruNumberFormat : dataForDisplay.currencyPrecision : dataForDisplay.currencyPrecision
+            }}
+          </div>
+          <div>
+            {{
+              item.data.priceAdjustment === PRICE_ADJUSTMENT_TYPE.RELATIVE_TYPE
+                ? "%"
+                : item.data.currency
+            }}
+          </div>
+        </div>
+
+        <dxi-column
+          *ngIf="dataForDisplay?.pricingTypeId !== pricingType?.formulaWithQuotation"
+          caption="{{ 'createOffer.good.priceWithoutVAT' | translate }}"
+          dataField="cost"
+          cssClass="column date-roboto-mono v-al-middle"
+          cellTemplate="priceWithoutVATTemplate"
+          alignment="right"
+        ></dxi-column>
+        
+        <div *dxTemplate="let item of 'priceWithoutVATTemplate'" class="flexContent4 jc-end">
+          <div>
+            {{ 
+              getNumber(item.data.priceWithoutVat) | ruNumberFormat : dataForDisplay.currencyPrecision : dataForDisplay.currencyPrecision
+            }}
+          </div>
+          <div>{{ item.data.currency }}</div>
+        </div>
+
+        <dxi-column
+          *ngIf="dataForDisplay?.pricingTypeId !== pricingType?.formulaWithQuotation"
+          caption="{{ 'createOffer.termsDeliveryTime.costVAT' | translate }}"
+          dataField="costVat"
+          cssClass="column date-roboto-mono v-al-middle"
+          cellTemplate="costVATTemplate"
+          alignment="right"
+        ></dxi-column>
+        
+        <div *dxTemplate="let item of 'costVATTemplate'" class="flexContent4 jc-end">
+          <div>
+            {{ 
+              getNumber(item.data.costVat) | ruNumberFormat : dataForDisplay.currencyPrecision : dataForDisplay.currencyPrecision
+            }}
+          </div>
+          <div>{{ item.data.currency }}</div>
+        </div>
+
+        <dxo-summary>
+          <dxi-total-item
+            column="costVat"
+            cssClass="blackColor date-roboto-mono d-flex jc-end"
+            summaryType="sum"
+            displayFormat="{{ isBasis ?
+              ( 'createOffer.termsDeliveryTime.totalBased' | translate ) : 
+              ( 'general.total' | translate )
+            }}: {0} {{ gridData[0].currency }}"
+            alignment="right footer"
+            showInColumn="costVat"
+          >
+            <dxo-value-format
+              type="fixedPoint"
+              precision="{{ dataForDisplay.currencyPrecision }}"
+            >
+            </dxo-value-format>
+          </dxi-total-item>
+        </dxo-summary>
+      </dx-data-grid>
+    </ng-template>
+
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [message]="message"
+  [type]="type"
+  [width]="400"
+  [height]="62"
+  [displayTime]="5000"
+>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>

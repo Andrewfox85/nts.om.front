@@ -1,0 +1,37 @@
+<!-- eslint-disable -->
+<div class="pagination">
+  <div>
+    <div *ngIf="pageSizeVisible">
+      <dx-select-box
+                [dataSource]="numberEntriesPage"
+                width="80px"
+                height="40px"
+                [(value)]="pageSize"
+                (onValueChanged)="onChangePageSize()"
+              >
+     </dx-select-box><!-- numberEntriesPage -->
+    </div>
+    
+  </div>
+  
+
+  <div class="flexContent8 ai-c">
+      <i class="left" [ngClass]="{'opacity' : currentPage == 1}" (click)="onDecrease()"></i>
+
+      <dx-number-box
+        [(value)]="currentPage"
+        [min]="1"
+        [max]="totalPages"
+        [width]="48"
+        (onValueChanged)="valueChange()"
+      ></dx-number-box>
+
+      <span style="opacity:0.6">{{ 'general.of' | translate }}</span>
+
+      {{totalPages}}
+
+
+      <i class="right" [ngClass]="{'opacity' : currentPage == totalPages}" (click)="onIncrease()"></i>
+  </div>
+ 
+</div>

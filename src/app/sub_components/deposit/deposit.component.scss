@@ -1,0 +1,116 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+::ng-deep.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+  padding: 12px !important;
+}
+
+
+::ng-deep.dx-dropdowneditor-icon{
+  display: none;
+}
+
+.session {
+    .session-stage {
+      //width: 100%;
+      padding: 4px 8px;
+      height: 24px;
+  
+      &.default {
+        background-color: $lightGrayBackgroundColor;
+        color: $secondTextColor;
+      }
+    }
+  
+    .session-number {
+      padding: 4px 8px;
+      height: 24px;
+  
+      .session-info {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: baseline;
+      }
+    }
+  }
+
+  .firm-info{
+    border: 1px solid $lightGrayBackgroundColorButton;
+    padding: 16px;
+
+    .title {
+      width: 170px;
+      font-size: 12px;
+      color: $headerTopColor;
+    }
+  
+    .data {
+      font-size: 14px;
+      width: calc(100% - 170px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+
+  .label{
+      font-style: normal;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 16px;
+      color: $secondTextColor;
+      padding-bottom: 0;
+  }
+
+  .checkbox {
+    height:32px;
+  }
+
+  .main {
+    border: none !important;
+    width: 100%;
+  
+    tr {
+      border-bottom: 1px solid $greyBorder;
+      display: block;
+      padding: 12px;
+      height: 48px;
+
+      &.subTitle{
+        background-color: $backgroundGrey;
+      }
+  
+      &:first-child {
+        //  padding-top: 0px;
+      }
+  
+      &:last-child {
+        border-bottom: none;
+        //    padding-bottom: 0px;
+      }
+  
+      &.price {
+        display: flex;
+        gap: 4px;
+        justify-content: flex-end;
+      }
+  
+  
+    }
+  }
+
+  .mt{
+    margin-top: 40px !important;
+  }
+
+  .overflowText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: table-cell;
+   // width: 100%;
+  }
+  

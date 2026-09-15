@@ -1,0 +1,647 @@
+<!-- eslint-disable -->
+<div
+  class="flexContentColumn20"
+  [ngClass]="{ addBasisOpen: basisValue.length > 0 }"
+>
+  <div class="flexContent24 w-100">
+    <label>{{
+      deliveryBasis.length > 0 && !this.basisValue[0]?.coreBasis
+        ? ("createOffer.termsDeliveryTime.additionalbasis" | translate)
+        : ("createOffer.termsDeliveryTime.coreBasis" | translate)
+    }}</label>
+    <a (click)="clearBasis()">{{ "general.clear" | translate }}</a>
+  </div>
+  <!--                  (onValueChanged)="onDropDownBoxValueChanged($event)"-->
+  <!--        [dataSource]="deliveryBasis.length == 0 ? deliveryConditions : "-->
+  <dx-validation-group name="basisGroup" class="form">
+    <form [formGroup]="basisForm" class="flexContentColumn20">
+      <div class="changePosition flexContentColumn20 d-flex w-100 fl-wrap wrap">
+        <div class="form-group">
+          <label>{{
+            deliveryBasis.length > 0 && !this.basisValue[0]?.coreBasis
+              ? ("createOffer.termsDeliveryTime.additionalbasis" | translate)
+              : ("createOffer.termsDeliveryTime.coreBasis" | translate)
+          }}</label>
+          <dx-select-box
+            [dataSource]="delivery"
+            displayExpr="basisName"
+            valueExpr="linkId"
+            height="40px"
+            placeholder="{{ 'filters.selection' | translate }}"
+            formControlName="basis"
+            (onValueChanged)="onChangeBasis($event.value)"
+          >
+            <dx-validator>
+              <dxi-validation-rule type="required"></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+
+        <div
+          class="flexContent16 notRequired"
+          *ngIf="basisChooseValue?.placeTypeId"
+        >
+          <div class="form-group">
+            <label>{{ basisChooseValue.placeName }}</label>
+            <div class="flexContentColumn4">
+              <!--    text-box перекрывает drop-down-box, чтобы было видно значение из выпадающего списка или поля ввода(добавить)    -->
+              <dx-text-box
+                placeholder="{{ 'filters.selection' | translate }}"
+                [showClearButton]="true"
+                class="textBoxView"
+                [readOnly]="true"
+                width="{{ dropdownbox.offsetWidth - 70 }}"
+                [value]="this.EnterPlaceName"
+              >
+              </dx-text-box>
+
+              <div #dropdownbox class="relative">
+                <div class="clear" *ngIf="EnterPlaceName?.length > 0">
+                  <i class="clearIcon" (click)="clearPlaceName()"></i>
+                </div>
+                <dx-drop-down-box
+                  valueExpr="idLink"
+                  displayExpr="valueName"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  height="40px"
+                  [showClearButton]="false"
+                  [dataSource]="placeDataBasis"
+                  formControlName="placeName"
+                  (onOpened)="onOpenedDropDown()"
+                  ><!--      -->
+                  <div
+                    *dxTemplate="let data of 'content'"
+                    class="flexContentColumn8"
+                  >
+                    <div class="search">
+                      <dx-text-box
+                        placeholder="{{ 'filters.searchLabelWithEnter' | translate }}"
+                        [(value)]="searchValue"
+                        [showClearButton]="true"
+                        (onValueChanged)="searchTxtBoxValueChange($event)"
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="custom"
+                            message="{{
+                              'errors.minLengthBasisPlaceSearch' | translate
+                            }}"
+                            [ignoreEmptyValue]="true"
+                            [reevaluate]="true"
+                            [validationCallback]="lengthValidationSearch"
+                          >
+                          </dxi-validation-rule>
+                        </dx-validator>
+                        <!--                        valueChangeEvent="keyup"-->
+                        <dxi-button
+                          name="search"
+                          location="before"
+                          [options]="searchIcon"
+                        ></dxi-button>
+                        <dxi-button name="clear"></dxi-button>
+                      </dx-text-box>
+                      <div *ngIf="isBroadPlaceSearch" class="place-search-hint">
+                        {{
+                          "createOffer.termsDeliveryTime.broadPlaceSearchHint"
+                            | translate : { count: broadPlaceSearchMatchCount }
+                        }}
+                      </div>
+                    </div>
+                    <!--                      <dx-scroll-view [useNative]="true" height="calc(100% - 40px)">-->
+                    <dx-tree-view
+                      [dataSource]="placeDataBasis"
+                      [animationEnabled]="false"
+                      dataStructure="plain"
+                      keyExpr="idLink"
+                      parentIdExpr="idLinkParent"
+                      selectionMode="single"
+                      showCheckBoxesMode="normal"
+                      [selectNodesRecursive]="false"
+                      displayExpr="valueName"
+                      [selectByClick]="true"
+                      [searchEditorOptions]=""
+                      [searchEnabled]="false"
+                      [searchExpr]="'valueName'"
+                      [useNativeScrolling]="true"
+                      [searchTimeout]="3000"
+                      itemTemplate="itemTemplate"
+                      (onInitialized)="saveInstance($event)"
+                      (onItemExpanded)="onPlaceTreeItemExpanded($event)"
+                      (onSelectionChanged)="onSelectionChanged($event)"
+                      (onItemSelectionChanged)="onChangePlaceType($event)"
+                    >
+                      <div *dxTemplate="let item of 'itemTemplate'">
+                        <div
+                          *ngIf="item.isLazyPlaceholder"
+                          class="place-search-lazy-load"
+                          (click)="onLoadPlaceChildren($event, item)"
+                        >
+                          {{
+                            "createOffer.termsDeliveryTime.loadNestedPlaces"
+                              | translate : { count: item.childCount }
+                          }}
+                        </div>
+                        <div
+                          *ngIf="!item.isLazyPlaceholder"
+                          [class.disabled]="item.disableCountries"
+                        >
+                          {{ item.valueName }}
+                        </div>
+                      </div>
+                    </dx-tree-view>
+                    <!--                      </dx-scroll-view>-->
+                    <!--                      [searchValue]="searchValue"-->
+                    <!--                      (onContentReady)="onContentReady($event)"-->
+                    <!--                      (searchValueChange)="stratSpinner($event)"-->
+                    <!--                    <a (click)="openPopupAddPlace = true;" *ngIf="basisChooseValue.placeTypeId != 1">{{'btns.add' | translate}}</a>-->
+                  </div>
+                  <dx-validator>
+                    <dxi-validation-rule
+                      *ngIf="basisChooseValue.isRequiredPlace"
+                      type="required"
+                    ></dxi-validation-rule>
+                  </dx-validator>
+                </dx-drop-down-box>
+              </div>
+              <div
+                *ngIf="!basisChooseValue.isRequiredPlace"
+                class="optinalField"
+              >
+                {{ "general.optionalField" | translate }}
+              </div>
+            </div>
+          </div>
+          <!--Для погранпереходов, портов и ж/д станций выбор идёт или из справочника или произвольный ввод-->
+          <div class="form-group" *ngIf="basisChooseValue.placeTypeId == 1">
+            <label>{{
+              "createOffer.termsDeliveryTime.specifyingLocation" | translate
+            }}</label>
+            <div class="flexContentColumn4">
+              <dx-text-box
+                placeholder="{{ 'general.enter' | translate }}"
+                [showClearButton]="true"
+                height="40px"
+                formControlName="specifyingLocation"
+                maxLength="250"
+                [disabled]="isDisabledSpecifyingLocation"
+                (onValueChanged)="onChangeSpecifyingLocation()"
+              >
+              </dx-text-box>
+              <div class="optinalField">
+                {{ "general.optionalField" | translate }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flexContentColumn16 w-100">
+        <div class="flexContent24">
+          <label>{{
+            "createOffer.termsDeliveryTime.costCharacter" | translate
+          }}</label>
+          <dx-button
+            class="btn-withoutBorder"
+            (onClick)="setPricesQuote($event)"
+            *ngIf="isActiveQuotation"
+            >{{
+              "createOffer.termsDeliveryTime.setPricesQuote" | translate
+            }}</dx-button
+          >
+          <dx-button
+            class="btn-withoutBorder"
+            *ngIf="isActiveCorridor"
+            (onClick)="setPriceRange($event)"
+            >{{
+              "createOffer.termsDeliveryTime.priceRange" | translate
+            }}</dx-button
+          >
+        </div>
+        <dx-data-grid
+          #dataGridGood
+          [showBorders]="false"
+          [dataSource]="basisGoods"
+          [showColumnLines]="true"
+          [showRowLines]="true"
+        >
+          <dxo-sorting mode="none"></dxo-sorting>
+          <!--        (editingChange)="changePrice = $event.changes"-->
+          <dxi-column dataField="id" [visible]="false"> </dxi-column>
+
+          <dxi-column
+            caption="{{ 'createOffer.good.good' | translate }}"
+            dataField="name"
+            cssClass="column"
+            [allowEditing]="false"
+          >
+          </dxi-column>
+          <!--        width="75%"-->
+          <dxi-column
+            *ngIf="pricingType == pricingTypeConst?.formulaWithQuotation"
+            caption="{{ 'createOffer.goodInfo.quotation' | translate }}"
+            dataField="quotation"
+            cssClass="column"
+            [allowEditing]="false"
+            cellTemplate="quotationTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'quotationTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <div>
+              {{ (item.data?.quotation).toLocaleString("ru") }}
+              {{ item.data.quoteCurrency.name }}
+            </div>
+          </div>
+
+          <dxi-column
+            *ngIf="pricingType != pricingTypeConst?.price"
+            caption="{{ 'createOffer.goodInfo.amendment' | translate }}"
+            dataField="amendment"
+            cssClass="column"
+            [allowEditing]="false"
+            cellTemplate="amendmentTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'amendmentTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="item.data.amendment"
+              [disabled]="
+                !(deliveryBasis.length > 0 && !this.basisValue[0]?.coreBasis)
+              "
+              (onValueChanged)="onChangeAmendment($event, item.data.id)"
+              cssClass="date-roboto-mono"
+            >
+              <dxo-format type="fixedPoint" [precision]="2"> </dxo-format>
+            </dx-number-box>
+            <div>
+              {{
+                item.data.priceAdjustment.id == 1
+                  ? "%"
+                  : item.data.currency.name
+              }}
+            </div>
+          </div>
+
+          <dxi-column
+            *ngIf="pricingType == pricingTypeConst?.formulaWithQuotation"
+            caption="{{ 'createOffer.good.priceWithoutVAT' | translate }}"
+            dataField="cost"
+            cssClass="column text-align-right"
+            dataType="number"
+            cellTemplate="priceWithoutVATQuotationTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'priceWithoutVATQuotationTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="priceAmendment(item.data)"
+              [disabled]="true"
+              cssClass="date-roboto-mono "
+            >
+              <dxo-format type="fixedPoint" [precision]="2"> </dxo-format>
+            </dx-number-box>
+            <div>
+              {{
+                item.data.currency?.name
+                  ? item.data.currency?.name
+                  : item.data.currency
+              }}
+            </div>
+          </div>
+
+          <dxi-column
+            *ngIf="pricingType == pricingTypeConst?.price"
+            caption="{{ 'createOffer.good.priceWithoutVAT' | translate }}"
+            dataField="cost"
+            cssClass="column text-align-right"
+            width="25%"
+            dataType="number"
+            cellTemplate="priceWithoutVATTemplate"
+          >
+          </dxi-column>
+          <div
+            *dxTemplate="let item of 'priceWithoutVATTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+            [ngClass]="{
+              greenValue: item.data.change,
+              errorValue: item.data.error,
+              orangeValue: item.data.range
+            }"
+          >
+            <div
+              class="infoIconThin"
+              *ngIf="item.data.range"
+              id="warning{{ item.data.id }}"
+            >
+              <dx-tooltip
+                target="#warning{{ item.data.id }}"
+                [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                  class="whiteTextColor text-align-left"
+                >
+                  {{
+                    "createOffer.termsDeliveryTime.tooltipPriceRangeMinprice"
+                      | translate
+                  }}
+                  {{
+                    item.data.minPrice
+                      ? item.data.minPrice +
+                        " " +
+                        (item.data.currency?.name
+                          ? item.data.currency?.name
+                          : item.data.currency)
+                      : "-"
+                  }}<br />{{
+                    "createOffer.termsDeliveryTime.tooltipPriceRangeMaxprice"
+                      | translate
+                  }}
+                  {{
+                    item.data.maxPrice
+                      ? item.data.maxPrice +
+                        " " +
+                        (item.data.currency?.name
+                          ? item.data.currency?.name
+                          : item.data.currency)
+                      : "-"
+                  }}
+                </div>
+              </dx-tooltip>
+            </div>
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="item.data.cost"
+              (onValueChanged)="onChangePrices($event, item.data.id)"
+              class="custom-number-box"
+              (onKeyDown)="onKeyDown($event, item.data)"
+              ><!--      [disabled]="!(deliveryBasis.length > 0 && !this.basisValue[0]?.coreBasis)"-->
+              <dxo-format type="fixedPoint" [precision]="2"> </dxo-format>
+
+              <dx-validator>
+                <dxi-validation-rule
+                                     type="required"
+                ></dxi-validation-rule>
+                <!--поле не ноль -->
+                <dxi-validation-rule
+                  type="compare"
+                  [comparisonType]="'!='"
+                  [comparisonTarget]="zeroComparison"
+                  message="{{'errors.null' | translate}}"
+                ></dxi-validation-rule>
+
+                <!--поле Цена без НДС, если есть Мин цена (торги на понижение) -->
+                <dxi-validation-rule
+                  *ngIf="
+                    this.demandsModal.tradeTypeId == 2 &&
+                    this.direction == 1 &&
+                    isMinPrice()
+                  "
+                  type="compare"
+                  [comparisonType]="'>='"
+                  [comparisonTarget]="comparisonTarget(item.data)"
+                  message="{{ 'createOffer.priceMustNotBeLessThanMinimum' | translate }}"
+                ></dxi-validation-rule>
+              </dx-validator>
+            </dx-number-box>
+            <div>
+              {{
+                item.data.currency?.name
+                  ? item.data.currency?.name
+                  : item.data.currency
+              }}
+            </div>
+          </div>
+
+          <!-- минимальная цена -->
+          <dxi-column
+            *ngIf="
+              pricingType == pricingTypeConst?.price &&
+              this.demandsModal.tradeTypeId == 2 &&
+              this.direction == 1 &&
+              isMinPrice()
+            "
+            caption="{{ 'createOffer.good.minPriceWithoutVAT' | translate }}"
+            dataField="minPriceField"
+            cssClass="column text-align-right"
+            width="25%"
+            dataType="number"
+            cellTemplate="minPriceWithoutVATTemplate"
+          >
+          </dxi-column>
+
+          <div
+            *dxTemplate="let item of 'minPriceWithoutVATTemplate'"
+            class="flexContent10 text-align-right ai-c jc-end number-style"
+          >
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="0"
+              [height]="32"
+              [value]="item.data.minPriceField"
+              [min]="item.data.isRequiredMinPrice ? 0.01 : null"
+              class="custom-number-box"
+              (onKeyDown)="onKeyDown($event, item.data, true)"
+              (onValueChanged)="onChangeMinPrices($event, item.data.id)"
+              >
+              <dxo-format type="fixedPoint" [precision]="2"> </dxo-format>
+              <dx-validator>
+                <dxi-validation-rule *ngIf="item.data.isRequiredMinPrice"
+                                     type="required"
+                ></dxi-validation-rule>
+                <!--поле не ноль -->
+                <dxi-validation-rule
+                  type="compare"
+                  [comparisonType]="'!='"
+                  [comparisonTarget]="zeroComparison"
+                  message="{{'errors.null' | translate}}"
+                ></dxi-validation-rule>
+              </dx-validator>
+            </dx-number-box>
+            <div>
+              {{
+                item.data.currency?.name
+                  ? item.data.currency?.name
+                  : item.data.currency
+              }}
+            </div>
+          </div>
+
+          <dxo-toolbar [visible]="false"></dxo-toolbar>
+        </dx-data-grid>
+      </div>
+
+      <div class="flexContent20 buttonsClass jc-end">
+        <dx-button (onClick)="onSaveBasis($event)">
+          <button class="btn btn-primary submit w-194px">
+            {{ "btns.save" | translate }}
+          </button>
+        </dx-button>
+        <!--        <button class="btn btn-outline-primary submit w-155px" *ngIf="this.basisValue?.length > 0" (click)="OnDeleteBasis()">{{'btns.delete' | translate}}</button>-->
+        <button
+          class="btn btn-outline-primary"
+          [ngClass]="{ 'w-155px': basisValue.length == 0 }"
+          (click)="OnClose()"
+        >
+          {{
+            basisValue.length > 0
+              ? ("btns.cancelEdit" | translate)
+              : ("btns.close" | translate)
+          }}
+        </button>
+      </div>
+    </form>
+  </dx-validation-group>
+</div>
+
+<dx-popup
+  contentTemplate="popup-content"
+  [(visible)]="openPopupAddPlace"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'createOffer.termsDeliveryTime.addDeliveryLocation' | translate }}"
+  [showCloseButton]="true"
+  height="auto"
+  width="auto"
+>
+  <div *dxTemplate="let data of 'popup-content'">
+    <form class="flexContentColumn20">
+      <div class="form-group">
+        <label>{{ basisChooseValue.placeName }}</label>
+        <dx-text-box
+          #location
+          placeholder="{{ 'general.enter' | translate }}"
+          [showClearButton]="true"
+          width="294"
+          height="40px"
+          [(value)]="enterPlace"
+          (onInitialized)="setFocus($event)"
+        >
+        </dx-text-box>
+      </div>
+      <div class="flexContent20 buttonsClass jc-end w-100">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onChangePlaceTypeByEnter()"
+        >
+          {{ "btns.save" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary submit w-50"
+          (click)="openPopupAddPlace = false"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!--(onInitialized)="$event."-->
+</dx-popup>
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{
+    errorState == 1
+      ? ('errors.error' | translate)
+      : ('errors.message' | translate)
+  }}"
+  maxWidth="450px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHidden)="this.isButtonPriceQuote = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'" class="flexContentColumn32">
+    <div class="borderRed errorPopup" *ngIf="errorState == 1">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+    <div class="borderOrange errorPopup" *ngIf="errorState == 0">
+      <i class="unavailableIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+
+    <div
+      class="buttons flexContent24 buttonsClass"
+      *ngIf="this.isButtonPriceQuote || isButtonPriceRange"
+    >
+      <dx-button
+        *ngIf="isButtonPriceQuote"
+        (onClick)="
+          setPricesQuote($event); this.error = false; isButtonPriceQuote = false
+        "
+        class="w-50"
+      >
+        <button class="btn btn-primary submit w-100">
+          {{ "btns.set" | translate }}
+        </button></dx-button
+      >
+      <button
+        *ngIf="isButtonPriceRange"
+        class="btn btn-primary submit w-50"
+        (click)="continue(); this.error = false; isButtonPriceRange = false"
+      >
+        {{ "btns.continue" | translate }}
+      </button>
+      <button
+        class="btn btn-outline-primary w-50"
+        (click)="
+          error = false; isButtonPriceQuote = false; isButtonPriceRange = false
+        "
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [type]="this.typeToast == 'success' ? 'success' : 'info'"
+  [width]="350"
+  [height]="80"
+  [displayTime]="7000"
+>
+  <div *dxTemplate="let data of 'content'">
+    <div class="l-h20">{{ messageToast }}</div>
+  </div>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+>
+</dx-load-panel>

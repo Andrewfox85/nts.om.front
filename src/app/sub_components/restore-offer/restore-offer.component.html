@@ -1,0 +1,300 @@
+<!-- eslint-disable -->
+<div class="flexContentColumn24">
+  <div
+    *ngIf="infoForRestore.isActiveQuotation"
+    class="resultMessage errorMessage borderRed"
+  >
+    {{ "createOffer.termsDeliveryTime.priceQuoteError3" | translate }}
+  </div>
+
+  <div
+    *ngIf="infoForRestore.isActiveRange"
+    class="resultMessage warningMessage borderOrange"
+  >
+    {{ "createOffer.termsDeliveryTime.warningPriceRange" | translate }}.
+    {{ "btns.continue" | translate }}?
+  </div>
+
+  <div
+    *ngFor="let delivery of infoForRestore.deliveryConditions"
+    class="accordion"
+  >
+    <dx-accordion
+      [dataSource]="[delivery[1]]"
+      [multiple]="true"
+      [collapsible]="true"
+      [animationDuration]="300"
+      id="accordion-container"
+    >
+      <div *dxTemplate="let basis of 'title'">
+        <div class="flexContent20">
+          <div
+            class="font-s12 l-h16"
+            [ngClass]="{
+              flexContentColumn8: basis[0].isMain,
+              flexContent8: !basis[0].isMain
+            }"
+          >
+            <div *ngIf="basis[0].isMain">
+              {{ "createOffer.termsDeliveryTime.coreBasis" | translate }}
+            </div>
+            <div>{{ basis[0].concatedCondition }}</div>
+          </div>
+        </div>
+      </div>
+      <div *dxTemplate="let basis of 'item'">
+        <div class="basisTable">
+          <dx-data-grid
+            #dataGridDeliveryCondition
+            [dataSource]="basis"
+            class="deliveryBasisGrid"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+          >
+            <dxo-state-storing
+              [enabled]="true"
+              type="localStorage"
+              storageKey="restoreOfferOrderNamagemnt"
+            >
+            </dxo-state-storing>
+
+            <dxi-column
+              caption="{{ 'createOffer.good.good' | translate }}"
+              dataField="goodName"
+              cssClass="column"
+              cellTemplate="nameTemplate"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let item of 'nameTemplate'">
+              <div class="twostrings" id="name{{ item.data.idBasisLink }}">
+                {{ item.data.goodName }}
+              </div>
+
+              <dx-tooltip
+                target="#name{{ item.data.idBasisLink }}"
+                [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                hideEvent="mouseleave"
+              >
+                <div
+                  *dxTemplate="let data = data; of: 'content'"
+                  class="whiteTextColor text-align-left"
+                >
+                  {{ item.data.goodName }}
+                </div>
+              </dx-tooltip>
+            </div>
+
+            <dxi-column
+              caption="{{ 'createOffer.good.quantity' | translate }}"
+              dataField="volume"
+              cssClass="column date-roboto-mono "
+              cellTemplate="quantityTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'quantityTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div>
+                {{
+                  item.data.volume.toLocaleString("ru", {
+                    maximumFractionDigits: infoForRestore.volumePrecision
+                  })
+                }}
+              </div>
+              <div>{{ item.data.unitName }}</div>
+            </div>
+
+            <dxi-column
+              *ngIf="
+                infoForRestore?.pricingTypeId ==
+                pricingType?.formulaWithQuotation
+              "
+              caption="{{ 'createOffer.goodInfo.quotation' | translate }}"
+              dataField="quotation"
+              cssClass="column date-roboto-mono "
+              cellTemplate="quotationTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'quotationTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div>
+                {{
+                  getNumber(item.data.quotation).toLocaleString("ru", {
+                    minimumFractionDigits: infoForRestore.quoteCurrencyPrecision
+                  })
+                }}
+              </div>
+              <div>{{ item.data.quoteCurrency }}</div>
+            </div>
+
+            <dxi-column
+              *ngIf="infoForRestore?.pricingTypeId != pricingType?.price"
+              caption="{{ 'createOffer.goodInfo.amendment' | translate }}"
+              dataField="amendment"
+              cssClass="column date-roboto-mono "
+              cellTemplate="amendmentTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'amendmentTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div>
+                {{
+                  getNumber(item.data.amendment).toLocaleString("ru", {
+                    minimumFractionDigits: infoForRestore.currencyPrecision
+                  })
+                }}
+              </div>
+              <div>
+                {{ item.data.priceAdjustment == 1 ? "%" : item.data.currency }}
+              </div>
+            </div>
+
+            <dxi-column
+              *ngIf="
+                infoForRestore?.pricingTypeId !=
+                pricingType?.formulaWithoutQuotation
+              "
+              caption="{{ 'createOffer.good.priceWithoutVAT' | translate }}"
+              dataField="cost"
+              cssClass="column date-roboto-mono "
+              cellTemplate="priceWithoutVATTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'priceWithoutVATTemplate'"
+              class="flexContent4 jc-end"
+              [ngClass]="{
+                errorValue: item.data?.quote,
+                infoValue: item.data?.range
+              }"
+            >
+              <div>
+                {{
+                  getNumber(item.data?.priceWithoutVat).toLocaleString("ru", {
+                    minimumFractionDigits: infoForRestore.currencyPrecision
+                  })
+                }}
+              </div>
+              <div>{{ item.data.currency }}</div>
+              <div
+                *ngIf="item.data?.quote"
+                class="errorIconThin"
+                id="error{{ item.data.idBasisLink }}"
+              >
+                <dx-tooltip
+                  target="#error{{ item.data.idBasisLink }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="whiteTextColor text-align-left"
+                  >
+                    {{
+                      "createOffer.termsDeliveryTime.priceQuoteTooltip"
+                        | translate
+                    }}
+                    {{ item.data.quotationPrice }} {{ item.data.currency }}
+                  </div>
+                </dx-tooltip>
+              </div>
+
+              <div
+                *ngIf="item.data?.range"
+                class="infoIconThin"
+                id="warning{{ item.data.idBasisLink }}"
+              >
+                <dx-tooltip
+                  target="#warning{{ item.data.idBasisLink }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'"
+                    class="whiteTextColor text-align-left"
+                  >
+                    {{
+                      "createOffer.termsDeliveryTime.tooltipPriceRangeMinprice"
+                        | translate
+                    }}
+                    {{
+                      item.data.leftBound
+                        ? item.data.leftBound + " " + item.data.currency
+                        : "-"
+                    }}<br />{{
+                      "createOffer.termsDeliveryTime.tooltipPriceRangeMaxprice"
+                        | translate
+                    }}
+                    {{
+                      item.data.rigthBound
+                        ? item.data.rigthBound + " " + item.data.currency.name
+                        : "-"
+                    }}
+                  </div>
+                </dx-tooltip>
+              </div>
+            </div>
+
+            <dxi-column
+              *ngIf="
+                infoForRestore?.pricingTypeId !=
+                pricingType?.formulaWithoutQuotation
+              "
+              caption="{{
+                'createOffer.termsDeliveryTime.costVAT' | translate
+              }}"
+              dataField="costVat"
+              cssClass="column date-roboto-mono"
+              cellTemplate="costVATTemplate"
+              alignment="right"
+            >
+            </dxi-column>
+            <div
+              *dxTemplate="let item of 'costVATTemplate'"
+              class="flexContent4 jc-end"
+            >
+              <div>
+                {{
+                  getNumber(item.data?.costVat).toLocaleString("ru", {
+                    minimumFractionDigits: infoForRestore.currencyPrecision,
+                    maximumFractionDigits: infoForRestore.currencyPrecision
+                  })
+                }}
+              </div>
+              <div>{{ item.data.currency }}</div>
+            </div>
+
+            <dxo-summary>
+              <dxi-total-item
+                column="costVat"
+                cssClass="blackColor date-roboto-mono d-flex jc-end"
+                summaryType="sum"
+                displayFormat="{{
+                  'createOffer.termsDeliveryTime.totalBased' | translate
+                }}: {0} {{ basis[0].currency }}"
+                alignment="right footer"
+                showInColumn="costVat"
+              >
+                <dxo-value-format
+                  type="fixedPoint"
+                  precision="{{ infoForRestore.currencyPrecision }}"
+                >
+                </dxo-value-format>
+              </dxi-total-item>
+            </dxo-summary>
+          </dx-data-grid>
+        </div>
+      </div>
+    </dx-accordion>
+  </div>
+</div>

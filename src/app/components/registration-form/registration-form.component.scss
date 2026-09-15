@@ -1,0 +1,134 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+
+::ng-deep.dx-treelist-headers .dx-treelist-table .dx-row > td.deleteFilterHeader {
+  ::ng-deep.dx-editor-with-menu {
+    visibility: hidden;
+  }
+}
+
+.switcOn {
+  content: url("~src/assets/img/icons/switch_on.svg");
+  vertical-align: middle;
+}
+
+.switcOff {
+  content: url("~src/assets/img/icons/switch_off.svg");
+  vertical-align: middle;
+}
+
+
+::ng-deep.dx-dropdownbutton-popup-wrapper .dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item-content {
+  padding: 9px 15px;
+}
+
+::ng-deep.dx-dropdownbutton-action.dx-button .dx-button-content {
+  padding: 10px 16px !important;
+  justify-content: space-between;
+}
+
+::ng-deep.dx-button-text {
+  line-height: 20px;
+}
+
+::ng-deep.dx-popup-bottom.dx-toolbar .dx-toolbar-before {
+  padding-right: 0;
+  width: 100%;
+}
+
+/*
+:host::ng-deep.dx-toolbar-before {
+  display: block;
+  position: relative;
+}
+
+:host::ng-deep.dx-toolbar-item {
+  display: block;
+}
+*/
+
+::ng-deep.dx-popup-bottom.dx-toolbar {
+  padding: 24px;
+  padding-top: 0;
+}
+
+.overflowText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: table-cell;
+  width: 100%;
+}
+
+
+.viewInfo {
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.hideInfo {
+  overflow: hidden;
+  max-height: 0;
+}
+
+.wrapper {
+  width: 100%;
+}
+
+.products-tree-list {
+  height: 100%;
+  border-bottom: 1px solid $lightGrayBackgroundColorButton;
+}
+
+.panel {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  color: $secondTextColor;
+  line-height: 20px;
+  border-bottom: 1px solid $lightGrayBackgroundColorButton;
+  justify-content: space-between;
+
+  .tabPanel {
+    display: flex;
+    flex-direction: row;
+
+    .tab {
+      padding: 10px 16px;
+      cursor: pointer;
+      margin-bottom: -1px;
+    }
+
+    .active {
+      color: $mainActiveColor;
+      border-bottom: 2px solid $mainActiveColor;
+    }
+  }
+
+  .hide {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    cursor: pointer;
+    padding: 3px 16px 3px 8px;
+    align-items: center;
+    margin: 5px 0;
+
+
+    .icon {
+      content: url("~src/assets/img/icons/caret-circle-left-light.svg");
+      //transform:;
+    }
+  }
+
+  .hide:hover {
+    background-color: $colorGray;
+    border-radius: 2px;
+
+  }
+
+
+}
+

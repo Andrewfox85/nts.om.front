@@ -1,0 +1,48 @@
+<!-- eslint-disable -->
+<div class="blockWithBorder">
+  <div class="flexContentColumn16">
+    <label>{{
+        "createOffer.deliveryPaymentDeadline" | translate
+      }}</label>
+
+    <div class="notificationBlue notificationBlueMessage borderBlue flexContent16 h-ft py-2">
+      <i class="editedIcon"></i>
+      <div class="secondTextColor">
+        {{ "createOffer.deadlineNotification" | translate }}
+      </div>
+    </div>
+
+    <div
+      class="stringConcated"
+      *ngIf="
+                    !paymentTermConcated ||
+                    !deliveryTermConcated ||
+                    deadlineErrorMess?.length > 0
+                  "
+    >
+      {{ "general.automaticallyText" | translate }}
+    </div>
+
+    <div
+      class="flexContentColumn8"
+      *ngIf="
+                    paymentTermConcated &&
+                    deliveryTermConcated &&
+                    deadlineErrorMess?.length == 0
+                  "
+    >
+      <div class="stringConcated">
+        {{ "createOffer.deliveryDeadline" | translate }}:
+        {{
+          (deadlineDelivery | excelDate | date : "dd.MM.yyyy") || deadlineDelivery
+        }}
+      </div>
+      <div class="stringConcated">
+        {{ "createOffer.paymentDeadline" | translate }}:
+        {{
+          (deadlinePayment | excelDate | date : "dd.MM.yyyy") || deadlinePayment
+        }}
+      </div>
+    </div>
+  </div>
+</div>

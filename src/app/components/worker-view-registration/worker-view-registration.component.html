@@ -1,0 +1,578 @@
+<!-- eslint-disable -->
+<main class="worker-view-registration">
+  <div class="main_component">
+    <div class="head flexContentColumn8" id="head">
+      <h1>{{ "worker.registration" | translate }}</h1>
+      <div class="subtitle">
+        {{ "filters.session" | translate }}
+        <div class="item date-roboto-mono">
+          {{ sessionDate | excelDate | date : "dd.MM.yyyy" : "+0000" }}
+        </div>
+        <div *ngIf="accessType == 'management'" class="item date-roboto-mono">
+          {{ sessionDate | date : "dd.MM.yyyy" : "+0000" }}
+        </div>
+        <div class="item date-roboto-mono">№{{ idSession }}</div>
+        <div class="item">
+          {{ sessionName }}
+        </div>
+      </div>
+      <div class="flexContent24">
+        <div
+          class="notificationBlue fl-nowrap borderBlue notification w-fit-cnt mt-0"
+        >
+          <div class="message">
+            <span class="text">{{
+              "worker.registration-as-buyer" | translate
+            }}</span
+            ><span class="date-roboto-mono ml-3" *ngIf="regDateEndBuy">
+              {{
+                regDateEndBuy | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000"
+              }}
+            </span>
+
+            <div *ngIf="!isScheduleExistBuy">
+              <span id="nothing1"
+                ><i class="editedIcon"></i>
+                <dx-tooltip
+                  target="#nothing1"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ "worker.noInfo" | translate }}
+                  </div>
+                </dx-tooltip>
+              </span>
+            </div>
+          </div>
+          <div class="message">
+            <span class="text">{{
+              "worker.registration-as-seller" | translate
+            }}</span
+            ><span class="date-roboto-mono ml-3" *ngIf="regDateEndSale">
+              {{
+                regDateEndSale | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000"
+              }}</span
+            >
+
+            <div *ngIf="!isScheduleExistSale">
+              <span id="nothing2"
+                ><i class="editedIcon"></i>
+                <dx-tooltip
+                  target="#nothing2"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ "worker.noInfo" | translate }}
+                  </div>
+                </dx-tooltip>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input d-flex flex-end">
+          <dx-text-box
+            placeholder="{{ 'filters.searchLabel' | translate }}"
+            [showClearButton]="true"
+            width="280"
+            [(value)]="search"
+            (onEnterKey)="getData()"
+            (onValueChanged)="getData()"
+          >
+            <dxi-button
+              name="search"
+              location="before"
+              [options]="searchIcon"
+            ></dxi-button>
+            <dxi-button name="clear"></dxi-button>
+          </dx-text-box>
+        </div>
+      </div>
+    </div>
+    <div class="content" *ngIf="access">
+      <div class="body" *ngIf="registrations; else nodata">
+        <div class="view-registration-body-wrapper">
+          <div class="body_content mt--24px">
+            <div class="items d-flex jc-sb">
+              <div class="checkbox">
+                <dx-check-box
+                  text="{{ 'offer-management.transferredToBids' | translate }}"
+                  iconSize="20px"
+                  (onValueChanged)="onFilterTable($event)"
+                >
+                </dx-check-box>
+              </div>
+
+              <button class="btn secondary-btn h-32px" id="exportButton">
+                <i class="exportIcon"></i>
+              </button>
+            </div>
+
+            <dx-data-grid
+              id="gridContainer"
+              [dataSource]="registrations"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [showRowLines]="true"
+              (onSelectionChanged)="onSelectionChanged($event)"
+              (onContextMenuPreparing)="onContextMenuPreparing($event)"
+              (onContentReady)="onContentReady($event)"
+              (pagingChange)="pagingChange()"
+            >
+              <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+              <dxo-filter-row [visible]="showFilterRow"></dxo-filter-row>
+              <dxo-header-filter
+                [visible]="true"
+                [allowSearch]="true"
+              ></dxo-header-filter>
+              <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+              <dxo-selection
+                mode="multiple"
+                showCheckBoxesMode="always"
+                selectAllMode="allPages"
+              ></dxo-selection>
+              <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+              <dxo-pager
+                [visible]="true"
+                [allowedPageSizes]="numberEntriesPage"
+                displayMode="compact"
+                [showPageSizeSelector]="true"
+              >
+              </dxo-pager>
+              <dxo-state-storing
+                [enabled]="true"
+                type="localStorage"
+                storageKey="workerRegistration"
+              ></dxo-state-storing>
+
+              <dxi-column
+                caption="{{ 'worker.registration.directionName' | translate }}"
+                dataField="directionName"
+                cssClass="column text-align-left"
+                cellTemplate="directionNameTemplate"
+                [minWidth]="150"
+                [allowSorting]="true"
+                [allowHiding]="false"
+                [allowFiltering]="true"
+                [filterOperations]="['contains']"
+              ></dxi-column>
+              <div *dxTemplate="let item of 'directionNameTemplate'">
+                <span [ngClass]="{ cancelText: item.data.deletionReason }">{{
+                  item.data.directionName
+                }}</span>
+              </div>
+
+              <dxi-column
+                caption="{{
+                  'worker.registration.registrationDate' | translate
+                }}"
+                dataField="registrationDateString"
+                [minWidth]="120"
+                cssClass="column text-align-left date-roboto-mono"
+                [allowSorting]="true"
+                calculateSortValue="registrationDate"
+                [allowHiding]="false"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <dxi-column
+                caption="{{ 'worker.registration.participant' | translate }}"
+                dataField="firmName"
+                cssClass="column text-align-left"
+                [minWidth]="320"
+                [allowHiding]="false"
+                [allowFiltering]="true"
+              ></dxi-column>
+
+              <dxi-column
+                caption="{{
+                  'worker.registration.participantBranch' | translate
+                }}"
+                dataField="firmBranchName"
+                cssClass="column text-align-left"
+                width="auto"
+                [allowHiding]="false"
+              ></dxi-column>
+
+              <dxi-column
+                caption="{{ 'worker.registration.contractType' | translate }}"
+                dataField="clientContractTypeName"
+                cssClass="column text-align-left"
+                width="auto"
+                [allowHiding]="false"
+                [allowHeaderFiltering]="true"
+                [allowFiltering]="false"
+              ></dxi-column>
+
+              <dxi-column
+                caption="{{ 'worker.registration.client' | translate }}"
+                dataField="clientName"
+                cssClass="column text-align-left"
+                width="auto"
+                [allowHiding]="false"
+              ></dxi-column>
+
+              <dxi-column
+                caption="{{ 'worker.registration.clientBranch' | translate }}"
+                dataField="clientBranchName"
+                cssClass="column text-align-left"
+                width="auto"
+                [allowHiding]="false"
+              ></dxi-column>
+
+              <dxi-column
+                caption="{{ 'worker.registration.trader' | translate }}"
+                dataField="traderName"
+                cssClass="column text-align-left"
+                width="auto"
+                [allowHiding]="false"
+                [allowHeaderFiltering]="true"
+              ></dxi-column>
+
+              <dxi-column
+                caption="{{ 'worker.registration.reason' | translate }}"
+                dataField="deletionReason"
+                cssClass="column text-align-left"
+                width="auto"
+                [allowHiding]="false"
+                [allowHeaderFiltering]="true"
+              ></dxi-column>
+            </dx-data-grid>
+          </div>
+        </div>
+      </div>
+      <ng-template #nodata>
+        <div class="noData">{{ "errors.emptyData" | translate }}</div>
+      </ng-template>
+    </div>
+  </div>
+</main>
+<dx-popup
+  id="cancelForm"
+  contentTemplate="popup-content"
+  [(visible)]="cancel"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'worker.cancelPopup-title' | translate }}"
+  width="590"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="onClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popup-content'">
+    <div class="cancel_form flexContentColumn24">
+      <form [formGroup]="cancelForm" class="main_info" *ngIf="!success">
+        <div class="content">
+          <div class="subtitle">
+            <span
+              >{{ "worker.cancelPopup-selected" | translate }}
+              {{ dataForCancel.length }}</span
+            >
+          </div>
+          <div class="field-title">
+            <span>{{ "worker.cancelPopup-reason" | translate }}</span>
+            <span class="count">
+              {{ myInput.value.length }} /{{ maxChars }}</span
+            >
+          </div>
+          <div class="field_entry" ng-app>
+            <textarea
+              #myInput
+              [maxlength]="maxChars"
+              class="w-100 textarea"
+              [rows]="7"
+              formControlName="deletionReason"
+              placeholder="{{ 'general.text' | translate }}"
+            ></textarea>
+          </div>
+        </div>
+      </form>
+      <div *ngIf="success" class="flexContentColumn16">
+        <ng-container *ngTemplateOutlet="warning"></ng-container>
+        <a (click)="onOpenDetailInfo('cancel')">{{
+          "worker.detailedInfo" | translate
+        }}</a>
+      </div>
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit"
+          [disabled]="!cancelForm.valid || success"
+          (click)="submitCancelRegistrationForm()"
+        >
+          {{ "btns.cancelRegistration" | translate }}
+        </button>
+        <button class="btn btn-outline-primary" (click)="onClose()">
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+<dx-popup
+  id="restoreForm"
+  contentTemplate="popup-content"
+  [(visible)]="restoreForm"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'worker.restorRegistration' | translate }}"
+  width="620"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="onClose()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popup-content'">
+    <div class="cancel_form flexContentColumn24">
+      <div class="restore" *ngIf="!success">
+        <div class="content">
+          <div class="subtitle">
+            <span
+              >{{ "worker.cancelPopup-selected" | translate }}
+              {{ chooseRegistration.length }}</span
+            >
+          </div>
+        </div>
+        {{ "worker.restorMessage" | translate }}?
+      </div>
+      <div *ngIf="success" class="flexContentColumn16">
+        <ng-container *ngTemplateOutlet="warning"></ng-container>
+        <a (click)="onOpenDetailInfo('restore')">{{
+          "worker.detailedInfo" | translate
+        }}</a>
+      </div>
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit"
+          (click)="onRestoreRegistration()"
+          [disabled]="success"
+        >
+          {{ "btns.restoreRegistration" | translate }}
+        </button>
+        <button class="btn btn-outline-primary" (click)="onClose()">
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+<ng-template #warning>
+  <div class="resultMessage warningMessage borderOrange h-52">
+    <span class="message">
+      <i class="unavailableIcon"></i>
+      <span
+        >{{
+          restoreForm
+            ? ("errors.registrationRestored" | translate)
+            : ("errors.registrCanceled" | translate)
+        }}
+        - {{ result.success }}, {{ "errors.registrationError" | translate }} -
+        {{ result.errorOperation }}</span
+      >
+    </span>
+  </div>
+</ng-template>
+
+<!-- перенос регистрация  в торги -->
+<dx-popup
+  contentTemplate="transferRegToBidsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="transferRegToBidsPopup"
+  [showTitle]="true"
+  title="{{ 'offer-management.transferRegToBidsTitle' | translate }}"
+  width="450"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="transferRegToBidsPopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'transferRegToBidsPopup'">
+    <div *ngIf="isAdmissionProcessed">
+      <span>{{ "offer-management.transferText" | translate }}</span>
+    </div>
+
+    <form [formGroup]="transferToBidsForm">
+      <div class="flexContentColumn24 w-100">
+        <div class="switchers-form">
+          <div
+            class="switcher-item flexContent8 jc-sb"
+            [ngClass]="{ 'border-bottom': isAdmissionProcessed }"
+          >
+            <span>{{ "offer-management.syncGias" | translate }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="syncGias"
+              ></dx-switch>
+            </div>
+          </div>
+
+          <div
+            class="switcher-item flexContent8 jc-sb border-bottom"
+            *ngIf="isAdmissionProcessed"
+          >
+            <span>{{ "offer-management.violationsControl" | translate }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="violationsControl"
+              ></dx-switch>
+            </div>
+          </div>
+
+          <div
+            class="switcher-item flexContent8 jc-sb"
+            *ngIf="isAdmissionProcessed"
+          >
+            <span>{{ "offer-management.depositControl" | translate }}</span>
+            <div>
+              <dx-switch
+                switchedOffText=""
+                switchedOnText=""
+                formControlName="depositControl"
+              ></dx-switch>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons flexContent24 buttonsClass">
+          <button
+            class="btn btn-primary submit w-50"
+            (click)="transferOfferToBids()"
+          >
+            {{ "offer-management.transferToBidsBtn" | translate }}
+          </button>
+          <button
+            class="btn btn-outline-primary w-50"
+            (click)="transferRegToBidsPopup = false"
+          >
+            {{ "btns.close" | translate }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="transferToBidsResPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="transferToBidsResPopup"
+  [showTitle]="true"
+  title="{{ 'offer-management.transferRegToBidsTitle' | translate }}"
+  width="540"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="transferToBidsResPopup = false; resetTransferToBidsForm()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'transferToBidsResPopup'">
+    <!-- перенос одной заявки -->
+    <div *ngIf="chooseRegistration?.length == 1">
+      <div
+        *ngIf="succeedRes?.length > 0"
+        class="resultMessage successMessage borderGreen h-auto"
+      >
+        <span class="message">
+          <i class="checkIcon"></i>
+          <span>{{ "offer-management.transferToBidsRes" | translate }}</span>
+        </span>
+      </div>
+
+      <div
+        *ngIf="unsucceedRes?.length > 0"
+        class="resultMessage errorMessage borderRed h-auto"
+      >
+        <span class="message">
+          <i class="errorIcon"></i>
+          <span>{{ unsucceedRes[0].description }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- перенос нескольких заявок -->
+    <div *ngIf="chooseRegistration?.length > 1" class="flexContentColumn24">
+      <!-- все успешно -->
+      <div
+        *ngIf="succeedRes?.length > 0 && unsucceedRes?.length == 0"
+        class="resultMessage successMessage borderGreen h-auto"
+      >
+        <span class="message">
+          <i class="checkIcon"></i>
+          <span
+            >{{ "offer-management.transferToBidsMess" | translate }}:
+            {{ "errors.successWarning" | translate }} -
+            {{ succeedRes?.length }},
+            {{ "errors.noSuccessError" | translate }} - 0</span
+          >
+        </span>
+      </div>
+
+      <!-- часть успешно, часть нет -->
+      <div
+        *ngIf="succeedRes?.length > 0 && unsucceedRes?.length > 0"
+        class="resultMessage warningMessage borderOrange"
+      >
+        <span class="message">
+          <i class="unavailableIcon"></i>
+          <span
+            >{{ "offer-management.transferToBidsMess" | translate }}:
+            {{ "errors.successWarning" | translate }} -
+            {{ succeedRes?.length }},
+            {{ "errors.noSuccessError" | translate }} -
+            {{ unsucceedRes?.length }}</span
+          >
+        </span>
+      </div>
+
+      <!-- все неуспешно -->
+      <div
+        *ngIf="succeedRes?.length == 0 && unsucceedRes?.length > 0"
+        class="resultMessage errorMessage borderRed"
+      >
+        <span class="message">
+          <i class="errorIcon"></i>
+          <span
+            >{{ "offer-management.transferToBidsMess" | translate }}:
+            {{ "errors.successWarning" | translate }} - 0,
+            {{ "errors.noSuccessError" | translate }} -
+            {{ unsucceedRes?.length }}</span
+          >
+        </span>
+      </div>
+
+      <div
+        *ngIf="unsucceedRes?.length > 0"
+        class="buttons flexContent24 buttonsClass"
+      >
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="onOpenDetailInfo('transferToBids')"
+        >
+          {{ "btns.viewInDdetail" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="transferToBidsResPopup = false; resetTransferToBidsForm()"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>

@@ -1,0 +1,79 @@
+<!-- eslint-disable -->
+<main class="startCreateOffer" *ngIf="!loadingVisible">
+
+  <div class="main_component">
+    <div class="main_info flexContentColumn16">
+      <div class="header">
+        <h3 class="font-s24">{{'createOffer.createOffer' | translate}}</h3>
+        <span class="subtitle l-h20">{{'createOffer.createOffer_subtitle' | translate}}</span>
+      </div>
+      <div class="body">
+        <form [formGroup]="firstStepForm">
+          <div class="form-group">
+            <div class="input-group">
+              <label>{{'general.marketType' | translate}}</label>
+              <div>
+                <dx-select-box
+                  #selectBox
+                  [dataSource]="marketTypesResult"
+                  displayExpr="marketsTypes"
+                  valueExpr="modelId"
+                  width="520px"
+                  height="40px"
+                  formControlName="marketTypeId"
+                  placeholder="{{'createOffer.createOffer_choose-market-type' | translate}}"
+                  [searchEnabled]="true"
+                  (onValueChanged)="onChangeSelectBox($event)"
+                  [showClearButton]="true"
+                  [showDataBeforeSearch]="true"
+                  [minSearchLength]="4"
+                >
+                </dx-select-box>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="description.length> 0 && selectBox.selectedItem?.notes?.length > 0">
+            <label>{{'general.description' | translate }}</label>
+            <span *ngIf="selectBox.selectedItem">{{ selectBox.selectedItem.notes }}</span>
+          </div>
+        </form>
+      </div>
+      <div class="buttons flexContent20">
+        <button class="btn btn-primary submit" (click)="goToLink()" [disabled]="!firstStepForm.valid || disabledBtn">{{'btns.continue' | translate}}</button><!--   -->
+        <button class="btn btn-outline-primary btn-inherit" (click)="cancelForm()">{{'btns.cancel' | translate}}</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'errors.error' | translate }}"
+  maxWidth="450px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onClose(errorType)">
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="borderRed errorPopup">
+      <i class="errorIcon"></i><div [innerHTML]="this.messageError"></div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [position]="{ of: '#employee' }"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+>
+</dx-load-panel>
+

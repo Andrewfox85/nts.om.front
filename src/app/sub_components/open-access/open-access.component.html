@@ -1,0 +1,393 @@
+<!-- eslint-disable -->
+<main class="open-access">
+  <div class="main_component">
+    <div class="head" id="head">
+      <h1>{{ "openAccess.openAccess" | translate }}</h1>
+    </div>
+
+    <div class="session flexContent8" *ngIf="sessionInfo">
+      <div
+        class="session-stage d-flex ai-c font-s12" 
+        [ngClass]="sessionInfo?.stageId | stageColor"
+      >
+        {{ nameSessionStage }}
+      </div>
+
+      <div class="session-number d-flex font-s14">
+        <div *ngIf="!sessionInfo">{{ "filters.session" | translate }} -</div>
+
+        <div *ngIf="sessionInfo" class="session-info h-24px">
+          <span class="date-roboto-mono"
+            >{{ "filters.session" | translate }}
+            {{
+              sessionInfo.startDateTime | date : "dd.MM.yyyy HH:mm" : "+0000"
+            }}</span
+          >
+          <span class="date-roboto-mono">№{{ sessionInfo.id }}</span>
+          <span class="overflowText">{{ sessionInfo.sessionName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="toolbarTable">
+        <div>
+          <button
+            class="btn h-32px secondary-btn w-280px"
+            id="updateGrid"
+            (click)="getData()"
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar update"></div>
+              {{ "sessions-schedule.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="body mt-5">
+        <div class="offers-management-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              [dataSource]="listOfPermissions"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [showRowLines]="true"
+              [noDataText]="noDataText"
+            >
+              <dxo-state-storing
+                [enabled]="true"
+                type="localStorage"
+                storageKey="openAccessOrdermanagment"
+              >
+              </dxo-state-storing>
+
+              <dxo-header-filter
+                [visible]="true"
+                [allowSearch]="true"
+              ></dxo-header-filter>
+
+              <dxo-scrolling mode="standard" scrollByContent="true" showScrollbar="always">
+              </dxo-scrolling>
+
+              <!-- № -->
+              <dxi-column
+                caption="№"
+                cssClass="column date-roboto-mono myCellFixShadowLeft text-align-left"
+                width="70"
+                [allowHiding]="false"
+                alignment="left"
+                [allowFiltering]="false"
+                [fixed]="true"
+                [allowFixing]="false"
+                cellTemplate="cellTemplateRowNumber"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+                <div>{{ data.row.rowIndex + 1 }}</div>
+              </div>
+
+              <!-- Направление -->
+              <dxi-column
+                caption="{{ 'openAccess.direction' | translate }}"
+                dataField="directionName"
+                cssClass="column text-align-left"
+                [minWidth]="140"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- ФИО работника-->
+              <dxi-column
+                caption="{{ 'openAccess.workerName' | translate }}"
+                dataField="workerFullName"
+                cssClass="column text-align-left"
+                [minWidth]="220"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Дата и время-->
+              <dxi-column
+                caption="{{ 'openAccess.dateAndTime' | translate }}"
+                dataField="dateCreateString"
+                cssClass="column text-align-right"
+                width="150"
+                allowSorting="true"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Участник-->
+              <dxi-column
+                caption="{{
+                  'createOffer.generalInfo.participant' | translate
+                }}"
+                dataField="firmName"
+                cssClass="column text-align-left"
+                width="240"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Трейдер-->
+              <dxi-column
+                caption="{{ 'worker.registration.trader' | translate }}"
+                dataField="traderFullName"
+                cssClass="column text-align-left"
+                [minWidth]="220"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Действие-->
+              <dxi-column
+                caption="{{ 'openAccess.action' | translate }}"
+                dataField="actionName"
+                cssClass="column text-align-left"
+                [minWidth]="220"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Выдано/использовано-->
+              <dxi-column
+                caption="{{ 'openAccess.used' | translate }}"
+                dataField="actionNumberUsed"
+                cssClass="column text-align-right"
+                width="160"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateUsed"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateUsed'">
+                <div>
+                  {{ data.data.actionNumberPermitted }} /
+                  {{ data.data.actionNumberUsed }}
+                </div>
+              </div>
+
+              <!-- Примечание-->
+              <dxi-column
+                caption="{{ 'openAccess.note' | translate }}"
+                dataField="notes"
+                cssClass="column text-align-left"
+                [minWidth]="220"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Отмена разрешений-->
+              <dxi-column
+                caption="{{ 'openAccess.revokingPermissions' | translate }}"
+                dataField="dateDeleteString"
+                cssClass="column text-align-left"
+                [minWidth]="140"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Кнопки-->
+              <dxi-column
+                cssClass="column  text-align-left myCellFixShadowRight"
+                width="100"
+                alignment="left"
+                [allowSorting]="false"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateBtns"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateBtns'">
+                <div class="flexContent10">
+                  <div
+                    class="icon viewOffer"
+                    id="viewOffer{{ data.data.id }}"
+                    [ngClass]="{ disabled: !data.data.isExistDemoff }"
+                    (click)="openViewOffersPopup(data.data.id)"
+                  >
+                    <!-- [ngClass]="{'disabled' : listOfAccess}" -->
+                    <dx-tooltip
+                      target="#viewOffer{{ data.data.id }}"
+                      [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ "openAccess.viewOffer" | translate }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+
+                  <div
+                    class="icon messageToTrader"
+                    id="message{{ data.data.id }}"
+                    (click)="setOutRegulationNotice(data.data.id)"
+                    [ngClass]="{ disabled: !data.data.isCanProcess }"
+                  >
+                    <dx-tooltip
+                      target="#message{{ data.data.id }}"
+                      [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ "openAccess.notification" | translate }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+
+                  <div
+                    class="icon trash"
+                    id="trash{{ data.data.id }}"
+                    (click)="deleteOutRegulationPermiss(data.data.id)"
+                    [ngClass]="{ disabled: !data.data.isCanProcess }"
+                  >
+                    <dx-tooltip
+                      target="#trash{{ data.data.id }}"
+                      [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ "openAccess.removePermission" | translate }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+                </div>
+              </div>
+            </dx-data-grid>
+            <button
+              class="btn btn-outline-primary w-100 mt-4"
+              (click)="openAccessPopup()"
+            >
+              <i class="plus mr-2"></i
+              >{{ "offer-management.openAccess" | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-open-access-popup
+  *ngIf="accessPopup"
+  [sectionId]="sessionInfo?.tradeSectionId"
+  [sessionId]="sessionInfo?.id"
+  (close)="closeAccessPopup($event)"
+>
+</app-open-access-popup>
+
+<dx-popup
+  contentTemplate="popupContent"
+  [hideOnOutsideClick]="false"
+  [visible]="viewOffersPopup"
+  [showTitle]="true"
+  title="{{ 'openAccess.viewOffers' | translate }}"
+  width="450"
+  height="auto"
+  maxHeight="280"
+  [showCloseButton]="true"
+  (onHiding)="viewOffersPopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popupContent'">
+    <dx-scroll-view [useNative]="true">
+      <dx-data-grid
+        [dataSource]="offersDetails"
+        [showBorders]="false"
+        [showColumnLines]="true"
+        [showRowLines]="true"
+      >
+        <dxo-header-filter
+          [visible]="true"
+          [allowSearch]="true"
+        ></dxo-header-filter>
+
+        <!-- Номер заявки -->
+        <dxi-column
+          caption="{{ 'openAccess.offerNumber' | translate }}"
+          dataField="lotNumber"
+          cssClass="column text-align-left"
+          width="125"
+          alignment="left"
+          [allowFiltering]="false"
+        >
+        </dxi-column>
+
+        <!-- Дата и время действия-->
+        <dxi-column
+          caption="{{ 'openAccess.actionDateAndTime' | translate }}"
+          dataField="dateWaste"
+          cssClass="column text-align-left"
+          width="270"
+          alignment="left"
+          [allowFiltering]="true"
+          cellTemplate="dateTimeTemplate"
+        >
+        </dxi-column>
+
+        <div *dxTemplate="let item of 'dateTimeTemplate'">
+          <div class="dateTimeTemplate">
+            <span class="date-roboto-mono" *ngIf="item.data.dateWaste">
+              {{ item.data.dateWaste | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000" }}</span>
+          </div>
+        </div>
+      </dx-data-grid>
+    </dx-scroll-view>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="successPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="successPopup"
+  [showTitle]="true"
+  title="{{ 'openAccess.openAccess' | translate }}"
+  width="500"
+  height="150"
+  [showCloseButton]="true"
+  (onHiding)="successPopup = false; getData()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'successPopup'">
+    <div class="resultMessage successMessage borderGreen">
+      <span class="message">
+        <i class="checkIcon"></i>
+        <span>{{ "openAccess.successMessage" | translate }}</span>
+      </span>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [message]="message"
+  type="info"
+  [width]="400"
+  [height]="52"
+  [displayTime]="5000"
+  [closeOnClick]="true"
+>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>

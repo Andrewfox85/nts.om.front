@@ -1,0 +1,636 @@
+<!-- eslint-disable -->
+<main class="limitations">
+  <div class="main_component">
+    <div class="head" id="head">
+      <h1>{{ "limitations.limitations" | translate }}</h1>
+    </div>
+
+    <div class="session flexContent8">
+      <div
+        class="session-stage d-flex ai-c font-s12"
+        [ngClass]="sessionInfo?.stageId | stageColor"
+      >
+        {{ nameSessionStage }}
+      </div>
+
+      <div class="session-number d-flex font-s14">
+        <div *ngIf="!sessionInfo">{{ "filters.session" | translate }} -</div>
+
+        <div *ngIf="sessionInfo" class="session-info h-24px">
+          <span class="date-roboto-mono"
+            >{{ "filters.session" | translate }}
+            {{
+              sessionInfo.startDateTime | date : "dd.MM.yyyy HH:mm" : "+0000"
+            }}</span
+          >
+          <span class="date-roboto-mono">№{{ sessionInfo.id }}</span>
+          <span class="overflowText">{{ sessionInfo.sessionName }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="toolbarTable">
+        <div>
+          <button
+            class="btn h-32px secondary-btn w-280px"
+            id="updateGrid"
+            (click)="getData()"
+          >
+            <div class="flexContent8 ai-c blackColor">
+              <div class="toolbar update"></div>
+              {{ "sessions-schedule.updatedIn" | translate }}
+              <div class="date-roboto-mono font-s12">
+                {{ this.currentTimeDate | date : "HH:mm dd.MM.yyyy" : "+0300" }}
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="body" class="mt-5">
+        <div class="limitations-body-wrapper">
+          <div class="body_content">
+            <dx-data-grid
+              [dataSource]="listOfLimitations"
+              [showBorders]="false"
+              [showColumnLines]="true"
+              [showRowLines]="true"
+              [noDataText]="noDataText"
+            >
+              <dxo-header-filter
+                [visible]="true"
+                [allowSearch]="true"
+              ></dxo-header-filter>
+
+              <dxo-state-storing
+                [enabled]="true"
+                type="localStorage"
+                storageKey="limitationsOrderManagment"
+              >
+              </dxo-state-storing>
+
+              <!-- № -->
+              <dxi-column
+                caption="№"
+                cssClass="column date-roboto-mono myCellFixShadowLeft text-align-left"
+                width="70"
+                [allowHiding]="false"
+                alignment="left"
+                [allowFiltering]="false"
+                [fixed]="true"
+                [allowFixing]="false"
+                cellTemplate="cellTemplateRowNumber"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+                <div>{{ data.row.rowIndex + 1 }}</div>
+              </div>
+
+              <!-- Наименование НГ/ТГ/товара -->
+              <dxi-column
+                caption="{{ 'limitations.name' | translate }}"
+                dataField="goodName"
+                cssClass="column text-align-left"
+                [minWidth]="240"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateGoods"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateGoods'">
+                <div class="flexContent4 center">
+                  <span class="good-tag" id="good_{{ data.data.id }}">{{
+                    data.data.treeLevel == levelProductBlock.productGroup
+                      ? ('limitations.nomenclatureGroupTag' | translate)
+                      : data.data.treeLevel == levelProductBlock.good
+                      ? ('limitations.goodsGroupTag' | translate)
+                      : ('limitations.goodTag' | translate)
+                  }}</span>
+                  <dx-tooltip
+                    target="#good_{{ data.data.id }}"
+                    hideEvent="mouseleave"
+                    [showEvent]="{ name: 'mouseover', delay: 500 }"
+                  >
+                    <div *dxTemplate="let content = content; of: 'content'">
+                      {{
+                        data.data.treeLevel == levelProductBlock.productGroup
+                          ? ('filters.nomenclatureGroup' | translate)
+                          : data.data.treeLevel == levelProductBlock.good
+                          ? ('filters.goodsGroup' | translate)
+                          : ('filters.goods' | translate)
+                      }}
+                    </div>
+                  </dx-tooltip>
+                  <span>{{ data.data.goodName }}</span>
+                </div>
+              </div>
+
+              <!-- Товарные хар-ки -->
+              <dxi-column
+                caption="{{ 'limitations.productCharacteristics' | translate }}"
+                dataField="goodSpecification"
+                cssClass="column text-align-left"
+                [minWidth]="240"
+                alignment="left"
+                [allowFiltering]="true"
+              >
+              </dxi-column>
+
+              <!-- Кол-во -->
+              <dxi-column
+                caption="{{ 'createOffer.good.quantity' | translate }}"
+                dataField="lotQuantityMaximum"
+                cssClass="column date-roboto-mono text-align-right"
+                [minWidth]="180"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateQuantity"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateQuantity'">
+                <div>
+                  {{ data.data.lotQuantityMaximum }}
+                  {{ data.data.lotQuantityUnitName }}
+                </div>
+              </div>
+
+              <!-- Участник-->
+              <dxi-column
+                caption="{{
+                  'createOffer.generalInfo.participant' | translate
+                }}"
+                dataField="firmsNames"
+                cssClass="column p-0 text-align-left"
+                [minWidth]="240"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateFirms"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterFirms"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateFirms'">
+                <table class="main">
+                  <ng-container *ngFor="let f of data.data.firms">
+                    <tr>
+                      <span class="twostrings">{{ f.firmName }}</span>
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+
+              <!-- Клиент брокера-->
+              <dxi-column
+                caption="{{ 'filters.brokerClient' | translate }}"
+                dataField="clientsNames"
+                cssClass="column p-0 text-align-left"
+                [minWidth]="240"
+                alignment="left"
+                [allowFiltering]="true"
+                cellTemplate="cellTemplateClients"
+                [calculateFilterExpression]="calculateFilterExpression"
+              >
+                <dxo-header-filter
+                  [dataSource]="orderHeaderFilterClients"
+                ></dxo-header-filter>
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateClients'">
+                <table class="main">
+                  <ng-container *ngFor="let f of data.data.firms">
+                    <tr>
+                      <span class="twostrings">{{ f.clientName }}</span>
+                    </tr>
+                  </ng-container>
+                </table>
+              </div>
+
+              <!-- Кнопки-->
+              <dxi-column
+                cssClass="column  text-align-left myCellFixShadowRight"
+                width="75"
+                alignment="left"
+                allowSorting="false"
+                [allowFiltering]="false"
+                cellTemplate="cellTemplateBtns"
+              >
+              </dxi-column>
+
+              <div *dxTemplate="let data of 'cellTemplateBtns'">
+                <div class="flexContent10">
+                  <div
+                    class="icon edit"
+                    id="edit{{ data.data.id }}"
+                    (click)="editForm(data.data)"
+                  ></div>
+
+                  <div
+                    class="icon trash"
+                    id="trash{{ data.data.id }}"
+                    (click)="openDeletePopup(data.data.id)"
+                  >
+                    <dx-tooltip
+                      target="#trash{{ data.data.id }}"
+                      showEvent="mouseenter"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        {{ "limitations.removeLimitation" | translate }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+                </div>
+              </div>
+            </dx-data-grid>
+            <button
+              class="btn btn-outline-primary w-100 mt-4"
+              (click)="openLimitPopup()"
+            >
+              <!--(click)="openAccessPopup()" -->
+              <i class="plus mr-2"></i
+              >{{ "offer-management.addLimitation" | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<dx-popup
+  contentTemplate="popupContent"
+  [hideOnOutsideClick]="false"
+  [visible]="addLimitationPopup"
+  [showTitle]="true"
+  [title]="titlePopup"
+  width="1200"
+  height="auto"
+  maxHeight="930"
+  [showCloseButton]="true"
+  (onHiding)="closePopup(); getData()"
+  (onShown)="onPopupShown()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popupContent'" class="flexContentColumn24">
+    <form [formGroup]="form">
+      <!-- таблица участников -->
+      <div>
+        <dx-scroll-view [useNative]="true">
+          <dx-data-grid
+            [dataSource]="limitsParticipants"
+            [showBorders]="false"
+            [showColumnLines]="true"
+            [showRowLines]="true"
+            [(selectedRowKeys)]="selectedFirmsRows"
+            (onSelectionChanged)="onSelectionFirmsChanged($event)"
+            (onCellPrepared)="onCellFirmPrepared($event)"
+            ><!-- (onEditorPreparing)="onEditorPreparing($event)" -->
+
+            <dxo-header-filter
+              [visible]="true"
+              [allowSearch]="true"
+            ></dxo-header-filter>
+
+            <dxo-selection
+              mode="multiple"
+              showCheckBoxesMode="always"
+              selectAllMode="allPages"
+            >
+            </dxo-selection>
+
+            <dxi-column
+              caption="{{ 'createOffer.generalInfo.participant' | translate }}"
+              dataField="firmName"
+              cssClass="column text-align-left"
+              width="565"
+              alignment="left"
+              [allowFiltering]="true"
+              cellTemplate="cellTemplateFirm"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateFirm'">
+              <div [ngClass]="{ disabledRow: !data.data.isAvailable }">
+                {{ data.data.firmName }}
+              </div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'filters.brokerClient' | translate }}"
+              dataField="clientName"
+              cssClass="column text-align-left"
+              width="565"
+              alignment="left"
+              [allowFiltering]="true"
+              cellTemplate="cellTemplateClient"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateClient'">
+              <div [ngClass]="{ disabledRow: !data.data.isAvailable }">
+                {{ data.data.clientName }}
+              </div>
+            </div>
+          </dx-data-grid>
+        </dx-scroll-view>
+      </div>
+
+      <!-- Выбор товара и хар-к -->
+      <div>
+        <table #table class="form_table">
+          <thead>
+            <tr>
+              <th class="text-align-left w-450px">
+                {{ "filters.goods" | translate }}
+              </th>
+              <th class="text-align-left w-450px">
+                {{ "limitations.productCharacteristics" | translate }}
+              </th>
+              <th class="text-align-left w-260px">
+                {{ "createOffer.good.quantity" | translate }}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>
+                <div class="tree_wrapper">
+                  <div class="scroll_wrapper">
+                    <dx-scroll-view
+                      cssClass="myScrollBarStyle"
+                      [useNative]="true"
+                    >
+                      <dx-tree-list
+                        id="treeListData"
+                        itemsExpr="children"
+                        keyExpr="linkId"
+                        dataStructure="tree"
+                        (onFocusedCellChanging)="onFocusedCellChanging($event)"
+                        [autoExpandAll]="false"
+                        width="100%"
+                        height="inherit"
+                        [wordWrapEnabled]="true"
+                        [dataSource]="treeListData.length ? treeListData : null"
+                        [selectedRowKeys]="selectedRowKeys"
+                        (onSelectionChanged)="onSelectionChanged($event, 'editGood')"
+                      >
+                        <dxo-selection
+                          mode="single"
+                          [recursive]="false"
+                        ></dxo-selection>
+
+                        <dxo-load-panel [enabled]="true"></dxo-load-panel>
+                        <dxi-column dataField="productName"> </dxi-column>
+                      </dx-tree-list>
+                    </dx-scroll-view>
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                <div class="tree_wrapper">
+                  <div *ngIf="refs" class="group scroll_wrapper">
+                    <dx-scroll-view
+                      [elementAttr]="{ class: 'myScrollBarStyle' }"
+                      [useNative]="true"
+                    >
+                      <div
+                        class="form-group w-430px mr-2"
+                        *ngFor="let ref of refs"
+                      >
+                        <label class="mt-2 d-flex jc-fl-st">{{
+                          ref.name
+                        }}</label>
+                        <dx-tag-box
+                          [dataSource]="ref.values"
+                          valueExpr="id"
+                          displayExpr="name"
+                          width="430px"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          [searchEnabled]="true"
+                          [showClearButton]="true"
+                          [showSelectionControls]="true"
+                          formControlName="{{ ref.id }}"
+                          [showDropDownButton]="true"
+                          [maxDisplayedTags]="0"
+                          (onValueChanged)="onValueChanged($event, 'refs')"
+                          >
+                        </dx-tag-box>
+                      </div>
+                    </dx-scroll-view>
+                  </div>
+                </div>
+              </td>
+
+              <td>
+                <div class="tree_wrapper">
+                  <div class="group">
+                    <div class="form-group">
+                      <label class="d-flex jc-fl-st">{{
+                        "createOffer.good.quantity" | translate
+                      }}</label>
+                      <div class="number-style">
+                        <dx-number-box
+                          dxNumberBoxClear
+                          placeholder="0.0000"
+                          height="40px"
+                          width="280px"
+                          [min]="0.0001"
+                          [max]="9999999999"
+                          class="date-roboto-mono"
+                          formControlName="quantity"
+                          [showClearButton]="true"
+                          (onValueChanged)="onChangeQuantity($event)"
+                        >
+                          <dxo-format type="fixedPoint" [precision]="4">
+                          </dxo-format>
+                        </dx-number-box>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="group mt-2">
+                    <div class="form-group">
+                      <label class="d-flex jc-fl-st">{{
+                        "createOffer.goodInfo.units" | translate
+                      }}</label>
+                      <div>
+                        <dx-select-box
+                          [dataSource]="units"
+                          valueExpr="id"
+                          displayExpr="name"
+                          width="280px"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          [disabled]="!this.form.get('quantity').value"
+                          [searchEnabled]="true"
+                          [showClearButton]="true"
+                          [showDataBeforeSearch]="true"
+                          [minSearchLength]="4"
+                          formControlName="quantityUnit"
+                        >
+                        </dx-select-box
+                        ><!--  (onValueChanged)="onValueChanged($event, 'quantityUnit')" -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass mt-2">
+        <button
+          class="btn btn-primary submit w-50"
+          [disabled]="!form.valid"
+          (click)="submitForm()"
+        >
+          {{ btn }}</button
+        ><!-- [disabled]="!form.valid" (click)="submitForm()" -->
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="closePopup(); getData()"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="deletePopupContent"
+  [hideOnOutsideClick]="false"
+  [visible]="deletePopup"
+  [showTitle]="true"
+  title="{{ 'limitations.removeLimitation' | translate }}"
+  width="570"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="deletePopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'deletePopupContent'">
+    <div class="flexContentColumn32">
+      <div>{{ "limitations.deleteQuestion" | translate }}</div>
+      <div class="buttons flexContent24 buttonsClass">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="deletePopup = false; onDeleteSubmit()"
+        >
+          {{ "limitations.removeLimitation" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="deletePopup = false"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [message]="message"
+  type="info"
+  [width]="400"
+  [height]="52"
+  [displayTime]="5000"
+>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>
+
+<dx-popup
+  contentTemplate="successPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="successPopup"
+  [showTitle]="true"
+  title="{{ 'openAccess.openAccess' | translate }}"
+  width="500"
+  height="150"
+  [showCloseButton]="true"
+  (onHiding)="successPopup = false; getData()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'successPopup'">
+    <div class="resultMessage successMessage borderGreen">
+      <span class="message">
+        <i class="checkIcon"></i>
+        <span>{{ "limitations.successMessage" | translate }}</span>
+      </span>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  contentTemplate="warningPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="warningPopup"
+  [showTitle]="true"
+  title="{{ 'openAccess.openAccess' | translate }}"
+  width="500"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="warningPopup = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'warningPopup'">
+    <div class="flexContentColumn16">
+      <div class="resultMessage warningMessage borderOrange">
+        <span class="message">
+          <i class="unavailableIcon"></i>
+          <span> {{ "limitations.emptyLimitation" | translate }}</span>
+        </span>
+      </div>
+
+      <div class="buttons flexContent24 buttonsClass mt-2">
+        <button class="btn btn-primary submit w-50" (click)="setLimitation()">
+          {{ "btns.continue" | translate }}
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="warningPopup = false"
+        >
+          {{ "btns.close" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+>
+</dx-load-panel>

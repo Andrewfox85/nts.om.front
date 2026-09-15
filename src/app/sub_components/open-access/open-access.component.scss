@@ -1,0 +1,48 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+.session {
+    .session-stage {
+      //width: 100%;
+      padding: 4px 8px;
+      height: 24px;
+
+      &.default {
+        background-color: $lightGrayBackgroundColor;
+        color: $secondTextColor;
+      }
+    }
+
+    .session-number {
+      padding: 4px 8px;
+      height: 24px;
+
+      .session-info {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: baseline;
+      }
+    }
+  }
+
+
+::ng-deep.dx-toast-info{
+  background-color: $backSelectedRowGrid;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+
+
+::ng-deep.dx-toast-icon {
+  background-image: url('../../../assets/img/icons/Check-thin.svg') !important;
+  width: 20px;
+  height: 20px;
+}
+

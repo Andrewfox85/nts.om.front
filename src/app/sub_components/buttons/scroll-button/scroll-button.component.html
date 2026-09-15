@@ -1,0 +1,6 @@
+<!-- eslint-disable -->
+<button *ngIf="isViewScrollButton()"
+        (click)="endOfDocument() ? scrollUp() : scrollDown()" class="scrollButton">
+  <i class="scrollDown"
+     [ngClass]="{'scrollUp': endOfDocument()}"> </i>
+</button>

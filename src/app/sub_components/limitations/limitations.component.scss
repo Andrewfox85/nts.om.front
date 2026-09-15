@@ -1,0 +1,169 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+.session {
+    .session-stage {
+      //width: 100%;
+      padding: 4px 8px;
+      height: 24px;
+
+      &.default {
+        background-color: $lightGrayBackgroundColor;
+        color: $secondTextColor;
+      }
+    }
+
+    .session-number {
+      padding: 4px 8px;
+      height: 24px;
+
+      .session-info {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: baseline;
+      }
+    }
+  }
+
+  .disabledRow{
+    color: $headerTopColor;
+  }
+
+  .good-tag{
+    width: 20px;
+    height: 20px;
+    padding: 4px;
+    background-color: $sectionMetalBackground;
+    color: $sectionMetal;
+    border-radius: 2px;
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .form_table{
+    height: 420px;
+
+    td{
+       .tree_wrapper{
+        vertical-align: text-top;
+        height: 360px;
+
+        .scroll_wrapper{
+          height: 100%;
+          overflow: auto;
+
+          .myScrollBarStyle{
+            /* Target the scrollbar track */
+            ::ng-deep.dx-scrollable-scrollbar.dx-scrollbar-vertical .dx-scrollable-scroll {
+              background-color: red;
+            }
+
+            /* Target the scrollbar thumb */
+            ::ng-deep.dx-scrollable-scrollbar.dx-scrollbar-vertical .dx-scrollable-scroll .dx-scrollable-scroll-content {
+              background-color: green;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .main {
+    border: none !important;
+    width: 100%;
+
+    tr {
+      border-bottom: 1px solid $greyBorder;
+      display: block;
+      padding: 12px;
+      height: 48px;
+
+      &:first-child {
+        //  padding-top: 0px;
+      }
+
+      &:last-child {
+        border-bottom: none;
+        //    padding-bottom: 0px;
+      }
+
+      &.price {
+        display: flex;
+        gap: 4px;
+        justify-content: flex-end;
+      }
+
+
+    }
+  }
+  .twostrings {
+    //height: 48px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    position: relative;
+    bottom: 4px;
+  }
+
+
+  ::ng-deep.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+    padding: 12px !important;
+  }
+
+  ::ng-deep.dx-treelist-table.dx-treelist-table-fixed, ::ng-deep.dx-treelist-headers, ::ng-deep.dx-treelist-rowsview{
+    border: none !important;
+  }
+
+  ::ng-deep.dx-treelist-action.dx-cell-focus-disabled{
+    display: none;
+  }
+
+
+
+::ng-deep.dx-toast-info{
+  background-color: $backSelectedRowGrid;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+
+
+::ng-deep.dx-toast-icon {
+  background-image: url('../../../assets/img/icons/Check-thin.svg') !important;
+  width: 20px;
+  height: 20px;
+}
+
+
+
+::ng-deep.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused) > td,
+.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused) > tr > td,
+.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused):hover > td,
+.dx-datagrid-rowsview .dx-selection.dx-row:not(.dx-row-focused):hover > tr > td {
+  background-color: $white !important;
+  //border-color: #f8fcf8 !important;
+  border-right: 0px solid transparent !important;
+  border-left: 1px solid #F0F8F1 !important;
+}
+
+
+::ng-deep.dx-treelist-cell-expandable.editableRow{
+  background-color: #e6e6e6 !important;
+}
+
+
+::ng-deep.dx-overlay-wrapper {
+  z-index: 22220 !important
+}
+
+
+::ng-deep.dx-scrollview-content{
+  max-height: 250px;
+}

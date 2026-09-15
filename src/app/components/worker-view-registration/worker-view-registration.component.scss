@@ -1,0 +1,152 @@
+/* eslint-disable */
+@import "src/assets/scss/_variables.scss";
+
+.main_component {
+  gap: 16px;
+
+  .head {
+    .subtitle {
+      display: flex;
+      gap: 16px;
+      color: $mainTextColor;
+      align-items: baseline;
+    }
+
+    .notification {
+      display: flex;
+      padding: 8px 16px;
+      align-content: flex-start;
+      align-self: stretch;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 4px;
+
+      .message {
+        flex-direction: row;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        line-height: 20px;
+
+        .text {
+          width: 320px;
+        }
+      }
+    }
+  }
+
+  .content {
+    .body {
+      .body_content {
+        ::ng-deep.dx-datagrid {
+          max-width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.view-registration-body-wrapper {
+  .items {
+    margin-bottom: 45px;
+  }
+  ::ng-deep.dx-datagrid-filter-panel {
+    margin-top: -45px;
+    left: 0;
+    position: absolute;
+  }
+}
+
+.cancelText {
+  color: $colorError;
+}
+
+::ng-deep.dx-dropdowneditor-icon {
+  height: 41px;
+}
+
+::ng-deep.dx-toast-info {
+  background-color: $backSelectedRowGrid;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $mainActiveColorHover;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-icon {
+  background-image: url("../../../assets/img/icons/Check-thin.svg") !important;
+  width: 20px;
+  height: 20px;
+}
+
+.cancel_form {
+  .restore {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .heading {
+    display: inline;
+
+    .item {
+      margin-right: 16px;
+    }
+  }
+
+  .main_info {
+    .content {
+      .subtitle {
+        margin-bottom: 8px;
+      }
+
+      .field-title {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+
+        span {
+          font-size: var(--smallFontSize);
+          color: $secondTextColor;
+        }
+      }
+    }
+  }
+
+  .buttons {
+    .btn {
+      width: 50%;
+    }
+  }
+}
+
+.items {
+  height: 32px;
+  position: relative;
+  top: 25px;
+  left: 0px;
+
+  .checkbox {
+    position: relative;
+    top: 15px;
+    left: 240px;
+  }
+
+  .btn {
+    min-width: 30px;
+  }
+}
+
+.switchers-form {
+  margin-top: 16px;
+  border: 1px solid $lightGrayBackgroundColorButton;
+
+  .switcher-item {
+    padding: 16px;
+  }
+}

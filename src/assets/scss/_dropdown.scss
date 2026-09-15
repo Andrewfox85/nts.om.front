@@ -1,0 +1,109 @@
+@import '_variables';
+
+.borderelem{
+  .dropdown {
+    .selected-list{
+      border: 1px solid #dc3545!important;
+    }
+  }
+}
+
+.dropdown {
+  //margin-top: 5px;
+
+  &.ng-valid {
+    .selected-list {
+      //color: green;
+    }
+  }
+
+  .selected-list {
+    border: 1px solid rgba(68, 68, 68, 0.2);
+    box-sizing: border-box;
+    border-radius: 4px;
+    .c-label {
+      label {
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        color: $mainTextColor;
+      }
+    }
+
+    .c-btn span{
+      color: $placeholderColor;
+      opacity: 1;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .c-angle-down, .c-angle-up {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .group_list {
+      display: flex;
+      flex-direction: column;
+
+      span {
+        font-size: 12px;
+        font-style: italic;
+      }
+    }
+  }
+
+  .dropdown-list {
+    position: absolute !important;
+    padding-top: 14px;
+    width: 100% !important;
+    z-index: 2;
+    left: 0 !important;
+    bottom: 0 !important;
+    top: 100% !important;
+
+    .pure-checkbox {
+    display: flex;
+      border-bottom: 1px dashed $borderColor;
+
+      &.selected-item, &:hover {
+        background-color: #80808021;
+      }
+
+      input[type=checkbox] + label:before {
+        border: 1px solid green;
+        display: none;
+      }
+
+      .group_list {
+        display: flex;
+        flex-direction: column;
+
+        span {
+          font-size: 12px;
+          font-style: italic;
+        }
+      }
+    }
+  }
+
+  .c-remove {
+    display: none;
+    visibility: hidden;
+  }
+
+  .c-btn {
+    padding: 0 10px !important;
+    min-height: 35px !important;
+  }
+
+  .c-list {
+    .c-token {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  }
+}

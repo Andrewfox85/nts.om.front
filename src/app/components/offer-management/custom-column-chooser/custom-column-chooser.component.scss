@@ -1,0 +1,83 @@
+/* eslint-disable */
+@import "src/assets/scss/_variables.scss";
+
+ceit-custom-column-chooser {
+  .content-wrapper {
+    margin: 6px;
+
+    .column-list {
+      width: 298px;
+      height: 630px;
+
+      .column-item {
+        padding: 12px 16px;
+      }
+    }
+
+    .list-header {
+      width: 298px;
+      height: 48px;
+
+      span {
+        font-weight: 500;
+      }
+    }
+
+    .dynamic-data > .column-item:first-child {
+      border-top: 1px solid #ddd;
+    }
+
+    .child-checkbox-wrapper {
+      padding-top: 12px;
+    }
+
+    .column-name-text {
+      font-weight: 600;
+    }
+
+    .list-header {
+      padding: 15px;
+      font-weight: bold;
+      background-color: $lightGrayBackgroundColor;
+      border: 1px solid $lightGrayBackgroundColor;
+      height: 48px;
+      line-height: 20px;
+      font-size: 14px;
+    }
+
+    .column-chooser-action-buttons {
+      justify-content: space-between;
+      margin-bottom: 38px;
+      margin-top: 16px;
+
+      .reset-button {
+        border-color: $lightGrayBackgroundColor;
+        background-color: $white;
+
+        &:hover {
+          color: $white;
+          background-color: $mainActiveColorHover;
+          border-color: $mainActiveColorHover;
+        }
+
+        &.disabled {
+          border-color: $lightGrayBackgroundColor;
+          color: $lightGrayBackgroundColor !important;
+        }
+      }
+
+      .action-buttons {
+        justify-content: flex-end;
+      }
+
+      button {
+        width: 270px;
+        height: 40px;
+      }
+    }
+  }
+
+  .dx-checkbox-text {
+    white-space: pre-wrap !important;
+  }
+}

@@ -1,0 +1,899 @@
+<!-- eslint-disable -->
+<main class="unrealized-volumes">
+  <div class="flexContentColumn16">
+    <div class="flexContentColumn8">
+    <div class="head">
+      <h1>{{ 'header.top_line.menu.unrealizedVolumes' | translate }}</h1>
+    </div>
+    <div class="session flexContent8">
+      <div>
+      <div *ngIf="!sessionInfo"
+           class="session-stage default d-flex ai-c font-s12">{{'sessions-schedule.sessionStage' | translate}}</div>
+      <div *ngIf="sessionInfo" class="session-stage d-flex ai-c font-s12"
+            [ngClass]="sessionInfo?.sessionStageId | stageColor">{{sessionInfo.sessionStageName}}
+      </div>
+    </div>
+      <div class="session-number d-flex font-s14">
+
+        <div *ngIf="!sessionInfo" class="flexContent8"><span>{{'filters.session' | translate}}</span> <span>-</span></div>
+
+        <div *ngIf="sessionInfo" class="session-info">
+          {{'filters.session' | translate}}
+          <span class="widthMaxContent">{{((sessionInfo.datetimeBegin - 25569) * 24 * 3600 * 1000) +1  | date:'dd.MM.yyyy HH:mm' : "+0000" }}</span>
+          <span class="date-roboto-mono">№{{ sessionInfo.idSession }}</span>
+          <span class="widthMaxContent">{{sessionInfo.sessionName}}</span>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!--секция и сессия-->
+      <form [formGroup]="filterData" class="flexContent16">
+      <div class="form-group w-fit-cnt">
+        <div class="input-group">
+          <label>{{ 'filters.section' | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="sectionsList"
+              displayExpr="name"
+              valueExpr="id"
+              width="280px"
+              height="40px"
+              formControlName="section"
+              placeholder="{{'filters.selection' | translate}}"
+              (onValueChanged)="onChangedSectionValue()"
+              >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="form-group w-fit-cnt">
+        <div class="input-group">
+          <label>{{ 'filters.session' | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="sessionList"
+              valueExpr="idSession"
+              fieldTemplate="sessionTemplate"
+              width="280px"
+              height="40px"
+              placeholder="{{'filters.selection' | translate}}"
+              formControlName="session"
+              [searchEnabled]="true"
+              [searchExpr]="['sessionName', 'idSession']"
+              [showClearButton]="false"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+              (onValueChanged)="onChangedSession()"
+            >
+
+              <div *dxTemplate="let item of 'item'">
+                <div id="nameSession{{item.idSession}}" class="flexContent8">
+                  <div class="date-roboto-mono">№{{ item.idSession }}</div>
+                  <div class="date-roboto-mono">{{ ((item.datetimeBegin - 25569) * 24 * 3600 * 1000) +1  | date:'dd.MM.yyyy' : "+0000" }}</div>
+                  <div class="overflowText">{{ item.sessionName }}</div>
+                </div>
+
+                <dx-tooltip target="#nameSession{{item.idSession}}"
+                            [showEvent]="{name: 'mouseenter', delay: 500}"
+                            hideEvent="mouseleave">
+                  <div *dxTemplate="let data = data; of: 'content'">{{ item.sessionName }}</div>
+                </dx-tooltip>
+              </div>
+
+              <!--              Отображение в выбранном значании ид + дата + название сессиии-->
+              <div *dxTemplate="let item of 'sessionTemplate'">
+                <dx-text-box
+                  placeholder="{{'filters.selection' | translate}}"
+                  class="date-roboto-mono"
+                  [value]="sessionTemplateSelectBox(item)"
+                  [readOnly]="false"
+                ></dx-text-box>
+              </div>
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+
+        <!--Перенести лоты-->
+          <button class="btn h-32px secondary-btn w-fit-cnt" [disabled]="selectedRows?.length == 0 || this.tabIndex == 1" (click)="onTransfer()">
+            <div class="flexContent8 ai-c blackColor">
+          <div class="transferToBids"></div>
+          {{ 'unrealizedVolumes.transferLots' | translate }}
+        </div>
+          </button>
+      </form>
+
+    <!--Вкладки Для переноса/Перенесенные      (onItemClick)="onChangeTab($event)"-->
+    <dx-tabs *ngIf="user"
+      [dataSource]="tabs"
+      [selectedIndex]="tabIndex"
+      (onItemClick)="onChangeTab($event)"
+    >
+    </dx-tabs>
+
+    <div class="bodyContent">
+    <div class="flexContent24 toolbar" *ngIf="offers?.length >0">
+      <button class="btn h-32px secondary-btn w-280px" id="updateGrid" [disabled]="disableUpdate"
+              (click)="disableUpdate = true; getData()">
+        <div class="flexContent8 ai-c blackColor">
+          <div class="update"></div>
+          <span>{{ 'sessions-schedule.updatedIn' | translate}}</span>
+          <div class="date-roboto-mono font-s12">
+            {{this.currentTimeDate | date:'HH:mm dd.MM.yyyy' : "+0300"}}
+          </div>
+        </div>
+      </button>
+      <dx-tooltip target=".dx-datagrid-toolbar-button"
+                  [showEvent]="{name: 'mouseenter', delay: 500}"
+                  hideEvent="mouseleave">
+        <div
+          *dxTemplate="let data = data; of: 'content'">{{ 'general.columnChooser' | translate }}
+        </div>
+      </dx-tooltip>
+
+
+      <dx-check-box
+        text="{{'unrealizedVolumes.hideItemsFromLots' | translate}}"
+        iconSize="20px"
+        [value]="isHiddenLot"
+        (onValueChanged)="hideCompositeLot($event)">
+      </dx-check-box>
+  </div>
+    <!--Таблица-->
+    <div  *ngIf="offers?.length > 0 && this.filterData.controls.session?.value; else nodata" class="w-100">
+      <div class="unrealizedVolumes">
+
+        <!--ОТОБРАЖАЕМАЯ таблица-->
+        <dx-data-grid  #dataGridRef
+                     [dataSource]="displayOffers"
+                     [showBorders]="false"
+                     [showColumnLines]="true"
+                     [allowColumnResizing]="true"
+                     [allowColumnReordering]="true"
+                     [showRowLines]="true"
+                     [width]="100+'%'"
+                     (onSelectionChanged)="onSelectionChanged($event)"
+                     (onContentReady)="onContentReady($event)"
+                     (onContextMenuPreparing)="onContextMenuPreparing($event)"
+                     (onCellPrepared)="onCellPrepared($event)"
+                     (onExporting)="exportGrid($event)"
+      >
+        <dxo-export [enabled]="true"></dxo-export>
+
+        <dxo-search-panel
+          [visible]="false"
+        ></dxo-search-panel>
+        <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+        <dxo-header-filter [visible]="true" [allowSearch]="true"></dxo-header-filter>
+
+        <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+        <dxo-state-storing
+          [enabled]="true"
+          type="localStorage"
+          storageKey="unrealizedVolumes"
+        ></dxo-state-storing>
+
+        <dxo-scrolling
+          mode="standard" [scrollByContent]="true"  showScrollbar="always">
+        </dxo-scrolling>
+
+        <dxo-selection
+          mode="multiple"
+          showCheckBoxesMode="always"
+          selectAllMode="allPages">
+        </dxo-selection>
+
+        <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+        <dxo-pager [visible]="true"
+                   [allowedPageSizes]="numberEntriesPage"
+                   displayMode="compact"
+                   [showPageSizeSelector]="true">
+        </dxo-pager>
+        <!-- Лот -->
+        <dxi-column caption="{{'catalogs.lot' | translate}}"
+                    dataField="lotNumber"
+                    cssClass="column text-align-left"
+                    width="80"
+                    [allowHiding]="false"
+                    alignment="left"
+                    [allowFiltering]="false"
+                    [allowFixing]="false"
+                    cellTemplate="cellTemplateLot"
+        >
+        </dxi-column>
+
+          <div *dxTemplate="let data of 'cellTemplateLot'">
+            <div class="flexContent4">
+
+
+              <div class="lotNumber d-flex ai-c">{{ data.data.lotNumber }}</div>
+              <!--Подсветка возвращенных в перечень нереализованных объемов-->
+              <div *ngIf="data.data.transferIsBackUnsold" class="infoIconThin defaultCursor"
+                   id="transferIsBack{{data.data.lotNumber}}">
+                <dx-tooltip
+                  target="#transferIsBack{{data.data.lotNumber}}"
+                  [showEvent]="{name: 'mouseenter', delay: 500}"
+                  hideEvent="mouseleave"
+                >
+                  <div
+                    *dxTemplate="let data = data; of: 'content'">{{ 'unrealizedVolumes.transferIsBackUnsold' | translate }}
+                  </div>
+                </dx-tooltip>
+              </div>
+              <!-- значки заявки -->
+              <div *ngIf="data.data.isMultibasis == true" class="multibasisLot"></div>
+              <div *ngIf="data.data.isComposite == true" class="lot"></div>
+            </div>
+          </div>
+
+        <!-- Наименование -->
+        <dxi-column caption="{{ 'general.name' | translate}}"
+                    dataField="mainName"
+                    cssClass="column text-align-left"
+                    width="330"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [allowSorting]="true"
+        >
+        </dxi-column>
+
+        <!-- Наименование товара/услуги-->
+        <dxi-column caption="{{ 'general.nameProduct' | translate}}"
+                    dataField="goodName"
+                    cssClass="column p-0 text-align-left"
+                    width="330"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateName"
+                    [calculateFilterExpression]="calculateFilterExpression"
+        >
+          <dxo-header-filter [dataSource]="orderHeaderFilterName">  </dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateName'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods; let i = index">
+              <tr><span class="twostrings" id="goodName{{good.idOffer}}_{{i}}">{{good.goodInfo.goodName}}</span>
+                <dx-tooltip
+                  target="#goodName{{good.idOffer}}_{{i}}"
+                  hideEvent="mouseleave"
+                  [showEvent]="{ name: 'mouseover', delay: 500 }"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">{{good.goodInfo.goodName}}</div>
+                </dx-tooltip></tr>
+            </ng-container>
+          </table>
+        </div>
+
+        <!-- Краткое описание -->
+        <dxi-column caption="{{ 'catalogs.shortDesc' | translate}}"
+                    cssClass="column p-0 text-align-left"
+                    dataField="goodDescription"
+                    width="330"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateDesc"
+                    [calculateFilterExpression]="calculateFilterExpression"
+                    >
+          <dxo-header-filter [dataSource]="orderHeaderFilterDesc"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateDesc'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods; let i = index">
+              <tr><span class="twostrings"
+                        id="good{{good.idOffer}}_{{i}}">{{good.goodInfo.goodDescription}}</span>
+                <dx-tooltip
+                  target="#good{{good.idOffer}}_{{i}}"
+                  [showEvent]="{ name: 'mouseover', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">{{good.goodInfo.goodDescription}}</div>
+                </dx-tooltip>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
+
+        <!-- Кол-во -->
+        <dxi-column caption="{{ 'general.quantity' | translate}}"
+                    dataField="goodVolume"
+                    cssClass="column date-roboto-mono p-0 text-align-right"
+                    width="130"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateVol"
+                    [visible]="!isHiddenLot"
+                    [calculateFilterExpression]="calculateFilterExpression"
+                    >
+          <dxo-header-filter [dataSource]="orderHeaderFilterVol"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateVol'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr>{{(getNumber(good.goodInfo.goodVolume)).toLocaleString('ru')}}</tr>
+            </ng-container>
+          </table>
+        </div>
+
+        <!-- Общее кол-во -->
+        <dxi-column caption="{{ 'unrealizedVolumes.totalNumber' | translate}}"
+                    dataField="goods[0].lotSummary.volume"
+                    cssClass="column date-roboto-mono text-align-right"
+                    width="130"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateTotalVol"
+        >
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateTotalVol'">
+          <div *ngIf="data.data.goods[0].lotSummary.volume > 0; else noDataValue"><!--  -->
+            {{getNumber(data.data.goods[0].lotSummary.volume).toLocaleString('ru',{maximumFractionDigits:4})}} {{data.data.goods[0].lotSummary.volumeUnit}}
+          </div>
+
+        </div>
+
+        <!-- Единица измерения -->
+        <dxi-column caption="{{ 'general.unit' | translate}}"
+                    dataField="goodUnitName"
+                    cssClass="column p-0 date-roboto-mono text-align-right"
+                    width="130"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateTotalVolUnit"
+                    [calculateFilterExpression]="calculateFilterExpression"
+                  >
+          <dxo-header-filter [dataSource]="orderHeaderFilterUnits"></dxo-header-filter>
+        </dxi-column>
+
+
+        <div *dxTemplate="let data of 'cellTemplateTotalVolUnit'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr>{{good.goodInfo.goodUnitName ? good.goodInfo.goodUnitName : '-'}}</tr>
+            </ng-container>
+          </table>
+        </div>
+
+        <!-- todo поправка/котировка Валюта-->
+        <dxi-column caption="{{ 'filters.currency' | translate}}"
+                    dataField="currencyName"
+                    cssClass="column date-roboto-mono text-align-right"
+                    width="130"
+                    alignment="right"
+                    [allowFiltering]="true">
+        </dxi-column>
+
+        <!--&lt;!&ndash; Поправка проверка на тип торгов. Если 1 по цене, то колонка скрывается &ndash;&gt;
+        <dxi-column *ngIf="sessionInfo?.idPricingType != 1"
+                    caption="{{ 'trading.offersTable.amendment' | translate}}"
+                    dataField="amendment"
+                    cssClass="column date-roboto-mono  p-0 text-align-right"
+                    width="95"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateAmendment"
+                    [calculateFilterExpression]="calculateFilterExpression">
+          <dxo-header-filter [dataSource]="orderHeaderFilterAmendment"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateAmendment'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr *ngIf="data.data.priceParams.idPriceAdjustment == 2">{{(getNumber(good.priceAdjustment)).toLocaleString('ru', { minimumFractionDigits: data.data.priceParams.currencyPrecision, maximumFractionDigits: data.data.priceParams.currencyPrecision})}}  {{data.data.priceParams.currencyName}}</tr>
+              <tr *ngIf="data.data.priceParams.idPriceAdjustment == 1">{{good.priceAdjustment}} %</tr>
+            </ng-container>
+          </table>
+        </div>
+
+        &lt;!&ndash; Котировка&ndash;&gt;
+        <dxi-column *ngIf="sessionInfo?.idPricingType == 2"
+                    caption="{{ 'trading.offersTable.quotation' | translate}}"
+                    dataField="quotation"
+                    cssClass="column date-roboto-mono  p-0 text-align-right"
+                    width="110"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateQuotation"
+                    [calculateFilterExpression]="calculateFilterExpression">
+          <dxo-header-filter [dataSource]="orderHeaderFilterQuotation"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateQuotation'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr *ngIf="good.quotationValue > 0">{{(getNumber(good.quotationValue)).toLocaleString('ru', { minimumFractionDigits: good.quotationCurrencyPrecision, maximumFractionDigits: good.quotationCurrencyPrecision})}} {{good.quotationCurrencyName}}</tr>
+            </ng-container>
+          </table>
+        </div>-->
+
+        <!-- Стартовая стоимость -->
+        <!--  <dxi-column caption="{{ 'trading.auctionsTab.startCostVAT' | translate}}"
+                    dataField="lotSummaryTotalStart"
+                     cssClass="column date-roboto-mono p-0 text-align-left"
+                     width="160"
+                     [allowSorting]="true"
+                     alignment="right"
+                     [allowFiltering]="true"
+                     cellTemplate="cellTemplateStartVAT"
+                    [calculateFilterExpression]="calculateFilterExpression">
+          <dxo-header-filter [dataSource]="orderHeaderFilterTotalAmount"></dxo-header-filter>
+         </dxi-column>
+
+         <div *dxTemplate="let data of 'cellTemplateStartVAT'">
+         <table class="main">
+             <ng-container *ngFor="let good of data.data.goods">
+              <tr>{{(getNumber(good.lotSummaryTotalStart)).toLocaleString('ru', { minimumFractionDigits: data.data.priceParams.currencyPrecision, maximumFractionDigits: data.data.priceParams.currencyPrecision})}} {{data.data.priceParams.currencyName}}</tr>
+             </ng-container>
+         </table>
+         </div> -->
+
+        <!--  Текущая цена (без НДС)  -->
+        <dxi-column caption="{{ 'unrealizedVolumes.priceWithoutVAT' | translate}}"
+                    dataField="priceWithoutVat"
+                    cssClass="column p-0 date-roboto-mono text-align-right"
+                    width="140"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplatePrice"
+                    [calculateFilterExpression]="calculateFilterExpression"
+                   >
+          <dxo-header-filter [dataSource]="orderHeaderFilterPrice"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplatePrice'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr class="price center">
+                <div *ngIf="data.data.isPriceAdjusted == true" class="trendUp"></div>
+                {{
+                  (getNumber(good.priceParams.priceWithoutVat)).toLocaleString('ru', {
+                    minimumFractionDigits: data.data.currencyPrecision,
+                    maximumFractionDigits: data.data.currencyPrecision
+                  })
+                }}
+              </tr>
+            </ng-container>
+          </table>
+        </div>
+
+        <!-- Ставка НДС
+        <dxi-column caption="{{ 'trading.offersTable.VAT' | translate}}"
+                    dataField="priceParams.vatPercent"
+                    cssClass="column date-roboto-mono text-align-right"
+                    width="110"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="false"
+                    cellTemplate="cellTemplateVatPercent">
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateVatPercent'">
+          <div>{{ data.data.priceParams.vatPercent != null ? (data.data.priceParams.vatPercent +'%') :  ('general.withoutVAT' | translate)}} </div>
+        </div>
+
+        &lt;!&ndash; Сумма НДС&ndash;&gt;
+        <dxi-column caption="{{ 'trading.offersTable.amountVAT' | translate}}"
+                    dataField="amountVAT"
+                    cssClass="column p-0 date-roboto-mono text-align-right"
+                    width="150"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateAmountVAT"
+                    [calculateFilterExpression]="calculateFilterExpression">
+          <dxo-header-filter [dataSource]="orderHeaderFilterAmountVAT"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateAmountVAT'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr>{{
+                  (getNumber(good.vatAmount)).toLocaleString('ru', {
+                    minimumFractionDigits: data.data.priceParams.currencyPrecision,
+                    maximumFractionDigits: data.data.priceParams.currencyPrecision
+                  })
+                }}
+              </tr>
+            </ng-container>
+          </table>
+        </div>
+
+        &lt;!&ndash; Общая сумма НДС&ndash;&gt;
+        <dxi-column caption="{{ 'trading.offersTable.totalAmountVAT' | translate}}"
+                    dataField="goods[0].lotSummaryVatAmount"
+                    cssClass="column date-roboto-mono text-align-right"
+                    width="150"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="false"
+                    cellTemplate="cellTemplateTotalAmountVAT">
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateTotalAmountVAT'">
+          <div>
+            {{
+              (getNumber(data.data.goods[0].lotSummaryVatAmount)).toLocaleString('ru', {
+                minimumFractionDigits: data.data.priceParams.currencyPrecision,
+                maximumFractionDigits: data.data.priceParams.currencyPrecision
+              })
+            }}
+          </div>
+        </div>-->
+
+        <!-- Стоимость товара/услуги (с учетом НДС) -->
+        <dxi-column caption="{{ 'unrealizedVolumes.costGoodsIncludingVAT' | translate}}"
+                    dataField="totalAmount"
+                    cssClass="column date-roboto-mono p-0 text-align-right"
+                    width="160"
+                    [allowSorting]="true"
+                    alignment="right"
+                    [allowFiltering]="true"
+                    [visible]="!isHiddenLot"
+                    cellTemplate="cellTemplateCostVAT"
+                    [calculateFilterExpression]="calculateFilterExpression"
+                    >
+          <dxo-header-filter [dataSource]="orderHeaderFilterTotalAmount"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateCostVAT'">
+          <table class="main">
+            <ng-container *ngFor="let good of data.data.goods">
+              <tr>{{(getNumber(good.priceParams.totalAmount)).toLocaleString('ru', { minimumFractionDigits: data.data.currencyPrecision, maximumFractionDigits: data.data.currencyPrecision})}}</tr>
+            </ng-container>
+          </table>
+        </div>
+
+        <!-- Стоимость по заявке (с учетом НДС)  -->
+        <dxi-column
+          dataField="goods[0].lotSummary.totalAmount"
+          caption="{{ 'unrealizedVolumes.priceIncludingVAT' | translate}}"
+          cssClass="column date-roboto-mono text-align-right"
+          width="160"
+          alignment="right"
+          [allowFiltering]="true"
+          cellTemplate="cellTemplateTotalCostVAT">
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateTotalCostVAT'">
+          <div>
+            {{(getNumber(data.data.goods[0].lotSummary.totalAmount)).toLocaleString('ru', { minimumFractionDigits: data.data.currencyPrecision, maximumFractionDigits: data.data.currencyPrecision})}}
+          </div>
+        </div>
+
+        <!-- Условия поставки-->
+        <dxi-column caption="{{ 'createOffer.stepName.termsDeliveryTime' | translate }}"
+                    dataField="concatedDeliveryConditions"
+                    cssClass="column  text-align-left"
+                    width="240"
+                    alignment="left"
+                    [allowSorting]="true"
+                    [allowFiltering]="true"
+                    cellTemplate="cellTemplateTermsDeliveryTime">
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateTermsDeliveryTime'">
+          <div class="flexContent4">
+            <div *ngIf="data.data.isMultibasis == true" class="multibasis"></div>
+            <div class="d-flex ai-c">{{data.data.concatedDeliveryConditions}}</div>
+          </div>
+        </div>
+
+        <!-- Срок поставки-->
+        <dxi-column caption="{{ 'createOffer.deliveryTime.deliveryTime' | translate }}"
+                    dataField="concatedDeliveryPeriod"
+                    cssClass="column text-align-left"
+                    alignment="left"
+                    width="200"
+                    [allowSorting]="true"
+                    [allowFiltering]="true"
+                    >
+        </dxi-column>
+
+        <!-- Условия оплаты-->
+        <dxi-column caption="{{ 'createOffer.termsPayment.termsPayment' | translate }}"
+                    dataField="concatedPaymentConditions"
+                    cssClass="column text-align-left"
+                    width="230"
+                    alignment="left"
+                    [allowSorting]="true"
+                    [allowFiltering]="true"
+                   >
+        </dxi-column>
+
+        <!-- Участник -->
+        <dxi-column caption="{{'createOffer.generalInfo.participant' | translate}}"
+                    dataField="concatedFirmName"
+                    cssClass="column text-align-left"
+                    width="140"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [allowSorting]="true"
+                    >
+        </dxi-column>
+
+        <!-- Тип договора -->
+        <dxi-column caption="{{'general.contractType' | translate}}"
+                    dataField="clientContractTypeName"
+                    cssClass="column text-align-left"
+                    width="140"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [allowSorting]="true"
+                    cellTemplate="cellTemplateClientContractType"
+                    [calculateFilterExpression]="calculateFilterExpressionContract"
+                   >
+          <dxo-header-filter [dataSource]="orderHeaderFilterContractType"></dxo-header-filter>
+        </dxi-column>
+
+        <div *dxTemplate="let data of 'cellTemplateClientContractType'">
+          <div>{{ data.data.clientContractTypeName == '20' ? ('general.commissionAgreement' | translate) : data.data.clientContractTypeName == 21 ? ('general.agencyAgreement' | translate) : '' }}</div>
+        </div>
+
+
+        <!-- Клиент брокера -->
+        <dxi-column caption="{{'filters.brokerClient' | translate}}"
+                    dataField="concatedClientName"
+                    cssClass="column text-align-left"
+                    width="140"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [allowSorting]="true"
+                    cellTemplate="cellTemplateClient"
+                    [visible]="true">
+        </dxi-column>
+
+        <div *dxTemplate="let item of 'cellTemplateClient'">
+                <span class="twostrings"
+                      id="offerClient{{item.data.idOffer}}">{{ item.data.concatedClientName }}</span>
+          <dx-tooltip
+            target="#offerClient{{item.data.idOffer}}"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">{{ item.data.concatedClientName }}</div>
+          </dx-tooltip>
+        </div>
+
+
+        <!-- Стр подразделение -->
+        <dxi-column caption="{{'filters.listBranchs' | translate}}"
+                    dataField="branchName"
+                    cssClass="column text-align-left"
+                    width="140"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [allowSorting]="true"
+                    cellTemplate="cellTemplateBranch"
+                   >
+        </dxi-column>
+
+        <div *dxTemplate="let item of 'cellTemplateBranch'">
+                <span class="twostrings"
+                      id="offerBranch{{item.data.idOffer}}">{{ item.data.branchName }}</span>
+          <dx-tooltip
+            target="#offerBranch{{item.data.idOffer}}"
+            [showEvent]="{ name: 'mouseover', delay: 500 }"
+            hideEvent="mouseleave"
+          >
+            <div *dxTemplate="let data = data; of: 'content'">{{ item.data.branchName }}</div>
+          </dx-tooltip>
+        </div>
+
+        <!-- Трейдер -->
+        <dxi-column caption="{{'worker.registration.trader' | translate}}"
+                    dataField="traderName"
+                    cssClass="column text-align-left"
+                    width="140"
+                    alignment="left"
+                    [allowFiltering]="true"
+                    [allowSorting]="true"
+                    [visible]="true">
+        </dxi-column>
+
+        <!-- Новый номер лота -->
+        <dxi-column
+          *ngIf="tabIndex == 1"
+          caption="{{'unrealizedVolumes.newLotNumber' | translate}}"
+          dataField="transferLotNumber"
+          cssClass="column text-align-left"
+          width="140"
+          alignment="left"
+          [allowFiltering]="true"
+          [allowSorting]="true"
+          [fixed]="true"
+          fixedPosition="right"
+          [allowFixing]="false"
+          [visible]="true">
+        </dxi-column>
+
+        <!-- Новый номер сессии -->
+        <dxi-column
+          *ngIf="tabIndex == 1"
+          caption="{{'unrealizedVolumes.newSessionNumber' | translate}}"
+          dataField="transferSession"
+          cssClass="column text-align-left"
+          width="140"
+          alignment="left"
+          [allowFiltering]="true"
+          [allowSorting]="true"
+          [fixed]="true"
+          fixedPosition="right"
+          [allowFixing]="false"
+          [visible]="true">
+        </dxi-column>
+
+
+
+      </dx-data-grid>
+      </div>
+    </div>
+    </div>
+
+    <ng-template #nodata>
+      <div class="noData">{{this.filterData.controls.session?.value ? ('errors.emptyData' | translate) : ('unrealizedVolumes.emptyListSelectSession' | translate)}}</div>
+    </ng-template>
+
+    <ng-template #noDataValue>
+      <div>-</div>
+    </ng-template>
+  </div>
+</main>
+<dx-load-panel
+  shadingColor="rgba(0,0,0,0.4)"
+  [(visible)]="loadingVisible"
+  [showIndicator]="true"
+  [showPane]="true"
+  [shading]="true"
+  [hideOnOutsideClick]="false"
+  (onShown)="onShown()"
+>
+</dx-load-panel>
+
+<dx-popup
+  contentTemplate="popupContent"
+  [hideOnOutsideClick]="false"
+  [visible]="transferLotsPopup"
+  [showTitle]="true"
+  title="{{'unrealizedVolumes.transferUnsoldVolumes' | translate}}"
+  width="670"
+  height="auto"
+  maxHeight="900"
+  [showCloseButton]="true"
+  (onHiding)="onClosePopup()"
+>
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'popupContent'">
+    <div class="flexContentColumn32">
+      <div class="flexContentColumn16" *ngIf="this.numberCheckOffer != this.checkedOffers?.length; else resultMessage">
+        <div>{{'unrealizedVolumes.selectSession' | translate}}</div>
+        <div class="notificationBlue notificationBlueMessage borderBlue flexContent16 h-ft">
+          <i class="notificationIcon"></i>
+          <span>{{'unrealizedVolumes.notificationLimitedList' | translate}} </span>
+        </div>
+
+        <div class="w-100">
+          <div class="flexContentColumn4">
+            <label class="secondTextColor font-s12">{{ 'filters.session' | translate }}</label>
+            <div>
+              <dx-select-box
+                [dataSource]="sessionsListToTransfer"
+                valueExpr="idSession"
+                fieldTemplate="sessionTemplate"
+
+                height="40px"
+                placeholder="{{'filters.selection' | translate}}"
+                [(value)]="sessionToTransfer"
+                [searchEnabled]="true"
+                [searchExpr]="['sessionName', 'idSession']"
+                [showClearButton]="false"
+                [showDataBeforeSearch]="true"
+                [minSearchLength]="4"
+                (onValueChanged)="onChangedSession()"
+              >
+
+                <div *dxTemplate="let item of 'item'">
+                  <div id="nameSession{{item.idSession}}" class="flexContent8">
+                    <div class="date-roboto-mono">№{{ item.idSession }}</div>
+                    <div class="date-roboto-mono">{{ ((item.datetimeBegin - 25569) * 24 * 3600 * 1000) +1  | date:'dd.MM.yyyy' : "+0000" }}</div>
+                    <div class="overflowText">{{ item.sessionName }}</div>
+                  </div>
+
+                  <dx-tooltip target="#nameSession{{item.idSession}}"
+                              [showEvent]="{name: 'mouseenter', delay: 500}"
+                              hideEvent="mouseleave">
+                    <div *dxTemplate="let data = data; of: 'content'">{{ item.sessionName }}</div>
+                  </dx-tooltip>
+                </div>
+
+                <!--              Отображение в выбранном значании ид + дата + название сессиии-->
+                <div *dxTemplate="let item of 'sessionTemplate'">
+                  <dx-text-box
+                    placeholder="{{'filters.selection' | translate}}"
+                    class="date-roboto-mono"
+                    [value]="sessionTemplateSelectBox(item)"
+                    [readOnly]="false"
+                  ></dx-text-box>
+                </div>
+              </dx-select-box>
+            </div>
+          </div>
+        </div>
+
+        <dx-check-box
+          [disabled]="!this.sessionToTransfer"
+          text="{{'unrealizedVolumes.checkBoxForTransfer' | translate}}"
+          iconSize="20px"
+          [(value)]="isCancel"
+         >
+        </dx-check-box>
+      </div>
+
+  <div class="flexContentColumn4" style="gap: 0;"
+       *ngIf="isVisibleProgressBar">
+    <dx-progress-bar
+      id="progress-bar-status"
+      width="100%"
+      [showStatus]="false"
+      [class.complete]="numberCheckOffer == this.checkedOffers.length"
+      [min]="0"
+      [max]="this.checkedOffers.length"
+      [value]="numberCheckOffer"
+    >
+    </dx-progress-bar>
+    <div class="secondTextColor font-s12">{{'unrealizedVolumes.postponed' | translate}} {{ this.numberCheckOffer || 0 }}
+      /{{ this.checkedOffers.length || 0 }}
+    </div>
+  </div>
+
+      <ng-template #resultMessage>
+        <!-- все успешно -->
+        <div *ngIf="successfulRes?.length > 0  && failedRes?.length == 0" class="resultMessage successMessage borderGreen h-auto">
+        <span class="message">
+           <i class="checkIcon"></i>
+            <span>{{'unrealizedVolumes.postponed' | translate}}: {{'errors.successWarning' | translate}} - {{successfulRes?.length}}, {{'errors.noSuccessError' | translate}} - 0</span>
+          </span>
+        </div>
+
+        <!-- часть успешно, часть нет -->
+        <div *ngIf="successfulRes?.length > 0  && failedRes?.length > 0" class="resultMessage warningMessage borderOrange">
+        <span class="message">
+            <i class="unavailableIcon"></i>
+            <span>{{'unrealizedVolumes.postponed' | translate}}: {{'errors.successWarning' | translate}} - {{successfulRes?.length}}, {{'errors.noSuccessError' | translate}} - {{failedRes?.length}}</span>
+          </span>
+        </div>
+
+        <!-- все неуспешно -->
+        <div *ngIf="successfulRes?.length == 0  && failedRes?.length > 0" class="resultMessage errorMessage borderRed">
+        <span class="message">
+            <i class="errorIcon"></i>
+            <span>{{'unrealizedVolumes.postponed' | translate}}: {{'errors.successWarning' | translate}} - 0, {{'errors.noSuccessError' | translate}} - {{failedRes?.length}}</span>
+          </span>
+        </div>
+      </ng-template>
+
+
+      <div class="buttons flexContent24 buttonsClass jc-end">
+        <button *ngIf="this.numberCheckOffer != this.checkedOffers?.length" class="btn btn-primary submit w-50" [disabled]="!this.sessionToTransfer || this.isVisibleProgressBar"
+                (click)="onStartTransfer()">{{'btns.transferLots' | translate}}</button>
+
+        <button *ngIf="this.numberCheckOffer == this.checkedOffers?.length && failedRes?.length != 0" class="btn btn-primary submit w-50"
+                (click)="onViewDetails()">{{'btns.viewInDdetail' | translate}}</button>
+        <button class="btn btn-outline-primary w-50"
+                (click)="onClosePopup()">{{this.numberCheckOffer == this.checkedOffers?.length ?  ('btns.close' | translate) : ('btns.cancel' | translate)}}</button>
+      </div>
+    </div>
+  </div>
+</dx-popup>
+

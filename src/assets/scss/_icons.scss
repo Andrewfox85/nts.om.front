@@ -1,0 +1,138 @@
+i {
+  font-family: 'tpiptIcons', serif;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  &.icon-print:before {
+    content: "\e900";
+  }
+
+  &.icon-plus:before {
+    content: "\e901";
+  }
+
+  &.icon-search:before {
+    content: "\e902";
+  }
+
+  &.icon-mail:before {
+    content: "\e903";
+  }
+
+  &.icon-bids:before {
+    content: "\e904";
+  }
+
+  &.icon-clock:before {
+    content: "\e905";
+  }
+
+  &.icon-descriptionBid:before {
+    content: "\e906";
+  }
+
+  &.icon-guide:before {
+    content: "\e907";
+  }
+
+  &.icon-reglament:before {
+    content: "\e908";
+  }
+
+  &.icon-cart:before {
+    content: "\e909";
+  }
+
+  &.icon-deals:before {
+    content: "\e90a";
+  }
+
+  &.icon-account:before {
+    content: "\e90b";
+  }
+
+  &.icon-arrow-left:before {
+    content: "\e90c";
+  }
+
+  &.icon-arrow-bottom:before {
+    content: "\e90d";
+  }
+
+  &.icon-user:before {
+    content: "\e90e";
+  }
+
+  &.icon-close:before {
+    content: "\e90f";
+  }
+
+  &.icon-menu-arrow:before {
+    content: "\e910";
+  }
+
+  &.icon-bids-graph:before {
+    content: "\e911";
+  }
+
+  &.icon-dollar:before {
+    content: "\e912";
+  }
+
+  &.icon-back-breadcrumbs:before {
+    content: "\e913";
+  }
+
+  &.icon-compare:before {
+    content: "\e914";
+  }
+
+  &.icon-cogs:before {
+    content: "\e915";
+  }
+
+  &.icon-asks:before {
+    content: "\e916";
+  }
+
+  &.icon-exit:before {
+    content: "\e917";
+  }
+
+  &.icon-star:before {
+    content: "\e918";
+  }
+
+  &.icon-calendar:before {
+    content: "\e919";
+  }
+
+  &.icon-search-additional:before {
+    content: "\e91a";
+  }
+
+  &.icon-eye:before {
+    content: "\e91b";
+  }
+
+  &.icon-fullscreen:before {
+    content: "\e91c";
+  }
+
+  &.icon-send:before {
+    content: "\e91d";
+  }
+
+  &.icon-icon-declined:before {
+    content: "\e91e";
+  }
+
+}
+

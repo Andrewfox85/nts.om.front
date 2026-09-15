@@ -1,0 +1,344 @@
+<!-- eslint-disable -->
+  <dx-popup
+  id="popup"
+  contentTemplate="popup-content"
+  [visible]="form"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ idDirection == IdDirection.sale ? ('sessions-schedule.registration.registrationUnregistrationSeller'| translate) : ('sessions-schedule.registration.registrationUnregistrationBuyer' | translate)}}"
+  maxHeight="90vh"
+  height="auto"
+  width="790"
+  [showCloseButton]="true"
+  (onHiding)="this.close.emit(false)"
+  (onHidden)="this.close.emit(false)"
+  >
+      <dxo-position my="top" at="top" offset="0 10"></dxo-position>
+    <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'popup-content'">
+    <div class="popupContent">
+
+      <div class="viewInfo" [ngClass]="{'hideInfo': hideRegistrInfo,'viewInfo': !hideRegistrInfo}">
+        <dx-drop-down-button
+          text="{{'sessions-schedule.registration.listSelectedSessions' | translate}}"
+          [items]="chooseSession"
+          itemTemplate="dropDownContentTemplate"
+          [useItemTextAsTitle]="false">
+          <div *dxTemplate="let item of 'dropDownContentTemplate'">
+            <div id="nameSession{{item.sessionId}}" class="flexContent16">
+              <div class="date-roboto-mono">№{{item.sessionId}}</div>
+              <div
+                class="date-roboto-mono">{{ item.sessionDateTime | excelDate | date:'dd.MM.yyyy' : "+0000" }}</div>
+              <div class="overflowText">{{item.sessionName}} ({{item.concatedMarketTypes}})</div>
+            </div>
+            <dx-tooltip target="#nameSession{{item.sessionId}}"
+                        [showEvent]="{name: 'mouseenter', delay: 500}"
+                        hideEvent="mouseleave">
+              <div *dxTemplate="let data = data; of: 'content'">{{item.sessionName}} ({{item.concatedMarketTypes}})
+              </div>
+            </dx-tooltip>
+          </div>
+        </dx-drop-down-button>
+        <form [formGroup]="paticipantRegistration">
+          <div>
+            <label
+              style="font-size: 12px; padding-bottom: 8px;">{{ 'createOffer.generalInfo.participant' | translate }}</label>
+            <div class="flexContent16">
+                            <span
+                              [ngClass]="{'disabled': !((UserRole == role.broker || UserRole == role.brokerVisitor) && clientActive)}">
+                                <input type="radio" name="participant" id="broker"
+                                       [value]="role.broker"
+                                       formControlName="participant"
+                                       (click)="this.warningResult = false; this.errorResult = false;
+                                       errorResultMessage='';
+                                       this.successResult = false; getDataTreeList(Number(role.broker));">
+                                <label for="broker"
+                                       style="padding-left: 8px; vertical-align: middle; ">{{ 'createOffer.generalInfo.broker' | translate }}</label>
+                            </span>
+              <span
+                [ngClass]="{'disabled': !((UserRole == role.visitor || UserRole == role.brokerVisitor) && branchActive)}">
+                                <input type="radio" name="participant" id="visitor"
+                                       [value]="role.visitor"
+                                       formControlName="participant"
+                                       (click)="this.warningResult = false; this.errorResult = false;errorResultMessage='';
+                                       this.successResult = false; getDataTreeList(Number(role.visitor));">
+                                <label for="visitor"
+                                       style="padding-left: 8px; vertical-align: middle;">{{ 'createOffer.generalInfo.visitor' | translate }}</label>
+                            </span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div *ngIf="paticipantRegistration.get('participant').value == role.visitor">
+        <ng-container *ngIf="this.treeListData[0]?.branchesWithDetails?.length == 0; else treeListOpen">
+          <div class="notificationBlue notificationBlueMessage" *ngIf="!warningResult && !successResult && !errorResult">
+            <span
+              *ngIf="!this.treeListData[0].isRegistered">{{idDirection == IdDirection.sale ? ('sessions-schedule.registration.registerForSessionSeller' | translate) : ('sessions-schedule.registration.registerForSessionBuyer' | translate)}}</span>
+            <span
+              *ngIf="this.treeListData[0].isRegistered">{{idDirection == IdDirection.sale ? ('sessions-schedule.registration.cancelRegisterForSessionSeller' | translate) : ('sessions-schedule.registration.cancelRegisterForSessionBuyer' | translate)}}</span>
+          </div>
+          <div *ngIf="warningResult">
+            <ng-container *ngTemplateOutlet="warning"></ng-container>
+          </div>
+          <div *ngIf="errorResult">
+            <ng-container *ngTemplateOutlet="errorMessage"></ng-container>
+          </div>
+          <div *ngIf="successResult">
+            <ng-container *ngTemplateOutlet="successMessage"></ng-container>
+          </div>
+          <!--          (click)="registrationForm = false"-->
+          <div class="buttons m-t24 flexContent24 buttonsClass">
+            <button *ngIf="this.treeListData[0].isRegistered && (!warningResult && !successResult && !errorResult)"
+                    (click)="registrationForSessionTreeList()"
+                    class="btn btn-primary submit w-50">{{'btns.cancelRegistration' | translate}}</button>
+            <button *ngIf="!this.treeListData[0].isRegistered && (!warningResult && !successResult && !errorResult)"
+                    (click)="registrationForSessionTreeList()"
+                    class="btn btn-primary submit w-50">{{'btns.register' | translate}}</button>
+            <button class="btn btn-outline-primary w-50"
+                    (click)="onClose()">{{'btns.close' | translate}}</button>
+          </div>
+        </ng-container>
+        <ng-template #treeListOpen>
+          <div [ngClass]="{'hideInfo': hideRegistrInfo, 'viewInfo': !hideRegistrInfo}">
+            <div *ngIf="warningResult">
+              <ng-container *ngTemplateOutlet="warning"></ng-container>
+            </div>
+            <div *ngIf="errorResult">
+              <ng-container *ngTemplateOutlet="errorMessage"></ng-container>
+            </div>
+            <div *ngIf="successResult">
+              <ng-container *ngTemplateOutlet="successMessage"></ng-container>
+            </div>
+            <div *ngIf="!warningResult && !successResult && !errorResult">
+              <ng-container *ngTemplateOutlet="notification"></ng-container>
+            </div>
+          </div>
+          <ng-container *ngTemplateOutlet="treeList"></ng-container>
+          <!--          <ng-container *ngTemplateOutlet="buttonsPopup"></ng-container>-->
+        </ng-template>
+      </div>
+      <div *ngIf="paticipantRegistration.get('participant').value == role.broker">
+        <!--        class="flexContentColumn24"-->
+        <div [ngClass]="{'hideInfo': hideRegistrInfo, 'viewInfo': !hideRegistrInfo}">
+          <form>
+            <div class="form-group">
+              <label>{{'general.contractType' | translate}}</label>
+              <div>
+                <dx-select-box
+                  [dataSource]="contractType"
+                  valueExpr="refBookKey"
+                  displayExpr="refBookValue"
+                  width="340px"
+                  height="40px"
+                  placeholder="{{'filters.selection' | translate}}"
+                  [value]="filterIDContractType"
+                  (onValueChanged)="filterIDContractType = $event.value">
+                </dx-select-box>
+              </div>
+            </div>
+          </form>
+          <div *ngIf="warningResult">
+            <ng-container *ngTemplateOutlet="warning"></ng-container>
+          </div>
+          <div *ngIf="errorResult">
+            <ng-container *ngTemplateOutlet="errorMessage"></ng-container>
+          </div>
+          <div *ngIf="successResult">
+            <ng-container *ngTemplateOutlet="successMessage"></ng-container>
+          </div>
+          <div *ngIf="!warningResult && !successResult && !errorResult">
+            <ng-container *ngTemplateOutlet="notification"></ng-container>
+          </div>
+        </div>
+        <ng-container *ngTemplateOutlet="treeList"></ng-container>
+      </div>
+      <ng-template #warning>
+        <div class="resultMessage warningMessage borderOrange">
+                    <span class="message">
+                        <i class="unavailableIcon"></i>
+                        <span>{{ 'errors.registered' | translate }} - {{result.registered}}
+                          , {{ 'errors.registrationCanceled' | translate }} - {{result.revoked}}
+                          , {{ 'errors.registrationError' | translate }} - {{result.errorOperation}}</span>
+                    </span>
+          <i class="close" (click)="warningResult = false"
+             *ngIf="!(paticipantRegistration.get('participant').value == role.visitor && this.treeListData[0]?.branchesWithDetails?.length == 0)"></i>
+        </div>
+      </ng-template>
+
+      <ng-template #errorMessage>
+        <div class="resultMessage errorMessage borderRed">
+                    <span class="message">
+                        <i class="errorIcon"></i>
+                        <span *ngIf="errorResultMessage?.length == 0">{{ 'errors.registered' | translate }} - {{result.registered}}
+                          , {{ 'errors.registrationCanceled' | translate }} - {{result.revoked}}
+                          , {{ 'errors.registrationError' | translate }} - {{result.errorOperation}}</span>
+                      <span *ngIf="errorResultMessage.length > 0"><span [innerHTML]="errorResultMessage"></span></span>
+                    </span>
+          <i class="close" (click)="errorResult = false; errorResultMessage = '';"
+             *ngIf="!(paticipantRegistration.get('participant').value == role.visitor && this.treeListData[0]?.branchesWithDetails?.length == 0)"></i>
+        </div>
+      </ng-template>
+
+      <ng-template #successMessage>
+        <div class="resultMessage successMessage borderGreen">
+                    <span class="message">
+                        <i class="checkIcon"></i>
+                        <span>{{ 'errors.registered' | translate }} - {{result.registered}}
+                          , {{ 'errors.registrationCanceled' | translate }} - {{result.revoked}}
+                          , {{ 'errors.registrationError' | translate }} - {{result.errorOperation}}</span>
+                    </span>
+          <i class="close" (click)="successResult = false"
+             *ngIf="!(paticipantRegistration.get('participant').value == role.visitor && this.treeListData[0]?.branchesWithDetails?.length == 0)"></i>
+        </div>
+      </ng-template>
+
+      <ng-template #notification>
+        <div class="notificationBlue borderBlue">
+          {{ 'sessions-schedule.registration.activateRegister' | translate }} <span class="mr-3 ml-3">
+          <i class="switcOn"></i>.</span> {{ 'sessions-schedule.registration.unregisterDeactivate' | translate }} <span class="mr-3 ml-3">
+          <i class="switcOff"></i>.</span> {{ 'sessions-schedule.registration.saveChanges' | translate }}.
+        </div>
+      </ng-template>
+      <ng-template #treeList>
+        <div class="flexContentColumn16" [ngStyle]="{'margin-top': hideRegistrInfo ? '-38px' : '16px'}">
+          <div class="panel">
+            <div class="tabPanel">
+              <div
+                *ngFor="let tab of ['general.all' | translate, 'general.registered'| translate, 'general.notRegistered' | translate, 'general.operationUnavailable' | translate]; let i = index">
+                <div class="tab" (click)="OnChangeFilter(i)" [ngClass]="{'active': i==activeTab}">{{tab}}</div>
+              </div>
+            </div>
+            <div class="hide" (click)="hideRegistrInfo =! hideRegistrInfo">
+              <div class="icon" [ngStyle]="{'transform': hideRegistrInfo ? 'rotate(270deg)' : 'rotate(90deg)'}"></div>
+              {{ hideRegistrInfo ? ('btns.collapse' | translate) : ('btns.expand' | translate) }}</div>
+          </div>
+          <!--        class="treeList" [ngClass]="{'treeListHeight': hideRegistrInfo}"-->
+
+          <!--                    <div [ngStyle]="{'height': hideRegistrInfo ? '687px' : paticipantRegistration.get('participant').value == role.broker ? '367px' : '455px' }">-->
+<!--          'padding-bottom' : paticipantRegistration.get('participant').value == role.visitor ? '0' : '24px'-->
+          <div class="wrapper" [ngStyle]="{'height': hideRegistrInfo ? '57vh' : '24vh'}">
+            <dx-scroll-view class="products-tree-list"   [useNative]="true">
+              <dx-tree-list
+                id="treeListData"
+                itemsExpr="branchesWithDetails"
+                dataStructure="tree"
+                (onFocusedCellChanging)="onFocusedCellChanging($event)"
+                [showRowLines]="true"
+                [showBorders]="true"
+                [autoExpandAll]="true"
+                width="100%"
+                height="inherit"
+                [wordWrapEnabled]="true"
+                [dataSource]="treeListData"
+                [filterValue]="[['idContractType', '=', filterIDContractType] ,'and',[filterValueTreeList]]">
+
+
+                <dxo-scrolling mode="virtual" [renderAsync]="false"></dxo-scrolling>
+                <dxo-load-panel [enabled]="true"></dxo-load-panel>
+                <dxo-filter-row [visible]="true"></dxo-filter-row>
+                <dxo-header-filter [visible]="true"></dxo-header-filter>
+                <dxi-column dataField="nameShort"
+                            caption="{{paticipantRegistration.get('participant').value == role.broker
+                                            ? ('sessions-schedule.registration.clientSubdvisionName' | translate)
+                                            : ('sessions-schedule.registration.participantSubdvisionName' | translate) }}"></dxi-column>
+                <dxi-column dataField="isRegisteredOriginal"
+                            caption="statusSource"
+                            [visible]="false"></dxi-column>
+                <dxi-column dataField="isRegistered"
+                            caption="status"
+                            [visible]="false"></dxi-column>
+                <dxi-column
+                  caption="{{ 'sessions-schedule.registration.registration' | translate }}"
+                  cellTemplate="switchRegistration"
+                  width="15%"
+                  alignment="center"></dxi-column>
+                <div *dxTemplate="let item of 'switchRegistration'">
+                  <div *ngIf="item.data.isRegistered != -1">
+                    <dx-switch switchedOffText="" switchedOnText=""
+                               [value]="item.data.isRegistered"
+                               (onValueChanged)="onChangeRegistration(item, $event)"></dx-switch>
+                  </div>
+                </div>
+                <dxi-column
+                  cellTemplate="checkResult"
+                  [width]="52"
+                  alignment="center"></dxi-column>
+                <div *dxTemplate="let item of 'checkResult'">
+                  <i id="edit{{item.data.idKeyValue}}" *ngIf="ChangeRegistrationArray.includes(item.data)"
+                     class="editedIcon"></i>
+                  <dx-tooltip target="#edit{{item.data.idKeyValue}}"
+                              [showEvent]="{name: 'mouseenter', delay: 500}"
+                              hideEvent="mouseleave">
+                    <div *dxTemplate="let data = data; of: 'content'">{{ 'general.edited' | translate }}</div>
+                  </dx-tooltip>
+                  <i id="unavailable{{item.data.idKeyValue}}" *ngIf="item.data.isRegistered == -1"
+                     class="unavailableIcon"></i>
+                  <dx-tooltip target="#unavailable{{item.data.idKeyValue}}"
+                              [showEvent]="{name: 'mouseenter', delay: 500}"
+                              hideEvent="mouseleave">
+                    <div *dxTemplate="let data = data; of: 'content'">{{item.data.description}}</div>
+                  </dx-tooltip>
+
+                  <span *ngFor="let result of registrationResult">
+                                    <i id="registrationResult{{result.idKeyValue}}"
+                                       *ngIf="result.idKeyValue == item.data.idKeyValue && !ChangeRegistrationArray.includes(item.data)"
+                                       class="checkIcon"
+                                       [ngClass]="{'errorIcon': !result.result}"></i>
+                                    <dx-tooltip *ngIf="!result.result"
+                                                target="#registrationResult{{result.idKeyValue}}"
+                                                [showEvent]="{name: 'mouseenter', delay: 500}"
+                                                hideEvent="mouseleave">
+                                        <div *dxTemplate="let data = data; of: 'content'">{{result.description}}</div>
+                                    </dx-tooltip>
+                                </span>
+                </div>
+                <dxi-column dataField="idContractType"
+                            [visible]="false"></dxi-column>
+
+              </dx-tree-list>
+            </dx-scroll-view>
+          </div>
+        </div>
+      </ng-template>
+
+
+
+    </div>
+  </div>
+
+
+  <dxi-toolbar-item *ngIf="displayButtons" cssClass="buttonClass"
+                    toolbar="bottom" location="before">
+
+    <div class="flexContent24 buttons">
+      <button id="nextButton" class="btn btn-primary submit w-50"
+              [disabled]="ChangeRegistrationArray?.length == 0"
+              (click)="registrationForSessionTreeList()">{{'btns.save' | translate}}</button>
+      <button id="cancelButton" class="btn btn-outline-primary w-50"
+              (click)="onClose()">{{'btns.close' | translate}}</button>
+    </div>
+
+  </dxi-toolbar-item>
+
+</dx-popup>
+
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'errors.error' | translate }}"
+  maxWidth="450px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHiding)="onClose(); error = false">
+  <dxo-animation [show]="{easing: 'ease-in-out', type:'fadeIn', duration: 150}"></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="borderRed errorPopup">
+      <i class="errorIcon"></i>{{this.messageError}}
+    </div>
+  </div>
+</dx-popup>
+

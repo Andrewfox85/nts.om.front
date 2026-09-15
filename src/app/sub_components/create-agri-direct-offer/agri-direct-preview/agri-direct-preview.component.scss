@@ -1,0 +1,163 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+
+.blockWithBorder{
+  padding: 16px;
+  border-radius: 4px;
+  border: 1px solid $lightGrayBackgroundColorButton;
+  width: 100%;
+}
+.box {
+  box-sizing: border-box;
+}
+.box:nth-child(1) {
+  border-right: 1px solid $lightGrayBackgroundColorButton;
+  width: 70%;
+  padding-right: 16px;
+}
+
+.main_info{
+  .description {
+    font-size: 14px;
+    line-height: 20px;
+    .propName {
+      font-size: 14px;
+      color: $headerTopColor;
+    }
+  }
+}
+.fieldName{
+  min-width: 270px;
+  color: $headerTopColor;
+}
+
+.accordion{
+  ::ng-deep.dx-datagrid-total-footer > .dx-datagrid-content{
+    padding: 0;
+  }
+
+  ::ng-deep.dx-accordion-item-opened > .dx-accordion-item-title::before{
+    content: none;
+  }
+  ::ng-deep.dx-accordion-item-title::before{
+    content: none;
+  }
+}
+
+
+.basisTable{
+  ::ng-deep.dx-datagrid-content .dx-datagrid-table .dx-row > td:last-child{
+    border-right: none!important;
+  }
+  ::ng-deep.dx-datagrid-content .dx -datagrid-table .dx-row > td:first-child{
+    border-left: none!important;
+  }
+}
+
+.deliveryBasisGrid{
+  ::ng-deep.dx-datagrid-content .dx-datagrid-table {
+    border-collapse: collapse;
+  }
+}
+
+.optinalField{
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color:$secondTextColor;
+}
+
+.read{
+  ::ng-deep.dx-texteditor.dx-state-readonly {
+    border: 1px solid $greyBorder;
+    border-radius: 2px;
+  }
+}
+
+.upload {
+  padding: 12px 16px;
+
+  input {
+    display: none;
+    visibility: hidden;
+    z-index: -1;
+  }
+  >label{
+    width: 100%;
+  }
+
+
+  .files{
+    padding: 8px 0;
+    width: 100%;
+    border-bottom: 1px solid $lightGrayBackgroundColorButton;
+
+    .fileName{
+      cursor: pointer;
+      color: $mainActiveColor;
+    }
+
+    .errorText{
+      font-size: 10px;
+    }
+
+    i{
+      width: 16px;
+      height: 16px;
+      margin: 0 4px;
+    }
+  }
+  .files:last-child{
+    border: none;
+  }
+  .colorError{
+    color: $colorError!important;
+  }
+  .colorGrey{
+    color: $headerTopColor
+  }
+}
+
+.fieldfile {
+  align-items: center;
+}
+
+.fileBorder{
+  border: 1px solid $borderColor;
+  border-radius: 4px;
+}
+
+label{
+  color: $secondTextColor;
+}
+
+.title {
+  min-width: 200px;
+  font-size: 12px;
+  line-height: 16px;
+  color: $headerTopColor;
+}
+
+.dataRequest {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.errorValue{
+  background-color: $backgroundColorError;
+  color: $colorError;
+  margin: -12px -16px -12px -8px;
+  padding: 12px 16px 12px 8px;
+}
+
+.redBack{
+  background-color: $backgroundColorError;
+  color: $colorError;
+}
+
+.priceError{
+  display: flex;
+  min-width: 250px;
+}

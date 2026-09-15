@@ -1,0 +1,11 @@
+<!-- eslint-disable -->
+<ul>
+  <li *ngFor="let item of fullRouterBreadcrumbs; let i = index;">
+    <ng-container *ngIf="fullRouterBreadcrumbs.length === i + 1; else withRouterLinks">
+      {{item?.name | translate}}
+    </ng-container>
+    <ng-template #withRouterLinks>
+      <a [routerLink]="[item.url]">{{item?.name}}</a>
+    </ng-template>
+  </li>
+</ul>

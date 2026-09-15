@@ -1,0 +1,1341 @@
+<!-- eslint-disable -->
+<aside class="filters" #filtersContainer>
+  <div *ngIf="filtersOn?.hideFilters">
+    <div
+      class="hideFilters"
+      (click)="hideFilters = !hideFilters"
+      [ngClass]="{ hide: hideFilters }"
+    >
+      <div class="icon" id="showFilters"></div>
+
+      <dx-tooltip
+        *ngIf="hideFilters"
+        target="#showFilters"
+        [showEvent]="{ name: 'mouseenter', delay: 500 }"
+        hideEvent="mouseleave"
+      >
+        <div *dxTemplate="let data = data; of: 'content'">
+          {{ "filters.showFilters" | translate }}
+        </div>
+      </dx-tooltip>
+
+      <div class="text">{{ "filters.hideFilters" | translate }}</div>
+    </div>
+  </div>
+
+  <form
+    [formGroup]="filtersForm"
+    class="group_filters"
+    [ngClass]="{ hideAllFilters: hideFilters }"
+  >
+    <div *ngIf="filtersOn?.param" class="group">
+      <h2>{{ "filters.SearchOptions" | translate }}</h2>
+    </div>
+
+    <div *ngIf="filtersOn?.sections" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.section" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="sectionsWithoutAll"
+              displayExpr="name"
+              valueExpr="id"
+              width="280px"
+              height="40px"
+              formControlName="sections"
+              placeholder="{{ 'filters.selection' | translate }}"
+              (onValueChanged)="onChangeSelectBox($event, 'section')"
+            >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.sectionsMulti" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.section" | translate }}</label>
+
+          <div class="tagBoxMultiSections">
+            <dx-tag-box
+              [dataSource]="sectionsWithoutAll"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="sectionsMulti"
+              (onValueChanged)="onChangeSelectBox($event, 'section')"
+              [searchEnabled]="false"
+              [showSelectionControls]="true"
+              [maxDisplayedTags]="1"
+              (onMultiTagPreparing)="onMultiTagPreparing($event)"
+              [showDropDownButton]="true"
+              selectAllText="{{ 'general.all' | translate }}"
+            >
+            </dx-tag-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.dateFrom || filtersOn?.dateTo" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.date_session" | translate }}</label>
+          <span class="today" (click)="todayValue()">{{
+            "filters.today" | translate
+          }}</span>
+          <div class="date">
+            <dx-date-box
+              *ngIf="filtersOn?.dateFrom"
+              type="date"
+              width="132px"
+              height="40px"
+              [useMaskBehavior]="true"
+              displayFormat="dd.MM.yyyy"
+              formControlName="dateFrom"
+              [max]="
+                filtersForm.controls?.dateTo?.value
+                  ? filtersForm.controls?.dateTo?.value
+                  : null
+              "
+              [disabled]="
+                !this.filtersForm.get('sections').value &&
+                this.filtersForm.get('sectionsMulti')?.value?.length != 1 &&
+                nameOfCachePage == 'catalog'
+              "
+              [value]="formDate"
+              placeholder="{{ 'general.date_from' | translate }}"
+              (onValueChanged)="onChangeSelectBox($event, 'date')"
+            >
+            </dx-date-box>
+
+            <dx-date-box
+              *ngIf="filtersOn?.dateTo"
+              type="date"
+              width="132px"
+              height="40px"
+              [useMaskBehavior]="true"
+              displayFormat="dd.MM.yyyy"
+              formControlName="dateTo"
+              [min]="filtersForm.controls?.dateFrom?.value"
+              [max]="
+                nameOfCachePage === reportDeal ||
+                nameOfCachePage === reportSessionOrders
+                  ? today
+                  : null
+              "
+              [disabled]="
+                !this.filtersForm.get('sections').value &&
+                this.filtersForm.get('sectionsMulti')?.value?.length != 1 &&
+                nameOfCachePage == 'catalog'
+              "
+              [value]="byDate"
+              placeholder="{{ 'general.date_by' | translate }}"
+              (onValueChanged)="onChangeSelectBox($event, 'date')"
+            >
+            </dx-date-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.bidding || filtersOn?.preparation" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.status_session" | translate }}</label>
+          <div class="checkboxes">
+            <dx-check-box
+              *ngIf="filtersOn?.preparation"
+              text="{{ 'filters.preparation' | translate }}"
+              iconSize="20px"
+              formControlName="preparation"
+              [disabled]="
+                !this.filtersForm.get('sections').value &&
+                this.filtersForm.get('sectionsMulti')?.value?.length != 1 &&
+                nameOfCachePage == 'catalog'
+              "
+              (onValueChanged)="onChangeSelectBox($event, 'preparation')"
+            >
+            </dx-check-box>
+            <dx-check-box
+              *ngIf="filtersOn?.bidding"
+              text="{{ 'filters.bidding' | translate }}"
+              iconSize="20px"
+              formControlName="bidding"
+              [disabled]="
+                !this.filtersForm.get('sections').value &&
+                this.filtersForm.get('sectionsMulti')?.value?.length != 1 &&
+                nameOfCachePage == 'catalog'
+              "
+              (onValueChanged)="onChangeSelectBox($event, 'bidding')"
+            >
+            </dx-check-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- стадия сессии -->
+    <div *ngIf="filtersOn?.sessionStage" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "sessions-schedule.sessionStage" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="sessionStage"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              [disabled]="!this.filtersForm.get('sections').value"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="sessionStage"
+              [searchEnabled]="true"
+              (onValueChanged)="onChangeSelectBox($event, 'sessionStage')"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+              <!--            (onValueChanged)="onChangeSelectBox($event, 'goods')"-->
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- тип рынка -->
+    <div *ngIf="filtersOn?.marketType" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "general.marketType" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="marketType"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              [disabled]="!this.filtersForm.get('sections').value"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="marketType"
+              [searchEnabled]="true"
+              (onValueChanged)="onChangeSelectBox($event, 'marketType')"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+              <!---->
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- сессия -->
+    <div *ngIf="filtersOn?.session" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.session" | translate }}</label>
+
+          <div>
+            <dx-select-box
+              [dataSource]="
+                nameOfCachePage === 'offer-management'
+                  ? displayedInfo
+                  : sessionFilter
+              "
+              valueExpr="id"
+              fieldTemplate="sessionTemplate"
+              width="280px"
+              height="40px"
+              [disabled]="
+                !this.filtersForm.get('sections').value &&
+                nameOfCachePage !== 'offer-management'
+              "
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="session"
+              [searchEnabled]="true"
+              [searchExpr]="['sessionName', 'id']"
+              (onValueChanged)="onChangeSelectBox($event, 'session')"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+              <div *dxTemplate="let item of 'item'">
+
+                <div id="nameSession{{ item.id }}" class="flexContent8">
+                  <div class="date-roboto-mono">№{{ item.id }}</div>
+                  <div class="date-roboto-mono">
+                    {{ item.startDateTime | date : "dd.MM.yyyy" : "+0000" }} 
+                  </div>
+                  <div class="overflowText">{{ item.sessionName }}</div>
+                </div>
+
+                <dx-tooltip
+                  target="#nameSession{{ item.id }}"
+                  [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                  hideEvent="mouseleave"
+                >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ item.sessionName }}
+                  </div>
+                </dx-tooltip>
+              </div>
+
+              <!--              Отображение в выбранном значании ид + дата + название сессиии-->
+              <div *dxTemplate="let item of 'sessionTemplate'">
+                <dx-text-box
+                  #sessionInput
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  class="date-roboto-mono"
+                  [value]="sessionTemplateSelectBox(item)"
+                  [readOnly]="false"
+                  (onContentReady)="scrollInputToStart($event)"
+                ></dx-text-box>
+              </div>
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- номер лота -->
+    <div *ngIf="filtersOn?.lotNumber" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.lotNumber" | translate }}</label>
+          <div *ngIf="nameOfCachePage !== reportBiddingProcess">
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="{{ 'filters.lotPlaceholder' | translate }}"
+              height="40px"
+              [min]="1"
+              [max]="999999999"
+              formControlName="lotNumber"
+              [disabled]="!this.filtersForm.get('session').value"
+              format="#"
+            >
+            </dx-number-box>
+          </div>
+
+          <div *ngIf="nameOfCachePage === reportBiddingProcess">
+            <dx-tag-box
+              [dataSource]="listLotsNumber"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="lotNumber"
+              [disabled]="!filtersForm.get('session').value"
+              [searchEnabled]="true"
+              [showDataBeforeSearch]="true"
+              [showSelectionControls]="true"
+              [showDropDownButton]="true"
+              [minSearchLength]="1"
+            >
+            </dx-tag-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="
+        filtersOn?.registration_seller ||
+        filtersOn?.registration_buyer ||
+        filtersOn?.submitRequestsSale ||
+        filtersOn?.purchaseOrdersSubmitted
+      "
+      class="group"
+    >
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.offers_registration" | translate }}</label>
+          <div class="checkboxes">
+            <dx-check-box
+              *ngIf="filtersOn?.registration_seller"
+              text="{{ 'filters.registration_seller' | translate }}"
+              iconSize="20px"
+              formControlName="registration_seller"
+            >
+            </dx-check-box>
+            <dx-check-box
+              *ngIf="filtersOn?.registration_buyer"
+              text="{{ 'filters.registration_buyer' | translate }}"
+              iconSize="20px"
+              formControlName="registration_buyer"
+            >
+            </dx-check-box>
+            <dx-check-box
+              *ngIf="filtersOn?.submitRequestsSale"
+              text="{{ 'filters.submitRequestsSale' | translate }}"
+              iconSize="20px"
+              formControlName="submitRequestsSale"
+            >
+            </dx-check-box>
+            <dx-check-box
+              *ngIf="filtersOn?.purchaseOrdersSubmitted"
+              text="{{ 'filters.purchaseOrdersSubmitted' | translate }}"
+              iconSize="20px"
+              formControlName="purchaseOrdersSubmitted"
+            >
+            </dx-check-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <div *ngIf="filtersOn?.nomenclatureGroup" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.nomenclatureGroup" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="nomenclatureGroup"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              [disabled]="
+                !this.filtersForm.get('sections').value &&
+                this.filtersForm.get('sectionsMulti')?.value?.length != 1 &&
+                nameOfCachePage !== 'offer-management'
+              "
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="nomenclatureGroup"
+              [searchEnabled]="true"
+              (onValueChanged)="onChangeSelectBox($event, 'nomenclatureGroup')"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.goodsGroup" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.goodsGroup" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="goodsGroup"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              [disabled]="!this.filtersForm.get('nomenclatureGroup').value"
+              placeholder="{{ 'filters.selection' | translate }}"
+              (onValueChanged)="onChangeSelectBox($event, 'goodsGroup')"
+              formControlName="goodsGroup"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.goods" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.goods" | translate }}</label>
+          <div>
+            <dx-tag-box
+              [dataSource]="goods"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="goods"
+              [disabled]="!filtersForm.get('goodsGroup').value"
+              [searchEnabled]="true"
+              [showSelectionControls]="true"
+              [showDropDownButton]="true"
+              [maxDisplayedTags]="0"
+              (onValueChanged)="onChangeSelectBox($event, 'goods')"
+            >
+            </dx-tag-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- дополнительные параметры -->
+    <div
+      *ngIf="filtersOn?.refs && filtersForm.get('goods')?.value?.length == 1"
+      class="group"
+    >
+      <a *ngIf="refs.length > 0" (click)="refsVisible = !refsVisible">{{
+        "catalogs.additionalParams" | translate
+      }}</a>
+      <div [hidden]="!refsVisible">
+        <div
+          class="good-refs w-280px"
+          *ngFor="let ref of refs"
+          [ngClass]="{ 'mb-0': ref?.isHidden }"
+        >
+          <!-- для текстовых значений - 1-5 - чекбоксы, >=6 дропдаун -->
+          <div class="form-group" *ngIf="ref.dType === 'TSTRING'">
+            <div *ngIf="ref.values?.length < 6">
+              <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                <label>{{ ref.name }}</label>
+                <div
+                  class="filtersArrow"
+                  (click)="ref.isHidden = !ref.isHidden"
+                  [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                ></div>
+              </div>
+
+              <div [hidden]="ref?.isHidden">
+                <div class="checkboxes" *ngFor="let v of ref.values">
+                  <dx-check-box
+                    text="{{ v.name }}"
+                    height="40px"
+                    class="wrap-text-checkbox"
+                    [value]="ref.selectedValues?.includes(v.id)"
+                    (onValueChanged)="
+                      chooseRefsValue($event, ref.id, 'checkbox', [v.id])
+                    "
+                  >
+                  </dx-check-box>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="ref.values?.length >= 6">
+              <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                <label>{{ ref.name }}</label>
+                <div
+                  class="filtersArrow"
+                  (click)="ref.isHidden = !ref.isHidden"
+                  [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                ></div>
+              </div>
+
+              <div [hidden]="ref?.isHidden">
+                <dx-tag-box
+                  [dataSource]="ref.values"
+                  valueExpr="id"
+                  displayExpr="name"
+                  width="280px"
+                  height="40px"
+                  placeholder="{{ 'filters.selection' | translate }}"
+                  [searchEnabled]="true"
+                  [showClearButton]="true"
+                  [showSelectionControls]="true"
+                  [showDropDownButton]="true"
+                  [maxDisplayedTags]="0"
+                  [(value)]="ref.selectedValues"
+                  (onValueChanged)="chooseRefsValue($event, ref.id, 'str')"
+                >
+                </dx-tag-box>
+              </div>
+            </div>
+          </div>
+
+          <!-- для числовых значений - 1-5 - чекбоксы, >=6 слайдер -->
+          <div class="form-group" *ngIf="ref.dType === 'TINTEGER'">
+            <!--  -->
+
+            <div *ngIf="ref?.values?.length < 6">
+              <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                <label>{{ ref.name }}</label>
+                <div
+                  class="filtersArrow"
+                  (click)="ref.isHidden = !ref.isHidden"
+                  [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                ></div>
+              </div>
+
+              <div [hidden]="ref?.isHidden">
+                <div class="checkboxes" *ngFor="let v of ref.values">
+                  <dx-check-box
+                    text="{{ v.name }}"
+                    height="40px"
+                    [value]="ref.selectedValues?.includes(v.id)"
+                    (onValueChanged)="
+                      chooseRefsValue($event, ref.id, 'checkbox', [v.id])
+                    "
+                  >
+                  </dx-check-box>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="ref?.values?.length >= 6">
+              <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                <label>{{ ref.name }}</label>
+                <div
+                  class="filtersArrow"
+                  (click)="ref.isHidden = !ref.isHidden"
+                  [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                ></div>
+              </div>
+
+              <div [hidden]="ref?.isHidden">
+                <div class="flexContentColumn8">
+                  <dx-range-slider
+                    [(start)]="ref.start"
+                    [(end)]="ref.end"
+                    [min]="ref.values[0].rangeBoundLeft"
+                    [max]="ref.values[0].rangeBoundRight"
+                    (onValueChanged)="chooseRefsValue($event, ref.id, 'range')"
+                  ></dx-range-slider>
+
+                  <div class="flexContent16">
+                    <dx-number-box
+                      dxNumberBoxClear
+                      [(value)]="ref.start"
+                      [min]="ref.values[0].rangeBoundLeft"
+                      [max]="ref.values[0].rangeBoundRight"
+                    ></dx-number-box>
+
+                    <dx-number-box
+                      dxNumberBoxClear
+                      [(value)]="ref.end"
+                      [min]="ref.values[0].rangeBoundLeft"
+                      [max]="ref.values[0].rangeBoundRight"
+                    ></dx-number-box>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TRANGE всегда слайдер -->
+          <div class="form-group" *ngIf="ref.dType === 'TRANGE'">
+            <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+              <label>{{ ref.name }}</label>
+              <div
+                class="filtersArrow"
+                (click)="ref.isHidden = !ref.isHidden"
+                [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+              ></div>
+            </div>
+
+            <div [hidden]="ref?.isHidden">
+              <div class="flexContentColumn8">
+                <dx-range-slider
+                  [(start)]="ref.start"
+                  [(end)]="ref.end"
+                  [min]="ref.values[0].rangeBoundLeft"
+                  [max]="ref.values[0].rangeBoundRight"
+                  (onValueChanged)="chooseRefsValue($event, ref.id, 'range')"
+                ></dx-range-slider>
+
+                <div class="flexContent16">
+                  <dx-number-box
+                    dxNumberBoxClear
+                    [(value)]="ref.start"
+                    [min]="ref.values[0].rangeBoundLeft"
+                    [max]="ref.values[0].rangeBoundRight"
+                  ></dx-number-box>
+
+                  <dx-number-box
+                    dxNumberBoxClear
+                    [(value)]="ref.end"
+                    [min]="ref.values[0].rangeBoundLeft"
+                    [max]="ref.values[0].rangeBoundRight"
+                  ></dx-number-box>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- цена от-до -->
+    <div *ngIf="filtersOn?.price" class="group">
+      <hr />
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.price" | translate }}</label>
+          <div class="date">
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="{{ 'general.fromPlaceholder' | translate }}"
+              height="40px"
+              [min]="0.0001"
+              [max]="9999999999"
+              formControlName="priceFrom"
+              [showClearButton]="true"
+              [disabled]="!this.filtersForm.get('goods').value"
+              (onValueChanged)="onChangeSelectBox($event, 'price')"
+            >
+              <dxo-format type="fixedPoint" [precision]="2"> </dxo-format>
+            </dx-number-box>
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="{{ 'general.toPlaceholder' | translate }}"
+              height="40px"
+              [min]="0.0001"
+              [max]="9999999999"
+              formControlName="priceTo"
+              [showClearButton]="true"
+              [disabled]="!this.filtersForm.get('goods').value"
+              (onValueChanged)="onChangeSelectBox($event, 'price')"
+            >
+              <dxo-format type="fixedPoint" [precision]="2"> </dxo-format>
+            </dx-number-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Валюта -->
+    <div *ngIf="filtersOn?.currency" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.currency" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="currency"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="currency"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+              [disabled]="!this.filtersForm.get('goods').value"
+            >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- количество -->
+    <div *ngIf="filtersOn?.quantity" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "createOffer.good.quantity" | translate }}</label>
+          <div class="date">
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="{{ 'general.fromPlaceholder' | translate }}"
+              height="40px"
+              [min]="0.0001"
+              [max]="9999999999"
+              formControlName="quantityFrom"
+              [disabled]="!this.filtersForm.get('goods').value"
+              [showClearButton]="true"
+              (onValueChanged)="onChangeSelectBox($event, 'quantity')"
+            >
+              <dxo-format type="fixedPoint" [precision]="4"> </dxo-format
+              ><!--  [value]="m.selectedValues" -->
+            </dx-number-box>
+            <dx-number-box
+              dxNumberBoxClear
+              placeholder="{{ 'general.toPlaceholder' | translate }}"
+              height="40px"
+              [min]="0.0001"
+              [max]="9999999999"
+              formControlName="quantityTo"
+              [disabled]="!this.filtersForm.get('goods').value"
+              [showClearButton]="true"
+              (onValueChanged)="onChangeSelectBox($event, 'quantity')"
+            >
+              <dxo-format type="fixedPoint" [precision]="4"> </dxo-format
+              ><!--  [value]="m.selectedValues" -->
+            </dx-number-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ед. измерения -->
+    <div *ngIf="filtersOn?.units" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "createOffer.goodInfo.units" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="units"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="units"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+              [disabled]="!this.filtersForm.get('goods').value"
+            >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- условия оплаты -->
+    <div *ngIf="filtersOn?.termsPayment" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{
+            "createOffer.termsPayment.termsPayment" | translate
+          }}</label>
+          <div>
+            <!--  <dx-select-box
+               [dataSource]="termsPayment"
+               valueExpr="id"
+               displayExpr="name"
+               width="280px"
+               height="40px"
+               placeholder="{{'filters.selection' | translate}}"
+               formControlName="termsPayment"
+               [searchEnabled]="true"
+               [showClearButton]="true"
+               [showDataBeforeSearch]="true"
+               [minSearchLength]="4"
+               [disabled]="!this.filtersForm.get('goods').value"
+             >
+             </dx-select-box> -->
+
+            <dx-tag-box
+              [dataSource]="termsPayment"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="termsPayment"
+              [disabled]="!this.filtersForm.get('goods').value"
+              [searchEnabled]="true"
+              [showDataBeforeSearch]="true"
+              [showSelectionControls]="true"
+              [showDropDownButton]="true"
+              [maxDisplayedTags]="0"
+              [minSearchLength]="4"
+            >
+            </dx-tag-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- условия поставки -->
+    <div *ngIf="filtersOn?.termsDeliveryTime" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{
+            "createOffer.stepName.termsDeliveryTime" | translate
+          }}</label>
+          <div>
+            <dx-tag-box
+              [dataSource]="termsDeliveryTime"
+              valueExpr="id"
+              displayExpr="name"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="termsDeliveryTime"
+              [disabled]="!this.filtersForm.get('goods').value"
+              [searchEnabled]="true"
+              [showDataBeforeSearch]="true"
+              [showSelectionControls]="true"
+              [showDropDownButton]="true"
+              [maxDisplayedTags]="0"
+              [minSearchLength]="4"
+            >
+            </dx-tag-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--  Дополнительные фильтры в УЗ-->
+    <div
+      *ngIf="
+        filtersOn?.adjustablePrice ||
+        filtersOn?.multibasisLot ||
+        filtersOn?.assembledLot ||
+        filtersOn?.changes ||
+        filtersOn?.indivPriceStep ||
+        filtersOn?.goodDeleted ||
+        filtersOn?.analogs ||
+        filtersOn?.multibasis ||
+        filtersOn?.analogsCatalog
+      "
+      class="group"
+    >
+      <hr *ngIf="nameOfCachePage !== 'catalog'" />
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "offer-management.additionalFilters" | translate }}</label>
+          <div class="checkboxes">
+            <!-- признак многобазисности в каталоге -->
+            <div
+              class="flexContent4"
+              *ngIf="filtersOn?.multibasis"
+              [ngClass]="{ disabled: !this.filtersForm.get('sections').value }"
+            >
+              <dx-check-box
+                text="{{ 'filters.multibasisLot' | translate }}"
+                iconSize="20px"
+                formControlName="multibasis"
+              >
+              </dx-check-box>
+              <i class="multibasisLot w-16px"></i>
+            </div>
+
+            <!-- признак аналогов в каталоге -->
+            <dx-check-box
+              *ngIf="filtersOn?.analogsCatalog"
+              text="{{ 'catalogs.analogs' | translate }}"
+              iconSize="20px"
+              formControlName="analogsCatalog"
+              [disabled]="!this.filtersForm.get('sections').value"
+            >
+            </dx-check-box>
+
+            <!-- признак Мои заявки в каталоге -->
+            <dx-check-box
+              *ngIf="filtersOn?.isMyDemandOffer"
+              text="{{ 'catalogs.myApplications' | translate }}"
+              iconSize="20px"
+              formControlName="isMyDemandOffer"
+              [disabled]="!this.filtersForm.get('sections').value"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.adjustablePrice"
+              text="{{ 'offer-management.adjustablePrice' | translate }}"
+              iconSize="20px"
+              formControlName="adjustablePrice"
+            >
+            </dx-check-box>
+
+            <div class="flexContent4" *ngIf="filtersOn?.multibasisLot">
+              <dx-check-box
+                text="{{ 'filters.multibasisLot' | translate }}"
+                iconSize="20px"
+                formControlName="multibasisLot"
+              >
+              </dx-check-box>
+              <i class="multibasisLot w-16px"></i>
+            </div>
+
+            <div class="flexContent4" *ngIf="filtersOn?.assembledLot">
+              <dx-check-box
+                text="{{ 'offer-management.assembledLot' | translate }}"
+                iconSize="20px"
+                formControlName="assembledLot"
+              >
+              </dx-check-box>
+              <i class="lot"></i>
+            </div>
+
+            <dx-check-box
+              *ngIf="filtersOn?.changes"
+              text="{{ 'offer-management.changes' | translate }}"
+              iconSize="20px"
+              formControlName="changes"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.transferred"
+              text="{{ 'offer-management.transferred' | translate }}"
+              iconSize="20px"
+              formControlName="transferred"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.transferredToBids"
+              text="{{ 'offer-management.transferredToBids' | translate }}"
+              iconSize="20px"
+              formControlName="transferredToBids"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.indivPriceStep"
+              text="{{ 'filters.indivPriceStep' | translate }}"
+              iconSize="20px"
+              formControlName="indivPriceStep"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.analogs"
+              text="{{ 'catalogs.analogs' | translate }}"
+              iconSize="20px"
+              formControlName="analogs"
+            >
+            </dx-check-box>
+
+            <hr
+              class="mb-0"
+              *ngIf="
+                filtersOn?.outOfPriceRange ||
+                filtersOn?.goodDeleted ||
+                filtersOn?.syncError
+              "
+            />
+
+            <dx-check-box
+              *ngIf="filtersOn?.outOfPriceRange"
+              text="{{ 'offer-management.outOfPriceRange' | translate }}"
+              iconSize="20px"
+              formControlName="outOfPriceRange"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.goodDeleted"
+              text="{{ 'viewOffer.goodDeleted' | translate }}"
+              iconSize="20px"
+              formControlName="goodDeleted"
+            >
+            </dx-check-box>
+
+            <dx-check-box
+              *ngIf="filtersOn?.syncError"
+              text="{{ 'filters.syncError' | translate }}"
+              iconSize="20px"
+              formControlName="syncError"
+            >
+            </dx-check-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.listBranch" class="group">
+      <hr />
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.listBranch" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="listBranch"
+              valueExpr="idFirmBranch"
+              displayExpr="nameShort"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="listBranch"
+              [disabled]="
+                !!filtersForm.get('brokerClient')?.value ||
+                listBranch.length == 0
+              "
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+              <!--       [disabled]="this.filtersForm.get('sections')?.value == -1"      (onValueChanged)="onValueChanged($event)"-->
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.idFirm" class="group">
+      <hr />
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.idFirm" | translate }}</label>
+          <div class="inputClass">
+            <div class="clear" *ngIf="filtersForm.get('idFirm')?.value">
+              <i
+                class="clearIcon"
+                (click)="filtersForm.get('idFirm').setValue(null)"
+              ></i>
+            </div>
+            <a
+              *ngIf="!filtersForm.get('idFirm')?.value"
+              (click)="chooseFirm = !chooseFirm"
+              >{{ "filters.chooseParticipant" | translate }}</a
+            >
+            <dx-text-box
+              [value]="chooseIdFirm?.nameShort"
+              [showClearButton]="true"
+              formControlName="idFirmName"
+              [readOnly]="true"
+              width="280px"
+              height="40px"
+              class="border"
+              (onValueChanged)="
+                $event.value == '' ? (this.chooseIdFirm = {}) : null
+              "
+            >
+            </dx-text-box>
+
+            <dx-number-box
+              dxNumberBoxClear
+              formControlName="idFirm"
+              [value]="chooseIdFirm?.idFirm"
+              (onValueChanged)="onChangeSelectBox($event, 'idFirm')"
+              [visible]="false"
+            >
+            </dx-number-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.brokerClient" class="group">
+      <hr />
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.brokerClient" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="brokerClient"
+              valueExpr="firmClient"
+              displayExpr="nameShort"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="brokerClient"
+              [disabled]="
+                !!filtersForm.get('listBranch')?.value ||
+                brokerClient.length == 0
+              "
+              (onValueChanged)="onChangeSelectBox($event, 'broker')"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+              <!--            [disabled]="this.filtersForm.get('sections')?.value == -1"       (onValueChanged)="onValueChanged($event)"-->
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.ListClientBranch" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.ListClientBranch" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="ListClientBranch"
+              valueExpr="idFirmBranch"
+              displayExpr="nameShort"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="ListClientBranch"
+              [disabled]="!!!filtersForm.get('brokerClient')?.value"
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.workerBrokerClient" class="group">
+      <hr />
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.brokerClient" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="workerBrokerClient"
+              valueExpr="firmClient"
+              displayExpr="nameShort"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="workerBrokerClient"
+              [disabled]="
+                !filtersForm.get('idFirm')?.value ||
+                workerBrokerClient.length == 0
+              "
+              (onValueChanged)="onChangeSelectBox($event, 'broker')"
+              [searchEnabled]="true"
+              [searchExpr]="['nameShort', 'firmClient']"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+              <!--            [disabled]="this.filtersForm.get('sections')?.value == -1"       (onValueChanged)="onValueChanged($event)"-->
+            </dx-select-box>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="filtersOn?.workerListClientBranch" class="group">
+      <div class="form-group">
+        <div class="input-group">
+          <label>{{ "filters.listBranchs" | translate }}</label>
+          <div>
+            <dx-select-box
+              [dataSource]="workerListClientBranch"
+              valueExpr="idFirmBranch"
+              displayExpr="nameShort"
+              width="280px"
+              height="40px"
+              placeholder="{{ 'filters.selection' | translate }}"
+              formControlName="workerListClientBranch"
+              [disabled]="
+                !filtersForm.get('idFirm')?.value ||
+                workerListClientBranch?.length == 0
+              "
+              [searchEnabled]="true"
+              [showClearButton]="true"
+              [showDataBeforeSearch]="true"
+              [minSearchLength]="4"
+            >
+            </dx-select-box>
+            <!--            [disabled]="!!!filtersForm.get('workerBrokerClient')?.value"-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!--    [ngClass]="{-->
+<!--    fixed: this.nameOfCachePage === 'catalog',-->
+<!--    notfixed: this.nameOfCachePage != 'catalog',-->
+<!--    bottomSticky: !isButtonBlockFixed-->
+<!--    }"-->
+    <div class="fltr-buttons-wrapper" style="padding: 10px 0; height: 110px">
+      <div
+        class="buttons-block"
+        [class.fixed]="fixedPages.includes(nameOfCachePage)"
+        [style.bottom.px]="footerOffset"
+      >
+        <!--[ngClass]="isButtonBlockFixed?'fixed':'notfixed'"  (scroll)="onScroll()" -->
+        <button
+          type="button"
+          class="btn btn-primary submit"
+          (click)="sendFiltersData()"
+        >
+          {{ "filters.showResults" | translate }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-primary submit"
+          (click)="clearFilters()"
+        >
+          {{ "filters.reset" | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+</aside>
+
+<dx-popup
+  id="popup"
+  contentTemplate="popup-content"
+  [(visible)]="chooseFirm"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'filters.choiceFirm' | translate }}"
+  width="790"
+  height="auto"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popup-content'">
+    <div class="popupContent">
+      <div
+        class="flexContentColumn24"
+        [ngStyle]="{ 'padding-bottom': firmList.length > 0 ? '0' : '60px' }"
+      >
+        <div class="form-group">
+          <div class="input-group">
+            <dx-text-box
+              placeholder="{{ 'filters.searchLabel' | translate }}"
+              [showClearButton]="true"
+              width="100%"
+              [(value)]="search"
+              (onEnterKey)="getFirmsList()"
+              maxLength="250"
+              (onValueChanged)="$event.value == '' ? clearFirmList() : null"
+            >
+              <dxi-button
+                name="search"
+                location="before"
+                [options]="searchIcon"
+              >
+              </dxi-button>
+              <dxi-button name="clear"></dxi-button>
+            </dx-text-box>
+          </div>
+        </div>
+        <!--       *ngIf="firmList.length>0"-->
+        <dx-data-grid
+          [dataSource]="firmList"
+          keyExpr="idFirm"
+          width="100%"
+          height="500px"
+          [showColumnLines]="true"
+          [showRowLines]="true"
+          [showBorders]="false"
+        >
+          <dxo-state-storing
+            [enabled]="true"
+            type="localStorage"
+            storageKey="filtersOrderManagment"
+          ></dxo-state-storing>
+          <dxi-column
+            caption="{{ 'filters.registrationNumber' | translate }}"
+            dataField="regNumber"
+            cssClass="text-align-left date-roboto-mono"
+            width="155"
+          >
+          </dxi-column>
+
+          <dxi-column
+            caption="{{ 'filters.idFirm' | translate }}"
+            dataField="nameShort"
+          >
+          </dxi-column>
+
+          <dxi-column cellTemplate="buttonTemplate" width="160"> </dxi-column>
+
+          <div *dxTemplate="let item of 'buttonTemplate'">
+            <div class="chooseBtn">
+              <button
+                class="btn btn-outline-primary"
+                (click)="onChooseIdFirm(item.data)"
+              >
+                {{ "filters.selection" | translate }}
+              </button>
+            </div>
+          </div>
+        </dx-data-grid>
+
+        <pagination
+          *ngIf="firmList.length > 0"
+          [pageSizeVisible]="false"
+          [totalPages]="pagination.totalPages"
+          [currentPage]="pagination.curPage"
+          (changePage)="onChangePage($event)"
+        >
+        </pagination>
+      </div>
+    </div>
+  </div>
+</dx-popup>

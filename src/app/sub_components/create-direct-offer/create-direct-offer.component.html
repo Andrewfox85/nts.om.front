@@ -1,0 +1,3828 @@
+<!-- eslint-disable -->
+<main class="createOffer" id="createOffer">
+  <div class="main_component">
+    <div>
+      <div class="flexContent24">
+        <div class="flexContentColumn8">
+          <div class="head">
+            <h1 *ngIf="direction == '1' && !idOffer">
+              {{ "createOffer.creatingTargetedPurchaseRequest" | translate }}
+            </h1>
+            <h1 *ngIf="direction == '2' && !idOffer">
+              {{ "createOffer.creatingSalesRequest" | translate }}
+            </h1>
+            <h1 *ngIf="idOffer">
+              {{ "createOffer.editingAddressRequest" | translate }} №{{
+                offerGeneral?.lotNumber
+              }}
+            </h1>
+          </div>
+          <div class="nameGoodGroup">
+            <span>{{ "filters.session" | translate }}:</span>
+            <span class="date-roboto-mono">№{{ sessionId }}</span>
+            <span>{{ sessionName }}</span>
+          </div>
+        </div>
+        <div class="d-flex flex-end">
+          <button
+            *ngIf="!this.idOffer"
+            class="btn secondary-btn"
+            (click)="openPopup('cancel')"
+          >
+            {{ "createOffer.cancelCreatingOffer" | translate }}
+          </button>
+          <button
+            *ngIf="this.idOffer"
+            class="btn secondary-btn"
+            (click)="openPopup('cancelEdit')"
+          >
+            {{ "btns.cancelEditingApp" | translate }}
+          </button>
+        </div>
+      </div>
+
+      <hr class="mt-12px" />
+    </div>
+    <div class="main_content flexContent24">
+      <div class="steps">
+        <div class="flexContent4 stepButton">
+          <!--(click)="activeStep = 1"-->
+          <div
+            class="iconStep"
+            [ngClass]="{
+              iconActive: activeStep == 1,
+              iconReady: activeStep > 1 || this.generalInfoStep?.value
+            }"
+          ></div>
+          <div
+            class="d-flex ai-c"
+            [ngClass]="{
+              activeStep: activeStep == 1,
+              previousStep: activeStep > 1
+            }"
+          >
+            {{ "createOffer.stepName.generalInfo" | translate }}
+          </div>
+        </div>
+        <div
+          class="leftBorder"
+          [ngClass]="{ leftBorderActive: activeStep > 1 }"
+        ></div>
+        <div class="flexContent4 stepButton">
+          <!--(click)="activeStep = 2">-->
+          <div
+            class="iconStep"
+            [ngClass]="{
+              iconActive: activeStep == 2,
+              iconReady:
+                activeStep > 2 || this.goodsList?.length > 0 || this.idOffer
+            }"
+          ></div>
+          <div
+            class="d-flex ai-c"
+            [ngClass]="{
+              activeStep: activeStep == 2,
+              previousStep: activeStep > 2
+            }"
+          >
+            {{ "createOffer.stepName.productInfo" | translate }}
+          </div>
+        </div>
+        <div
+          class="leftBorder"
+          [ngClass]="{ leftBorderActive: activeStep > 2 }"
+        ></div>
+        <div class="flexContent4 stepButton">
+          <!-- (click)="activeStep = 3">-->
+          <div
+            class="iconStep"
+            [ngClass]="{
+              iconActive: activeStep == 3,
+              iconReady:
+                activeStep > 3 ||
+                (this.paymentTermConcated?.length > 0 &&
+                  deliveryTermConcated?.length > 0) ||
+                this.idOffer
+            }"
+          ></div>
+          <div
+            class="d-flex ai-c"
+            [ngClass]="{
+              activeStep: activeStep == 3,
+              previousStep: activeStep > 3
+            }"
+          >
+            {{ "createOffer.stepName.termsPaymentTerms" | translate }}
+          </div>
+        </div>
+        <div
+          class="leftBorder"
+          [ngClass]="{ leftBorderActive: activeStep > 3 }"
+        ></div>
+        <div class="flexContent4 stepButton">
+          <!--(click)="activeStep = 4"-->
+          <div
+            class="iconStep"
+            [ngClass]="{
+              iconActive: activeStep == 4,
+              iconReady:
+                activeStep > 4 || this.deliveryBasis?.length > 0 || this.idOffer
+            }"
+          ></div>
+          <div
+            class="d-flex ai-c"
+            [ngClass]="{
+              activeStep: activeStep == 4,
+              previousStep: activeStep > 4
+            }"
+          >
+            {{ "createOffer.stepName.termsDeliveryTime" | translate }}
+          </div>
+        </div>
+        <div
+          class="leftBorder"
+          [ngClass]="{ leftBorderActive: activeStep > 4 }"
+        ></div>
+        <div class="flexContent4 stepButton">
+          <!--(click)="activeStep = 5">-->
+          <div
+            class="iconStep"
+            [ngClass]="{
+              iconActive: activeStep == 5,
+              iconReady: activeStep > 5 || this.idOffer
+            }"
+          ></div>
+          <!--|| this.commonParametersForm?.value-->
+          <div class="d-flex ai-c" [ngClass]="{ activeStep: activeStep == 5, previousStep: activeStep > 5 }">
+            {{ "createOffer.stepName.commonParam" | translate }}
+          </div>
+        </div>
+        <div
+          class="leftBorder"
+          [ngClass]="{ leftBorderActive: activeStep > 5 }"
+        ></div>
+        <div class="flexContent4 stepButton">
+          <!--(click)="activeStep = 6">-->
+          <div
+            class="iconStep"
+            [ngClass]="{ iconActive: activeStep == 6, iconReady: this.idOffer }"
+          ></div>
+          <!--|| this.commonParametersForm?.value-->
+          <div class="d-flex ai-c" [ngClass]="{ activeStep: activeStep == 6 }">
+            {{ "createOffer.stepName.previewSubmission" | translate }}
+          </div>
+        </div>
+      </div>
+
+      <div class="bodyCreateOffer">
+        <!-- ШАГ 1 -->
+        <div *ngIf="activeStep == 1" class="stepBody flexContentColumn16">
+          <div class="info blockWithBorder flexContentColumn24">
+            <div class="flexContentColumn8">
+              <div class="flexContent8">
+                <span class="title"> {{ "general.section" | translate }}:</span>
+                <span class="dataRequest">{{ sectionName }}</span>
+              </div>
+              <div class="flexContent8">
+                <span class="title">
+                  {{ "general.marketType" | translate }}:</span
+                >
+                <span class="dataRequest">{{ choosenMarketType }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!--          Информация о продавце-->
+          <div class="info blockWithBorder flexContentColumn8">
+            <div class="titleBlock">
+              <!--                <span *ngIf="direction == '1'">{{ 'createOffer.generalInfo.buyerInfo' | translate }}</span>-->
+              <span>
+                {{ "createOffer.generalInfo.sellerInfo" | translate }}</span
+              >
+            </div>
+
+            <dx-validation-group
+              class="form flexContentColumn16"
+              #generalInfoSeller
+            >
+              <form [formGroup]="generalInfoStep" class="changePosition">
+                <div class="form-group fullString">
+                  <label>{{
+                    "createOffer.generalInfo.participant" | translate
+                  }}</label>
+                  <div class="flexContent16">
+                    <div>
+                      <span
+                        class="flexContent8"
+                        [ngClass]="{
+                          disabled: !(
+                            UserRoleSeller == role.broker ||
+                            UserRoleSeller == role.brokerVisitor ||
+                            (!this.disabledCommissionSeller &&
+                              !this.disabledAssignmentsSeller)
+                          )
+                        }"
+                        ><input
+                          type="radio"
+                          name="participantSeller"
+                          id="brokerSeller"
+                          formControlName="participantSeller"
+                          [value]="role.broker"
+                          (click)="checkSeller(role.broker)"
+                        />
+                        <label
+                          for="brokerSeller"
+                          class="pb-0 blackColor font-s14"
+                          >{{
+                            "createOffer.generalInfo.broker" | translate
+                          }}</label
+                        ></span
+                      >
+                    </div>
+                    <div>
+                      <span
+                        class="flexContent8"
+                        [ngClass]="{
+                          disabled: !(
+                            UserRoleSeller == role.visitor ||
+                            UserRoleSeller == role.brokerVisitor
+                          )
+                        }"
+                        ><input
+                          type="radio"
+                          name="participantSeller"
+                          id="visitorSeller"
+                          formControlName="participantSeller"
+                          [value]="role.visitor"
+                          (click)="checkSeller(role.visitor)"
+                        />
+                        <label
+                          for="visitorSeller"
+                          class="pb-0 blackColor font-s14"
+                          >{{
+                            "createOffer.generalInfo.visitor" | translate
+                          }}</label
+                        ></span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <ng-container
+                  *ngIf="
+                    generalInfoStep.get('participantSeller').value ==
+                    role.broker
+                  "
+                >
+                  <div class="form-group">
+                    <label>{{ "general.contractType" | translate }}</label>
+                    <div>
+                      <dx-select-box
+                        [dataSource]="contractTypeSeller"
+                        valueExpr="refBookKey"
+                        displayExpr="refBookValue"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="contractTypeSeller"
+                        [showClearButton]="false"
+                        [elementAttr]="{ id: 'elementId', class: 'class-name' }"
+                        [disabled]="this.disabledContractTypeSeller"
+                        (onValueChanged)="changeContractTypeSeller($event)"
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                        </dx-validator>
+                      </dx-select-box>
+                    </div>
+                  </div>
+                  <!--                   [inputAttr] = "{'title': '999'}"  -->
+
+                  <div class="form-group">
+                    <label>{{ "general.brokerClient" | translate }}</label>
+                    <div *ngIf="this.UserRoleSeller != role.worker">
+                      <div
+                        *ngIf="
+                          generalInfoStep.get('contractTypeSeller').value ==
+                          '21'
+                        "
+                      >
+                        <dx-select-box
+                          [dataSource]="brokerClientSeller"
+                          valueExpr="firmClient"
+                          displayExpr="regNumberWithNameShort"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="brokerClientSeller"
+                          [searchEnabled]="true"
+                          [showClearButton]="true"
+                          [searchExpr]="['nameShort', 'regNumber']"
+                          [minSearchLength]="3"
+                          [showDataBeforeSearch]="true"
+                          (onValueChanged)="
+                            onChangeSelectBox($event, 'broker');
+                            this.generalInfoStep.get('brokerClientSeller')
+                              ?.value
+                              ? this.CheckDemoffOwnerStateSeller()
+                              : null
+                          "
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-select-box>
+                      </div>
+
+                      <div
+                        *ngIf="
+                          generalInfoStep.get('contractTypeSeller').value ==
+                          '20'
+                        "
+                      >
+                        <dx-tag-box
+                          [dataSource]="brokerClientSeller"
+                          valueExpr="firmClient"
+                          displayExpr="regNumberWithNameShort"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="brokerClientSeller"
+                          [searchEnabled]="true"
+                          [searchExpr]="['nameShort', 'regNumber']"
+                          [minSearchLength]="3"
+                          [showDataBeforeSearch]="true"
+                          [showSelectionControls]="true"
+                          [showDropDownButton]="true"
+                          [maxDisplayedTags]="0"
+                          (onValueChanged)="onChooseBrokerSeller()"
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-tag-box>
+                      </div>
+                    </div>
+
+                    <div *ngIf="this.UserRoleSeller == role.worker">
+                      <!--для работника, который не может редактировать эту информацию-->
+                      <dx-text-box
+                        height="40px"
+                        formControlName="brokerClientWorkerSeller"
+                        [disabled]="true"
+                      >
+                      </dx-text-box>
+                    </div>
+                  </div>
+
+                  <div
+                    class="form-group"
+                    *ngIf="
+                      generalInfoStep.get('contractTypeSeller').value == '21' &&
+                      generalInfoStep.get('brokerClientSeller').value &&
+                      this.listClientBranchSeller?.length > 0
+                    "
+                  >
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <div>
+                      <dx-select-box
+                        [dataSource]="listClientBranchSeller"
+                        valueExpr="idFirmBranch"
+                        displayExpr="nameShort"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="listClientBranchSeller"
+                        [searchEnabled]="true"
+                        [minSearchLength]="3"
+                        [showDataBeforeSearch]="true"
+                        [showClearButton]="true"
+                        (onValueChanged)="
+                          generalInfoStep.get('brokerClientSeller').value
+                            ? this.CheckDemoffOwnerStateSeller()
+                            : null;
+                          onChooseClientSeller()
+                        "
+                        [disabled]="
+                          !!!generalInfoStep.get('brokerClientSeller')?.value
+                        "
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                        </dx-validator>
+                      </dx-select-box>
+                    </div>
+                  </div>
+                  <!--для работника, который не может редактировать эту информацию-->
+                  <div
+                    class="form-group"
+                    *ngIf="
+                      generalInfoStep.get('contractTypeSeller').value == '21' &&
+                      generalInfoStep.get('brokerClientSeller').value &&
+                      this.UserRoleSeller == role.worker &&
+                      this.offerGeneral.branchId
+                    "
+                  >
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <dx-text-box
+                      height="40px"
+                      formControlName="listClientBranchWorkerSeller"
+                      [disabled]="true"
+                    >
+                    </dx-text-box>
+                  </div>
+                </ng-container>
+
+                <ng-container
+                  *ngIf="
+                    generalInfoStep.get('participantSeller').value ==
+                    role.visitor
+                  "
+                  class="changePosition"
+                >
+                  <div class="form-group" *ngIf="listBranchSeller.length > 0">
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <div *ngIf="this.UserRoleSeller != role.worker">
+                      <dx-select-box
+                        [dataSource]="listBranchSeller"
+                        valueExpr="idFirmBranch"
+                        displayExpr="nameShort"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="listBranchSeller"
+                        (onValueChanged)="
+                          this.CheckDemoffOwnerStateSeller();
+                          onChooseClientSeller()
+                        "
+                        [searchEnabled]="true"
+                        [minSearchLength]="3"
+                        [showDataBeforeSearch]="true"
+                        [showClearButton]="true"
+                      >
+                      </dx-select-box>
+                    </div>
+                  </div>
+
+                  <div
+                    class="form-group"
+                    *ngIf="
+                      this.UserRoleSeller == role.worker &&
+                      this.offerGeneral?.branchId
+                    "
+                  >
+                    <!--для работника, который не может редактировать эту информацию-->
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <dx-text-box
+                      height="40px"
+                      formControlName="listBranchWorkerSeller"
+                      [disabled]="true"
+                    >
+                    </dx-text-box>
+                  </div>
+                </ng-container>
+              </form>
+            </dx-validation-group>
+          </div>
+
+          <!--          Информация о покупателе-->
+          <div
+            class="info blockWithBorder flexContentColumn8"
+            [ngClass]="{ disabled: isDisabledBuyer() }"
+          >
+            <div class="titleBlock">
+              <span>{{ "createOffer.generalInfo.buyerInfo" | translate }}</span>
+            </div>
+
+            <dx-validation-group
+              class="form flexContentColumn16"
+              #generalInfoBuyer
+            >
+              <form [formGroup]="generalInfoStep" class="changePosition">
+                <div class="form-group">
+                  <label>{{
+                    "createOffer.generalInfo.participant" | translate
+                  }}</label>
+                  <div>
+                    <dx-select-box
+                      [dataSource]="visitorsList"
+                      valueExpr="buyerInfo.idFirm"
+                      displayExpr="buyerInfo.firmNameShort"
+                      height="40px"
+                      placeholder="{{ 'filters.selection' | translate }}"
+                      formControlName="participantBuyerInfo"
+                      [searchEnabled]="true"
+                      [showClearButton]="true"
+                      [searchExpr]="['nameShort', 'regNumber']"
+                      [minSearchLength]="3"
+                      [showDataBeforeSearch]="true"
+                      (onValueChanged)="GetRoleBuyer($event)"
+                    >
+                      <dx-validator>
+                        <dxi-validation-rule
+                          type="required"
+                        ></dxi-validation-rule>
+                      </dx-validator>
+                    </dx-select-box>
+                  </div>
+                </div>
+
+                <div class="form-group fullString">
+                  <label>{{
+                    "createOffer.generalInfo.participant" | translate
+                  }}</label>
+                  <div class="flexContent16">
+                    <div>
+                      <span
+                        class="flexContent8"
+                        [ngClass]="{
+                          disabled:
+                            !this.generalInfoStep.controls.participantBuyerInfo
+                              ?.value || this.brokerClientBuyer?.length == 0
+                        }"
+                        ><input
+                          type="radio"
+                          name="participantBuyer"
+                          id="brokerBuyer"
+                          formControlName="participantBuyer"
+                          [value]="role.broker"
+                          (click)="checkBuyer(role.broker)"
+                        />
+                        <label
+                          for="brokerBuyer"
+                          class="pb-0 blackColor font-s14"
+                          >{{
+                            "createOffer.generalInfo.broker" | translate
+                          }}</label
+                        ></span
+                      >
+                    </div>
+                    <div>
+                      <span
+                        class="flexContent8"
+                        [ngClass]="{
+                          disabled:
+                            !this.generalInfoStep.controls.participantBuyerInfo
+                              ?.value || !this.isVisitor
+                        }"
+                        ><input
+                          type="radio"
+                          name="participantBuyer"
+                          id="visitorBuyer"
+                          formControlName="participantBuyer"
+                          [value]="role.visitor"
+                          (click)="checkBuyer(role.visitor)"
+                        />
+                        <label
+                          for="visitorBuyer"
+                          class="pb-0 blackColor font-s14"
+                          >{{
+                            "createOffer.generalInfo.visitor" | translate
+                          }}</label
+                        ></span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <ng-container
+                  *ngIf="
+                    generalInfoStep.get('participantBuyer').value == role.broker
+                  "
+                >
+                  <div class="form-group">
+                    <label>{{ "general.contractType" | translate }}</label>
+                    <div>
+                      <dx-select-box
+                        [dataSource]="contractTypeBuyer"
+                        valueExpr="refBookKey"
+                        displayExpr="refBookValue"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="contractTypeBuyer"
+                        [showClearButton]="false"
+                        [elementAttr]="{ id: 'elementId', class: 'class-name' }"
+                        [disabled]="this.disabledContractTypeBuyer"
+                        (onValueChanged)="changeContractTypeBuyer($event)"
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                        </dx-validator>
+                      </dx-select-box>
+                    </div>
+                  </div>
+                  <!--                   [inputAttr] = "{'title': '999'}"  -->
+
+                  <div class="form-group">
+                    <label>{{ "general.brokerClient" | translate }}</label>
+                    <div *ngIf="this.UserRoleBuyer != role.worker">
+                      <div
+                        *ngIf="
+                          generalInfoStep.get('contractTypeBuyer').value == '21'
+                        "
+                      >
+                        <dx-select-box
+                          [dataSource]="brokerClientBuyer"
+                          valueExpr="buyerInfo.idFirm"
+                          displayExpr="buyerInfo.regNumberWithNameShort"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="brokerClientBuyer"
+                          [searchEnabled]="true"
+                          [showClearButton]="true"
+                          [searchExpr]="['nameShort', 'regNumber']"
+                          [minSearchLength]="3"
+                          [showDataBeforeSearch]="true"
+                          (onValueChanged)="
+                            getBranchContractorsClient();
+                            this.generalInfoStep.get('brokerClientBuyer')?.value
+                              ? this.CheckDemoffOwnerStateBuyer()
+                              : null
+                          "
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-select-box>
+                      </div>
+
+                      <div
+                        *ngIf="
+                          generalInfoStep.get('contractTypeBuyer').value == '20'
+                        "
+                      >
+                        <dx-tag-box
+                          [dataSource]="brokerClientBuyer"
+                          valueExpr="firmClient"
+                          displayExpr="regNumShortName"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="brokerClientBuyer"
+                          [searchEnabled]="true"
+                          [searchExpr]="['nameShort', 'regNumber']"
+                          [minSearchLength]="3"
+                          [showDataBeforeSearch]="true"
+                          [showSelectionControls]="true"
+                          [showDropDownButton]="true"
+                          [maxDisplayedTags]="0"
+                          (onValueChanged)="onChooseBrokerBuyer()"
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-tag-box>
+                      </div>
+                    </div>
+
+                    <div *ngIf="this.UserRoleBuyer == role.worker">
+                      <!--для работника, который не может редактировать эту информацию-->
+                      <dx-text-box
+                        height="40px"
+                        formControlName="brokerClientWorkerBuyer"
+                        [disabled]="true"
+                      >
+                      </dx-text-box>
+                    </div>
+                  </div>
+
+                  <div
+                    class="form-group"
+                    *ngIf="
+                      generalInfoStep.get('contractTypeBuyer').value == '21' &&
+                      generalInfoStep.get('brokerClientBuyer').value &&
+                      this.listClientBranchBuyer?.length > 0
+                    "
+                  >
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <div>
+                      <dx-select-box
+                        [dataSource]="listClientBranchBuyer"
+                        valueExpr="idFirmBranch"
+                        displayExpr="branchNameShort"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="listClientBranchBuyer"
+                        [searchEnabled]="true"
+                        [minSearchLength]="3"
+                        [showDataBeforeSearch]="true"
+                        [showClearButton]="true"
+                        (onValueChanged)="
+                          this.CheckDemoffOwnerStateBuyer();
+                          onChooseClientBuyer()
+                        "
+                        [disabled]="
+                          !!!generalInfoStep.get('brokerClientBuyer')?.value
+                        "
+                      >
+                        <dx-validator>
+                          <dxi-validation-rule
+                            type="required"
+                          ></dxi-validation-rule>
+                        </dx-validator>
+                      </dx-select-box>
+                    </div>
+                  </div>
+                  <!--для работника, который не может редактировать эту информацию-->
+                  <div
+                    class="form-group"
+                    *ngIf="
+                      generalInfoStep.get('contractTypeBuyer').value == '21' &&
+                      generalInfoStep.get('brokerClientBuyer').value &&
+                      this.UserRoleBuyer == role.worker &&
+                      this.offerGeneral.branchId
+                    "
+                  >
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <dx-text-box
+                      height="40px"
+                      formControlName="listClientBranchWorkerBuyer"
+                      [disabled]="true"
+                    >
+                    </dx-text-box>
+                  </div>
+                </ng-container>
+
+                <ng-container
+                  *ngIf="
+                    generalInfoStep.get('participantBuyer').value ==
+                    role.visitor
+                  "
+                  class="changePosition"
+                >
+                  <div class="form-group" *ngIf="listBranchBuyer?.length > 0">
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <div *ngIf="this.UserRoleBuyer != role.worker">
+                      <dx-select-box
+                        [dataSource]="listBranchBuyer"
+                        valueExpr="idFirmBranch"
+                        displayExpr="branchNameShort"
+                        height="40px"
+                        placeholder="{{ 'filters.selection' | translate }}"
+                        formControlName="listBranchBuyer"
+                        (onValueChanged)="
+                          this.CheckDemoffOwnerStateBuyer();
+                          onChooseClientBuyer()
+                        "
+                        [searchEnabled]="true"
+                        [minSearchLength]="3"
+                        [showDataBeforeSearch]="true"
+                        [showClearButton]="true"
+                      >
+                      </dx-select-box>
+                    </div>
+                  </div>
+
+                  <div
+                    class="form-group"
+                    *ngIf="
+                      this.UserRoleBuyer == role.worker &&
+                      this.offerGeneral?.branchId
+                    "
+                  >
+                    <!--для работника, который не может редактировать эту информацию-->
+                    <label>{{
+                      "general.structuralSubdivision" | translate
+                    }}</label>
+                    <dx-text-box
+                      height="40px"
+                      formControlName="listBranchWorkerBuyer"
+                      [disabled]="true"
+                    >
+                    </dx-text-box>
+                  </div>
+                </ng-container>
+              </form>
+            </dx-validation-group>
+          </div>
+          <ng-container *ngTemplateOutlet="buttons"></ng-container>
+        </div>
+
+        <!-- ШАГ 2 -->
+        <div *ngIf="activeStep == 2" class="stepBody">
+          <div class="info flexContentColumn16">
+            <table *ngIf="goodsList.length > 0">
+              <tr>
+                <th class="text-align-left">
+                  {{ "createOffer.good.good" | translate }}
+                </th>
+                <th>{{ "createOffer.good.quantity" | translate }}</th>
+                <th
+                  *ngIf="
+                    demandsModal?.pricingTypeId ==
+                    pricingType?.formulaWithQuotation
+                  "
+                >
+                  {{ "createOffer.goodInfo.quotation" | translate }}
+                </th>
+                <th *ngIf="demandsModal?.pricingTypeId != pricingType?.price">
+                  {{ "createOffer.goodInfo.amendment" | translate }}
+                </th>
+                <th
+                  *ngIf="
+                    demandsModal?.pricingTypeId !=
+                    pricingType?.formulaWithoutQuotation
+                  "
+                >
+                  {{ "createOffer.good.priceWithoutVAT" | translate }}
+                </th>
+                <th
+                  *ngIf="
+                    demandsModal?.pricingTypeId !=
+                    pricingType?.formulaWithoutQuotation
+                  "
+                >
+                  {{ "createOffer.total.costVAT" | translate }}
+                </th>
+                <th class="w-100px"></th>
+              </tr>
+              <tbody>
+                <ng-container *ngFor="let good of goodsList; let i = index">
+                  <tr
+                    [ngClass]="{
+                      viewRow:
+                        this.viewInfoGood == good.id || editInfoGood == good.id
+                    }"
+                  >
+                    <td class="text-align-left">{{ good.name }}</td>
+                    <td class="date-roboto-mono">
+                      {{
+                        getNumber(good.volume).toLocaleString("ru", {
+                          maximumFractionDigits: this.volumePrecision
+                        })
+                      }}
+                      {{ good.units.name }}
+                    </td>
+                    <td
+                      *ngIf="
+                        demandsModal?.pricingTypeId ==
+                        pricingType?.formulaWithQuotation
+                      "
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getNumber(good?.quotation).toLocaleString("ru", {
+                          minimumFractionDigits: this.quoteCurrencyPrecision
+                        })
+                      }}
+                      {{ good.quoteCurrency.name }}
+                    </td>
+                    <td
+                      *ngIf="demandsModal?.pricingTypeId != pricingType?.price"
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getNumber(good.amendment).toLocaleString("ru", {
+                          minimumFractionDigits:
+                            good.priceAdjustment.id == 2
+                              ? this.currencyPrecision
+                              : 0
+                        })
+                      }}
+                      {{
+                        good.priceAdjustment.id == 1 ? "%" : good.currency.name
+                      }}
+                    </td>
+                    <td
+                      *ngIf="
+                        demandsModal?.pricingTypeId !=
+                        pricingType?.formulaWithoutQuotation
+                      "
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getNumber(good.cost).toLocaleString("ru", {
+                          minimumFractionDigits: this.currencyPrecision,
+                          maximumFractionDigits: this.currencyPrecision
+                        })
+                      }}
+                      {{ good.currency.name }}
+                    </td>
+                    <td
+                      *ngIf="
+                        demandsModal?.pricingTypeId !=
+                        pricingType?.formulaWithoutQuotation
+                      "
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        getNumber(good.costVAT).toLocaleString("ru", {
+                          minimumFractionDigits: this.currencyPrecision,
+                          maximumFractionDigits: this.currencyPrecision
+                        })
+                      }}
+                      {{ good.currency.name }}
+                    </td>
+                    <td class="w-100px">
+                      <div
+                        class="flexContent10"
+                        [ngClass]="{ disabled: editInfoGood != null }"
+                      >
+                        <i
+                          (click)="onViewInfo(good)"
+                          [ngStyle]="{
+                            'pointer-events':
+                              editInfoGood != null || goodInfo ? 'none' : 'all'
+                          }"
+                          class="viewGood"
+                        ></i>
+                        <i
+                          (click)="onEdit(good)"
+                          [ngStyle]="{
+                            'pointer-events':
+                              editInfoGood != null || goodInfo ? 'none' : 'all'
+                          }"
+                          class="editGood"
+                        ></i>
+                        <i
+                          (click)="this.deleteGood = true"
+                          [ngStyle]="{
+                            'pointer-events':
+                              editInfoGood != null || goodInfo ? 'none' : 'all'
+                          }"
+                          class="deleteGood"
+                          *ngIf="this.UserRoleSeller != role.worker"
+                        ></i>
+                      </div>
+                    </td>
+                    <!--                  onDeleteGoodPopup(i, good)-->
+                  </tr>
+
+                  <ng-container *ngIf="viewInfoGood === good.id">
+                    <tr>
+                      <td colspan="7" class="p-0 text-align-left">
+                        <div class="viewGoodInfo flexContentColumn16">
+                          <div class="name">
+                            <label>{{ good.name }}</label>
+                            <i class="cancel" (click)="viewInfoGood = null"></i>
+                          </div>
+
+                          <!--                        характеристики товара из каталога-->
+                          <div
+                            class="description"
+                            *ngIf="!good.characteristicsNSI"
+                          >
+                            <span *ngFor="let prop of good.properties">
+                              <span class="propName">
+                                {{ prop.propertyName }}</span
+                              >
+                              <span> {{ prop.propertyValue }}.</span>
+                            </span>
+                            <a (click)="openSidebar(good)">
+                              {{ "btns.moreDetails" | translate }}</a
+                            >
+                          </div>
+
+                          <!--                        характеристики товара НСИ -->
+                          <div
+                            class="description"
+                            *ngIf="good.characteristicsNSI"
+                          >
+                            <span *ngFor="let prop of good.properties">
+                              <span class="propName">
+                                {{ prop.propertyName }}</span
+                              >
+                              <span
+                                *ngIf="
+                                  !prop.propertyValue ||
+                                  prop.propertyValue?.length == 0
+                                "
+                              >
+                                {{ "createOffer.any" | translate }}.</span
+                              >
+                              <span *ngIf="prop.propertyValue?.length > 0">
+                                <span
+                                  *ngFor="
+                                    let val of prop.propertyValue;
+                                    let i = index
+                                  "
+                                >
+                                  {{ val
+                                  }}<span
+                                    *ngIf="i != prop.propertyValue?.length - 1"
+                                    >,</span
+                                  >
+                                </span>
+                                <span *ngIf="prop.isAllowAnalogs"
+                                  >,
+                                  {{ "createOffer.others" | translate }}</span
+                                >
+                                <span>.</span>
+                              </span>
+                            </span>
+                          </div>
+
+                          <div class="flexContentColumn4 actualFields">
+                            <ng-container *ngFor="let fields of good.fields">
+                              <ng-container *ngFor="let field of fields[1]">
+                                <!-- Фактические размеры: 58 «Фактическая ширина, мм», 59 «Фактическая толщина, мм», 57 «Фактический диаметр, см», 40 «Фактическая длина, м» выносим наверх-->
+                                <ng-container
+                                  *ngIf="
+                                    [57, 58, 59, 40, 21].includes(
+                                      field.interfaceField.fieldId
+                                    )
+                                  "
+                                >
+                                  <div class="flexContent10 goodInfoTable">
+                                    <div class="titleGoodInfo">
+                                      {{ field.interfaceField.fieldName }}
+                                      <span class="line"></span>
+                                    </div>
+                                    <div>
+                                      {{
+                                        field.interfaceField.controlFieldType ==
+                                        "dxSelectBox"
+                                          ? valueSelectBox(field)
+                                          : field.selectedValues
+                                          ? this.commonService.actualDimensions(
+                                              field.selectedValues,
+                                              0
+                                            )
+                                          : ""
+                                      }}
+                                    </div>
+                                  </div>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+                          </div>
+
+                          <div
+                            *ngFor="let fields of good.fields"
+                            class="flexContentColumn4"
+                          >
+                            <ng-container *ngFor="let field of fields[1]">
+                              <ng-container
+                                *ngIf="
+                                  ![57, 58, 59, 40, 21].includes(
+                                    field.interfaceField.fieldId
+                                  )
+                                "
+                              >
+                                <div class="flexContent10 goodInfoTable">
+                                  <div class="titleGoodInfo">
+                                    {{
+                                      field.interfaceField.fieldId == 64
+                                        ? ("offer-management.priceStep"
+                                          | translate)
+                                        : field.interfaceField.fieldName
+                                    }}
+                                    <span class="line"></span>
+                                  </div>
+                                  <div class="date-roboto-mono">
+                                    {{
+                                      field.interfaceField.controlFieldType ==
+                                      "dxSelectBox" && !field.interfaceField.isAvailableFreeInput
+                                        ? valueSelectBox(field)
+                                        : field.interfaceField
+                                            .controlFieldType == "dxCheckBox"
+                                        ? field.selectedValues
+                                          ? ("btns.yes" | translate)
+                                          : ("btns.no" | translate)
+                                        : field.interfaceField
+                                            .controlFieldType == "dxNumberBox"
+                                        ? field.selectedValues.toLocaleString(
+                                            "ru",
+                                            {
+                                              minimumFractionDigits:
+                                                field.interfaceField
+                                                  .fieldPrecision
+                                            }
+                                          )
+                                        : field?.costNoVAT ||
+                                          field?.amountVAT ||
+                                          field?.amountVAT == 0 ||
+                                          field?.costVAT
+                                        ? field.selectedValues.toLocaleString(
+                                            "ru",
+                                            {
+                                              minimumFractionDigits:
+                                                this.currencyPrecision
+                                            }
+                                          )
+                                        : field.selectedValues
+                                    }}
+                                  </div>
+                                </div>
+                              </ng-container>
+                            </ng-container>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-container>
+
+                  <tr *ngIf="editInfoGood === good.id">
+                    <td colspan="7" class="background">
+                      <ng-container *ngTemplateOutlet="goodEditInfo">
+                      </ng-container>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+
+            <div
+              class="blockWithBorder"
+              *ngIf="
+                this.goodsList.length == 0 && this.UserRoleSeller != role.worker
+              "
+            >
+              <div class="flexContentColumn8 ai-c" *ngIf="!goodInfo">
+                <div class="noData">
+                  {{ "createOffer.good.noDataText" | translate }}
+                </div>
+                <button
+                  class="btn btn-withoutBorder"
+                  id="chooseGoodLink"
+                  (click)="
+                    this.chooseGoodForm = true;
+                    this.onShowProducts();
+                    this.onChooseNomenclature()
+                  "
+                >
+                  <span class="addProduct"></span
+                  >{{ "createOffer.good.addProduct" | translate }}
+                </button>
+              </div>
+
+              <div *ngIf="goodInfo">
+                <ng-container *ngTemplateOutlet="goodEditInfo"></ng-container>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #goodEditInfo>
+            <div>
+              <good-info-direct
+                [good]="good"
+                [goodInfo]="editInfoGood != null ? good : null"
+                [demandsModal]="blockModal"
+                [modelsResult]="demandsModal"
+                [user]="this.user"
+                [direction]="this.direction"
+                [schedule]="schedule"
+                [goodsList]="goodsList"
+                [sessionInfo]="{
+                  sectionId: this.sectionId,
+                  sessionId: this.sessionId,
+                  idMarketType: this.idMarketType
+                }"
+                [filledFields]="
+                  this.goodsList.length > 0 && !firstElement
+                    ? filledFields
+                    : null
+                "
+                (saveItem)="addGood($event)"
+                (scheduleResult)="this.schedule = [];
+                this.deliveryTermSchedule = ''"
+              >
+              </good-info-direct>
+            </div>
+          </ng-template>
+
+          <ng-container *ngTemplateOutlet="buttons"></ng-container>
+        </div>
+
+        <dx-popup
+          id="popup"
+          #popup
+          contentTemplate="popup-content"
+          [(visible)]="chooseGoodForm"
+          [hideOnOutsideClick]="false"
+          [showTitle]="true"
+          title="{{ 'createOffer.productSearch' | translate }} {{
+            direction == 1
+              ? ('general.purchase' | translate)
+              : ('general.sale' | translate)
+          }} "
+          minWidth="515px"
+          width="auto"
+          height="auto"
+          maxHeight="90vh"
+          [showCloseButton]="true"
+          (onHidden)="this.chooseGoodForm = false"
+          (onInitialized)="onInitializedPopup($event)"
+        >
+          <dxo-animation
+            [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+          ></dxo-animation>
+          <div *dxTemplate="let data of 'popup-content'" class="bodyChooseGood">
+            <dx-scroll-view [useNative]="true">
+              <div class="order_content" id="scrollView">
+                <div class="order_content__left">
+                  <div class="filters flexContentColumn16">
+                    <span class="label">{{
+                      "filters.SearchOptions" | translate
+                    }}</span>
+                    <form [formGroup]="chooseGood">
+                      <div class="form-group">
+                        <dx-text-box
+                          placeholder="{{ 'filters.searchLabel' | translate }}"
+                          [showClearButton]="true"
+                          height="40px"
+                          formControlName="searchParameters"
+                          (keyup.enter)="onShowProducts()"
+                        >
+                          <dxi-button
+                            name="search"
+                            location="before"
+                            [options]="searchIcon"
+                          ></dxi-button>
+                          <dxi-button name="clear"></dxi-button>
+                        </dx-text-box>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="font-w500">
+                          {{ "createOffer.addingProduct" | translate }}</label
+                        >
+                        <div class="flexContentColumn8 blackColor">
+                          <div class="flexContent8">
+                            <span class="flexContent8"
+                              ><input
+                                type="radio"
+                                id="global"
+                                formControlName="catalogTypes"
+                                value="global"
+                              />
+                              <label
+                                for="global"
+                                class="v-al-bottom pb-0 font-s14 blackColor pointer"
+                                >{{
+                                  "createOffer.fromExchangeCatalog" | translate
+                                }}</label
+                              ></span
+                            >
+                          </div>
+                          <div class="flexContent8">
+                            <span class="flexContent8"
+                              ><input
+                                type="radio"
+                                id="personal"
+                                formControlName="catalogTypes"
+                                value="personal"
+                              />
+                              <label
+                                for="personal"
+                                class="v-al-bottom pb-0 font-s14 blackColor pointer"
+                                >{{
+                                  "createOffer.fromPersonalCatalog" | translate
+                                }}</label
+                              ></span
+                            >
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>{{
+                          "filters.nomenclatureGroup" | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="nomenclaturesWithGroups"
+                            valueExpr="idValue"
+                            displayExpr="valueName"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="nomenclaturesWithGroups"
+                            [searchEnabled]="true"
+                            (onValueChanged)="
+                              onChangeSelectBox(
+                                $event,
+                                'nomenclaturesWithGroups'
+                              )
+                            "
+                            [showClearButton]="true"
+                          >
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>{{ "filters.goodsGroup" | translate }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="goodsGroup"
+                            valueExpr="idValue"
+                            displayExpr="valueName"
+                            height="40px"
+                            [disabled]="
+                              !this.chooseGood.get('nomenclaturesWithGroups')
+                                .value
+                            "
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="goodsGroup"
+                            [searchEnabled]="true"
+                            [showClearButton]="true"
+                            (onValueChanged)="
+                              onChangeSelectBox($event, 'goodsGroup')
+                            "
+                          >
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>{{ "filters.goods" | translate }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="goodsValue"
+                            valueExpr="idValue"
+                            displayExpr="valueName"
+                            height="40px"
+                            [disabled]="
+                              !this.chooseGood.get('goodsGroup').value
+                            "
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="goods"
+                            [searchEnabled]="true"
+                            [showClearButton]="true"
+                            (onValueChanged)="
+                              onChangeSelectBox($event, 'goods')
+                            "
+                          >
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <!-- <div class="form-group" *ngFor="let ref of refs">
+                        <label>{{ref.name}}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="ref.values" valueExpr="id" displayExpr="name"
+                            height="40px" placeholder="{{'filters.selection' | translate}}"
+                            [searchEnabled]="true" [showClearButton]="true"
+                            (onValueChanged)="ChooseRefsValue($event, ref)">
+                          </dx-select-box>
+                        </div>
+                      </div> -->
+
+                      <div
+                        class="good-refs w-100"
+                        *ngFor="let ref of refs"
+                        [ngClass]="{ 'mb-0': ref?.isHidden }"
+                      >
+                        <!-- для текстовых значений - 1-5 - чекбоксы, >=6 дропдаун -->
+                        <div class="form-group" *ngIf="ref.dType === 'TSTRING'">
+                          <div *ngIf="ref.values?.length < 6">
+                            <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                              <label>{{ ref.name }}</label>
+                              <div
+                                class="filtersArrow"
+                                (click)="ref.isHidden = !ref.isHidden"
+                                [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                              ></div>
+                            </div>
+
+                            <div [hidden]="ref?.isHidden">
+                              <div
+                                class="checkboxes"
+                                *ngFor="let v of ref.values"
+                              >
+                                <dx-check-box
+                                  [value]="
+                                    this.listPropertiesStr.includes(v.id)
+                                  "
+                                  text="{{ v.name }}"
+                                  height="40px"
+                                  width="100%"
+                                  class="wrap-text-checkbox"
+                                  (onValueChanged)="
+                                    chooseRefsValue(
+                                      $event,
+                                      ref.id,
+                                      'checkbox',
+                                      [v.id]
+                                    )
+                                  "
+                                >
+                                </dx-check-box>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div *ngIf="ref.values?.length >= 6">
+                            <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                              <label>{{ ref.name }}</label>
+                              <div
+                                class="filtersArrow"
+                                (click)="ref.isHidden = !ref.isHidden"
+                                [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                              ></div>
+                            </div>
+
+                            <div [hidden]="ref?.isHidden">
+                              <dx-tag-box
+                                [dataSource]="ref.values"
+                                valueExpr="id"
+                                formControlName="{{ ref.id }}"
+                                displayExpr="name"
+                                width="280px"
+                                height="40px"
+                                placeholder="{{
+                                  'filters.selection' | translate
+                                }}"
+                                [searchEnabled]="true"
+                                [showClearButton]="true"
+                                [showSelectionControls]="true"
+                                [showDropDownButton]="true"
+                                [maxDisplayedTags]="0"
+                                (onValueChanged)="
+                                  chooseRefsValue($event, ref.id, 'str')
+                                "
+                              >
+                              </dx-tag-box>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- для числовых значений - 1-5 - чекбоксы, >=6 слайдер -->
+                        <div
+                          class="form-group"
+                          *ngIf="ref.dType === 'TINTEGER'"
+                        >
+                          <!--  -->
+
+                          <div *ngIf="ref?.values?.length < 6">
+                            <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                              <label>{{ ref.name }}</label>
+                              <div
+                                class="filtersArrow"
+                                (click)="ref.isHidden = !ref.isHidden"
+                                [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                              ></div>
+                            </div>
+
+                            <div [hidden]="ref?.isHidden">
+                              <div
+                                class="checkboxes"
+                                *ngFor="let v of ref.values"
+                              >
+                                <dx-check-box
+                                  [value]="
+                                    this.listPropertiesStr.includes(v.id)
+                                  "
+                                  text="{{ v.name }}"
+                                  height="40px"
+                                  width="100%"
+                                  class="wrap-text-checkbox"
+                                  (onValueChanged)="
+                                    chooseRefsValue(
+                                      $event,
+                                      ref.id,
+                                      'checkbox',
+                                      [v.id]
+                                    )
+                                  "
+                                >
+                                </dx-check-box>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div *ngIf="ref?.values?.length >= 6">
+                            <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                              <label>{{ ref.name }}</label>
+                              <div
+                                class="filtersArrow"
+                                (click)="ref.isHidden = !ref.isHidden"
+                                [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                              ></div>
+                            </div>
+
+                            <div [hidden]="ref?.isHidden">
+                              <div class="flexContentColumn8">
+                                <dx-range-slider
+                                  [(start)]="ref.start"
+                                  [(end)]="ref.end"
+                                  [min]="ref.values[0].rangeBoundLeft"
+                                  [max]="ref.values[0].rangeBoundRight"
+                                  (onValueChanged)="
+                                    chooseRefsValue($event, ref.id, 'range')
+                                  "
+                                ></dx-range-slider>
+
+                                <div class="flexContent16">
+                                  <dx-number-box
+                                    dxNumberBoxClear
+                                    [(value)]="ref.start"
+                                    [min]="ref.values[0].rangeBoundLeft"
+                                    [max]="ref.values[0].rangeBoundRight"
+                                  ></dx-number-box>
+
+                                  <dx-number-box
+                                    dxNumberBoxClear
+                                    [(value)]="ref.end"
+                                    [min]="ref.values[0].rangeBoundLeft"
+                                    [max]="ref.values[0].rangeBoundRight"
+                                  ></dx-number-box>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- TRANGE всегда слайдер -->
+                        <div class="form-group" *ngIf="ref.dType === 'TRANGE'">
+                          <div class="flexContent4 jc-sb mt-2 mb-2 ref-title">
+                            <label>{{ ref.name }}</label>
+                            <div
+                              class="filtersArrow"
+                              (click)="ref.isHidden = !ref.isHidden"
+                              [ngClass]="{ 'tr-rt180': ref?.isHidden }"
+                            ></div>
+                          </div>
+
+                          <div [hidden]="ref?.isHidden">
+                            <div class="flexContentColumn8">
+                              <dx-range-slider
+                                [(start)]="ref.start"
+                                [(end)]="ref.end"
+                                [min]="ref.values[0].rangeBoundLeft"
+                                [max]="ref.values[0].rangeBoundRight"
+                                (onValueChanged)="
+                                  chooseRefsValue($event, ref.id, 'range')
+                                "
+                              ></dx-range-slider>
+
+                              <div class="flexContent16">
+                                <dx-number-box
+                                  dxNumberBoxClear
+                                  [(value)]="ref.start"
+                                  [min]="ref.values[0].rangeBoundLeft"
+                                  [max]="ref.values[0].rangeBoundRight"
+                                ></dx-number-box>
+
+                                <dx-number-box
+                                  dxNumberBoxClear
+                                  [(value)]="ref.end"
+                                  [min]="ref.values[0].rangeBoundLeft"
+                                  [max]="ref.values[0].rangeBoundRight"
+                                ></dx-number-box>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="buttonsSpace column">
+                    <button
+                      type="button"
+                      class="btn btn-primary submit"
+                      (click)="this.currentPage = 1; onShowProducts()"
+                    >
+                      {{ "filters.showResults" | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary submit"
+                      (click)="clearChooseGood()"
+                    >
+                      {{ "filters.reset" | translate }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="order_content__right">
+                  <div class="countGood" *ngIf="totalCount > 0">
+                    {{ "createOffer.good.foundRecords" | translate }} :
+                    {{ totalCount }}
+                  </div>
+
+                  <div class="flexContentColumn24">
+                    <div
+                      class="goodsList"
+                      *ngIf="catalogProducts.length > 0; else noGoods"
+                    >
+                      <div class="good" *ngFor="let good of catalogProducts">
+                        <div class="main_info">
+                          <span
+                            ><label
+                              >{{
+                                "filters.nomenclatureGroup" | translate
+                              }}
+                              :</label
+                            >{{ good.nomenclature }}</span
+                          >
+                          <span
+                            ><label
+                              >{{ "filters.goodsGroup" | translate }}:</label
+                            >{{ good.group }}</span
+                          >
+                          <a (click)="openSidebar(good)" class="mt-1">{{
+                            good.name
+                          }}</a>
+                          <div class="desc">
+                            {{ "general.description" | translate }}:
+                            <span
+                              class="desc_content"
+                              *ngFor="let prop of good.properties"
+                            >
+                              <span class="propName">
+                                {{ prop.propertyName }}:</span
+                              >
+                              <span class="propValue">
+                                {{ prop.propertyValue }}.</span
+                              >
+                            </span>
+                          </div>
+                        </div>
+                        <div class="button">
+                          <button
+                            class="btn btn-primary"
+                            (click)="onChooseGood(good)"
+                          >
+                            {{ "btns.add" | translate }}
+                          </button>
+                        </div>
+                      </div>
+                      <div class="buttonsClass jc-sb">
+                        <button
+                          class="btn btn-withoutBorder"
+                          (click)="
+                            this.currentPage = this.currentPage - 1;
+                            onShowProducts()
+                          "
+                          [disabled]="this.currentPage == 1"
+                        >
+                          <div class="flexContent8 ai-c">
+                            <i class="preButton"></i
+                            >{{ "btns.back" | translate }}
+                          </div>
+                        </button>
+                        <button
+                          class="btn btn-withoutBorder"
+                          (click)="
+                            this.currentPage = this.currentPage + 1;
+                            onShowProducts();
+                            onUpdated()
+                          "
+                          [disabled]="this.currentPage == this.totalPages"
+                        >
+                          <div class="flexContent8 ai-c">
+                            {{ "btns.next" | translate
+                            }}<i class="preButton tr-rt180"></i>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+
+                    <ng-template #noGoods>
+                      <div class="text-align-center">
+                        {{ "errors.emptyData" | translate }}
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+              </div>
+              <dx-load-panel
+                shadingColor="rgba(0,0,0,0.4)"
+                [(visible)]="loadingVisible"
+                [showIndicator]="true"
+                [showPane]="true"
+                [shading]="true"
+                [hideOnOutsideClick]="false"
+              >
+              </dx-load-panel>
+            </dx-scroll-view>
+          </div>
+        </dx-popup>
+
+        <!-- ШАГ 3 -->
+        <div *ngIf="activeStep == 3" class="stepBody">
+          <div class="info flexContentColumn8">
+            <div class="blockWithBorder">
+              <!--              (onOpened)="this.isEditedDeliveryTerm = true"   эта строка для того, чтобы я предзаполнила все из редактирования, а если что-то поменяла, то уже не предзаполнялось из редактирования значением-->
+
+              <div class="flexContentColumn26">
+                <label>{{
+                  "createOffer.deliveryTime.deliveryTime" | translate
+                }}</label>
+                <dx-validation-group
+                  class="form flexContentColumn16"
+                  #deliveryTerm
+                >
+                  <form
+                    [formGroup]="deliveryTermForm"
+                    class="flexContent16 fl-wrap wrap"
+                  >
+                    <div class="form-group">
+                      <label>{{
+                        "createOffer.deliveryTime.startDelivery" | translate
+                      }}</label>
+                      <div>
+                        <dx-select-box
+                          [dataSource]="uniqueDeliveryTerm"
+                          valueExpr="deliveryStartId"
+                          displayExpr="deliveryStartName"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="startDelivery"
+                          [showClearButton]="false"
+                          (onOpened)="this.isEditedDeliveryTerm = true"
+                          (onValueChanged)="
+                            deliveryTermStartChange('deliveryStart')
+                          "
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-select-box>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label>{{
+                        "createOffer.deliveryTime.deliveryType" | translate
+                      }}</label>
+                      <div>
+                        <dx-select-box
+                          [dataSource]="deliveryTermType"
+                          valueExpr="deliveryTermId"
+                          displayExpr="deliveryTermName"
+                          [disabled]="
+                            !this.deliveryTermForm.controls.startDelivery.value
+                          "
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="deliveryType"
+                          [showClearButton]="false"
+                          (onOpened)="this.isEditedDeliveryTerm = true"
+                          (onValueChanged)="
+                            deliveryTermStartChange('deliveryType')
+                          "
+                        >
+                          <dx-validator>
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-select-box>
+                      </div>
+                    </div>
+
+                    <div
+                      class="form-group"
+                      *ngIf="
+                        this.deliveryTermType?.length > 0 &&
+                        isDate()?.startDeliveryDateValue &&
+                        this.deliveryTermForm.controls.deliveryType.value
+                      "
+                    >
+                      <label>{{
+                        "createOffer.deliveryTime.deliveryStartDate" | translate
+                      }}</label>
+                      <div>
+                        <dx-date-box
+                          type="date"
+                          height="40px"
+                          [useMaskBehavior]="true"
+                          displayFormat="dd.MM.yyyy"
+                          formControlName="startDate"
+                          [min]="todayPlusDay"
+                          [max]="
+                            this.deliveryTermForm.controls.endDate.value
+                              ? this.deliveryTermForm.controls.endDate.value
+                              : null
+                          "
+                          placeholder="{{
+                            'general.placeholderDateBox' | translate
+                          }}"
+                          (onValueChanged)="
+                            onCreateString();
+                            deliveryTermForm.controls.deliveryType.value == 3
+                              ? endValidator?.instance.validate()
+                              : null
+                          "
+                        >
+                          <dx-validator
+                            *ngIf="
+                              this.deliveryTermType?.length > 0 &&
+                              isDate()?.startDeliveryDateValue &&
+                              this.deliveryTermForm.controls.deliveryType.value
+                            "
+                          >
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-date-box>
+                      </div>
+                    </div>
+
+                    <div
+                      class="form-group"
+                      *ngIf="
+                        this.deliveryTermType?.length > 0 &&
+                        isDate()?.endDeliveryDateValue &&
+                        this.deliveryTermForm.controls.deliveryType?.value
+                      "
+                    >
+                      <label>{{
+                        "createOffer.deliveryTime.deliveryEndDate" | translate
+                      }}</label>
+                      <div>
+                        <dx-date-box
+                          type="date"
+                          height="40px"
+                          [useMaskBehavior]="true"
+                          displayFormat="dd.MM.yyyy"
+                          formControlName="endDate"
+                          [min]="
+                            this.deliveryTermForm.controls.startDate.value
+                              ? this.deliveryTermForm.controls.startDate.value
+                              : todayPlusDay
+                          "
+                          placeholder="{{
+                            'general.placeholderDateBox' | translate
+                          }}"
+                          (onValueChanged)="onCreateString()"
+                        >
+                          <dx-validator
+                            *ngIf="
+                              this.deliveryTermType?.length > 0 &&
+                              isDate()?.endDeliveryDateValue &&
+                              this.deliveryTermForm.controls.deliveryType?.value
+                            "
+                          >
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                            <!--        </dx-validator>
+                                    <dx-validator #endValidator>-->
+                            <dxi-validation-rule
+                              #endValidator
+                              type="compare"
+                              comparisonType=">="
+                              [ignoreEmptyValue]="true"
+                              [reevaluate]="true"
+                              [comparisonTarget]="validateEndDate"
+                              message="{{
+                                'createOffer.paymentDeliveryTerms.errorMessageDate'
+                                  | translate
+                              }}"
+                            >
+                            </dxi-validation-rule>
+                          </dx-validator>
+                        </dx-date-box>
+                      </div>
+                    </div>
+
+                    <div
+                      class="form-group"
+                      *ngIf="
+                        this.deliveryTermForm.controls.startDelivery.value !=
+                          3 &&
+                        (this.deliveryTermForm.controls.deliveryType?.value ==
+                          1 ||
+                          this.deliveryTermForm.controls.deliveryType?.value ==
+                            2)
+                      "
+                    >
+                      <label>{{
+                        "createOffer.deliveryTime.deliveryTime" | translate
+                      }}</label>
+                      <div>
+                        <dx-select-box
+                          [dataSource]="deliveryTermValue"
+                          valueExpr="id"
+                          displayExpr="value"
+                          height="40px"
+                          placeholder="{{ 'filters.selection' | translate }}"
+                          formControlName="deliveryTerm"
+                          [showClearButton]="false"
+                          (onOpened)="this.isEditedDeliveryTerm = true"
+                          (onValueChanged)="onCreateString()"
+                        >
+                          <dx-validator
+                            *ngIf="
+                              this.deliveryTermForm.controls.startDelivery
+                                .value != 3 &&
+                              (this.deliveryTermForm.controls.deliveryType
+                                ?.value == 1 ||
+                                this.deliveryTermForm.controls.deliveryType
+                                  ?.value == 2)
+                            "
+                          >
+                            <dxi-validation-rule
+                              type="required"
+                            ></dxi-validation-rule>
+                          </dx-validator>
+                        </dx-select-box>
+                      </div>
+                    </div>
+                  </form>
+                  <div class="stringConcated">
+                    {{
+                      this.deliveryTermConcated
+                        ? this.deliveryTermConcated
+                        : ("general.automaticallyText" | translate)
+                    }}
+                  </div>
+                </dx-validation-group>
+                <div
+                  class="buttonsClass jc-end flexContent8 ai-c"
+                  *ngIf="
+                    this.sectionId == sectionID.forestProducts &&
+                    this.adjustablePriceConditions != undefined
+                  "
+                >
+                  <div class="moreIcon" id="scheduleInfoIcon">
+                    <dx-tooltip
+                      target="#scheduleInfoIcon"
+                      [showEvent]="{name: 'mouseenter', delay: 500}"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let tooltip = data; of: 'content'">
+                        {{
+                          "createOffer.paymentDeliveryTerms.scheduleButtonTooltip"
+                            | translate
+                        }}
+                      </div>
+                    </dx-tooltip>
+                  </div>
+                  <button
+                    class="btn btn-outline-primary w-fit-cnt"
+                    [disabled]="
+                      deliverySchedule?.length == 0 || disabledButtonSchedule()
+                    "
+                    (click)="this.deliverySchedulePopup = true"
+                  >
+                    {{
+                      "createOffer.paymentDeliveryTerms.deliverySchedule"
+                        | translate
+                    }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="blockWithBorder">
+              <div class="flexContentColumn26">
+                <label>{{
+                  "createOffer.termsPayment.termsPayment" | translate
+                }}</label>
+
+                <dx-validation-group class="form" #termsPayment>
+                  <form
+                    [formGroup]="termsPaymentForm"
+                    class="flexContentColumn16"
+                  >
+                    <div class="flexContent16 fl-wrap wrapLess w-100">
+                      <!--                  Условия оплаты-->
+                      <div class="form-group">
+                        <label>{{
+                          "createOffer.termsPayment.termsPayment" | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="termsConditionsPaymentValue"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="termsPayment"
+                            [showClearButton]="false"
+                            (onOpened)="this.isEditedTermsPayment = true"
+                            (onValueChanged)="
+                              onTermsPaymentChange('termsPayment')
+                            "
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <!--                  Объем-->
+                      <div class="form-group">
+                        <label>{{
+                          "createOffer.termsPayment.volume" | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="volumeTerms"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="volume"
+                            [showClearButton]="false"
+                            (onOpened)="this.isEditedTermsPayment = true"
+                            [disabled]="
+                              !this.termsPaymentForm.controls.termsPayment
+                                ?.value
+                            "
+                            (onValueChanged)="onTermsPaymentChange('volume')"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="flexContent16 fl-wrap wrapLess w-100"
+                      *ngIf="this.termsPaymentForm.controls.volume?.value"
+                    >
+                      <!--                  Размер предоплаты-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.termsPaymentForm.controls.termsPayment?.value !=
+                          termsConditionsPaymentConst.paymentDeferment
+                        "
+                      >
+                        <label
+                          >{{
+                            "createOffer.termsPayment.prepaymentAmount"
+                              | translate
+                          }}
+                          (%)</label
+                        >
+                        <div class="number-style">
+                          <dx-number-box
+                            dxNumberBoxClear
+                            placeholder="00"
+                            formControlName="prepaymentAmount"
+                            height="40px"
+                            [min]="1"
+                            [max]="99"
+                            [disabled]="
+                              this.termsPaymentForm.controls.termsPayment
+                                ?.value ==
+                                termsConditionsPaymentConst.prepayment100 ||
+                              this.termsPaymentForm.controls.termsPayment
+                                ?.value ==
+                                termsConditionsPaymentConst.paymentThroughExchange
+                            "
+                            (onValueChanged)="onPrepaymentAmountChange()"
+                            valueChangeEvent="input"
+                            class="date-roboto-mono"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-number-box>
+                        </div>
+                      </div>
+
+                      <!--                  Момент предоплаты-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.termsPaymentForm.controls.termsPayment?.value !=
+                          termsConditionsPaymentConst.paymentDeferment
+                        "
+                      >
+                        <label>{{
+                          "createOffer.termsPayment.momentPrepayment"
+                            | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="momentPrepaymentValues"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="momentPrepayment"
+                            [showClearButton]="false"
+                            (onOpened)="this.isEditedTermsPayment = true"
+                            [disabled]="
+                              !this.termsPaymentForm.controls.termsPayment
+                                ?.value &&
+                              !this.termsPaymentForm.controls.volume?.value
+                            "
+                            (onValueChanged)="
+                              onTermsPaymentChange('momentPrepayment')
+                            "
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <!--                  Срок предоплаты-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.momentPrepayment &&
+                          this.termsPaymentForm.controls.termsPayment?.value !=
+                            termsConditionsPaymentConst.paymentDeferment &&
+                          this.termsPaymentForm.controls.momentPrepayment
+                            ?.value != 7
+                        "
+                      >
+                        <label>{{
+                          "createOffer.termsPayment.prepaymentPeriod"
+                            | translate
+                        }}</label>
+                        <div class="number-style">
+                          <dx-number-box
+                            dxNumberBoxClear
+                            *ngIf="!momentPrepayment?.options.date"
+                            placeholder="00"
+                            formControlName="prepaymentPeriodNumber"
+                            height="40px"
+                            [min]="1"
+                            [max]="
+                              momentPrepayment.options.dayOfMonth ? 31 : 999
+                            "
+                            (onValueChanged)="getPaymentTermConcatedString()"
+                            class="date-roboto-mono"
+                            valueChangeEvent="input"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-number-box>
+
+                          <dx-date-box
+                            *ngIf="momentPrepayment?.options.date"
+                            type="date"
+                            height="40px"
+                            [useMaskBehavior]="true"
+                            displayFormat="dd.MM.yyyy"
+                            formControlName="prepaymentPeriodDate"
+                            [min]="this.todayPlusDay"
+                            placeholder="{{
+                              'general.placeholderDateBox' | translate
+                            }}"
+                            (onValueChanged)="getPaymentTermConcatedString()"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-date-box>
+                        </div>
+                        <label class="pb-0 pt-1">
+                          {{ this.momentPrepayment?.termHint }}</label
+                        >
+                      </div>
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.momentPrepayment?.options.applicableDayCount
+                        "
+                      >
+                        <ng-container
+                          *ngTemplateOutlet="applicableDayCount"
+                        ></ng-container>
+                      </div>
+                    </div>
+
+                    <div
+                      class="flexContent16 fl-wrap wrapLess w-100"
+                      *ngIf="this.termsPaymentForm.controls.volume.value"
+                    >
+                      <!--                  Размер отсрочки-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.termsPaymentForm.controls.termsPayment?.value ==
+                            termsConditionsPaymentConst.partialPrepayment ||
+                          this.termsPaymentForm.controls.termsPayment?.value ==
+                            termsConditionsPaymentConst.paymentDeferment
+                        "
+                      >
+                        <label
+                          >{{
+                            "createOffer.termsPayment.defermentAmount"
+                              | translate
+                          }}
+                          (%)</label
+                        >
+                        <div class="number-style">
+                          <dx-number-box
+                            dxNumberBoxClear
+                            placeholder="00"
+                            formControlName="defermentAmount"
+                            height="40px"
+                            [min]="1"
+                            [max]="99"
+                            [disabled]="readOnlyDefermentAmount"
+                            (onValueChanged)="onChangedefermentAmount()"
+                            valueChangeEvent="input"
+                            class="date-roboto-mono"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-number-box>
+                        </div>
+                      </div>
+
+                      <!--                  Момент отсрочки-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.termsPaymentForm.controls.termsPayment?.value ==
+                            termsConditionsPaymentConst.paymentDeferment ||
+                          (this.termsPaymentForm.controls.termsPayment?.value ==
+                            termsConditionsPaymentConst.partialPrepayment &&
+                            this.termsPaymentForm.controls.momentPrepayment
+                              ?.value)
+                        "
+                      >
+                        <label>{{
+                          "createOffer.termsPayment.momentDelay" | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="momentDelayValues"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="momentDelay"
+                            [showClearButton]="false"
+                            (onOpened)="this.isEditedTermsPayment = true"
+                            [disabled]="
+                              !this.termsPaymentForm.controls.termsPayment
+                                ?.value &&
+                              !this.termsPaymentForm.controls.volume?.value
+                            "
+                            (onValueChanged)="
+                              onTermsPaymentChange('momentDelay')
+                            "
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <!--                  Срок отсрочки-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.termsPaymentForm.controls.termsPayment?.value !=
+                            1 &&
+                          this.termsPaymentForm.controls.termsPayment?.value !=
+                            4 &&
+                          this.momentDelay
+                        "
+                      >
+                        <label>{{
+                          "createOffer.termsPayment.defermentPeriod" | translate
+                        }}</label>
+                        <div class="number-style">
+                          <dx-number-box
+                            dxNumberBoxClear
+                            *ngIf="!momentDelay?.options.date"
+                            placeholder="00"
+                            formControlName="defermentPeriodNumber"
+                            height="40px"
+                            [min]="1"
+                            [max]="momentDelay.options.dayOfMonth ? 31 : 999"
+                            (onValueChanged)="getPaymentTermConcatedString()"
+                            class="date-roboto-mono"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-number-box>
+
+                          <dx-date-box
+                            *ngIf="momentDelay?.options.date"
+                            type="date"
+                            height="40px"
+                            [useMaskBehavior]="true"
+                            displayFormat="dd.MM.yyyy"
+                            formControlName="defermentPeriodDate"
+                            [min]="todayPlusDay"
+                            placeholder="{{
+                              'general.placeholderDateBox' | translate
+                            }}"
+                            (onValueChanged)="getPaymentTermConcatedString()"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-date-box>
+                        </div>
+                        <label class="pb-0 pt-1">
+                          {{ this.momentDelay?.termHint }}</label
+                        >
+                      </div>
+
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.momentDelay?.options.applicableDayCount &&
+                          !this.momentPrepayment?.options.applicableDayCount
+                        "
+                      >
+                        <ng-container
+                          *ngTemplateOutlet="applicableDayCount"
+                        ></ng-container>
+                      </div>
+
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          this.momentDelay?.options.applicableDayCount &&
+                          this.momentPrepayment?.options.applicableDayCount
+                        "
+                      >
+                        <ng-container
+                          *ngTemplateOutlet="disableApplicableDayCount"
+                        ></ng-container>
+                      </div>
+                    </div>
+
+                    <div
+                      class="flexContent16 fl-wrap wrapLess w-100"
+                      *ngIf="
+                        this.termsPaymentForm.controls.prepaymentAmount.value
+                      "
+                    >
+                      <!--                  Размер отсрочки 2 -->
+                      <div class="form-group" *ngIf="conditionSecondStage()">
+                        <label
+                          >{{
+                            "createOffer.termsPayment.defermentAmount"
+                              | translate
+                          }}
+                          (%)
+                          {{
+                            "createOffer.termsPayment.stage" | translate
+                          }}</label
+                        >
+                        <div class="number-style">
+                          <dx-number-box
+                            dxNumberBoxClear
+                            format="#"
+                            placeholder="00"
+                            formControlName="defermentAmount2"
+                            height="40px"
+                            class="date-roboto-mono"
+                            [min]="0"
+                            [max]="100"
+                            [disabled]="true"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-number-box>
+                        </div>
+                      </div>
+
+                      <!--                  Момент отсрочки 2-->
+                      <div class="form-group" *ngIf="conditionSecondStage()">
+                        <label
+                          >{{
+                            "createOffer.termsPayment.momentDelay" | translate
+                          }}
+                          {{
+                            "createOffer.termsPayment.stage" | translate
+                          }}</label
+                        >
+                        <div>
+                          <dx-select-box
+                            [dataSource]="momentDelayValues"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="momentDelay2"
+                            (onOpened)="this.isEditedTermsPayment = true"
+                            [showClearButton]="false"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+
+                      <!--                  Срок отсрочки 2-->
+                      <div
+                        class="form-group"
+                        *ngIf="
+                          conditionSecondStage() &&
+                          this.termsPaymentForm.controls.momentDelay2.value
+                        "
+                      >
+                        <label
+                          >{{
+                            "createOffer.termsPayment.defermentPeriod"
+                              | translate
+                          }}
+                          {{
+                            "createOffer.termsPayment.stage" | translate
+                          }}</label
+                        >
+                        <div class="number-style">
+                          <dx-number-box
+                            dxNumberBoxClear
+                            format="#"
+                            placeholder="00"
+                            formControlName="defermentPeriod2"
+                            class="date-roboto-mono"
+                            height="40px"
+                            [min]="0"
+                            [max]="999"
+                            (onValueChanged)="getPaymentTermConcatedString()"
+                            valueChangeEvent="input"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-number-box>
+                        </div>
+                        <label class="pb-0 pt-1">
+                          {{ this.momentDelay?.termHint }}</label
+                        >
+                      </div>
+                    </div>
+                    <ng-template #applicableDayCount>
+                      <!--                  Календарные/банковские дни-->
+                      <div class="form-group">
+                        <label>{{
+                          "createOffer.deliveryTime.deliveryType" | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="dayTypePaymentConfig"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="dayTypeId"
+                            [showClearButton]="false"
+                            (onOpened)="this.isEditedTermsPayment = true"
+                            [disabled]="dayType?.length == 1"
+                            (onValueChanged)="
+                              changeDayType($event);
+                              getPaymentTermConcatedString()
+                            "
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+                    </ng-template>
+
+                    <ng-template #disableApplicableDayCount>
+                      <!--               задизебленные Календарные/банковские дни (когда два поля есть)-->
+                      <div class="form-group">
+                        <label>{{
+                          "createOffer.deliveryTime.deliveryType" | translate
+                        }}</label>
+                        <div>
+                          <dx-select-box
+                            [dataSource]="dayTypePaymentConfig"
+                            valueExpr="id"
+                            displayExpr="name"
+                            height="40px"
+                            placeholder="{{ 'filters.selection' | translate }}"
+                            formControlName="dayTypeId"
+                            [showClearButton]="false"
+                            [disabled]="true"
+                          >
+                            <dx-validator>
+                              <dxi-validation-rule
+                                type="required"
+                              ></dxi-validation-rule>
+                            </dx-validator>
+                          </dx-select-box>
+                        </div>
+                      </div>
+                    </ng-template>
+
+                    <div class="stringConcated">
+                      {{
+                        this.paymentTermConcated
+                          ? this.paymentTermConcated
+                          : ("general.automaticallyText" | translate)
+                      }}
+                    </div>
+                  </form>
+                </dx-validation-group>
+              </div>
+            </div>
+
+            <!--            Контрольный срок поставки и оплаты-->
+            <ceit-delivery-payment-deadline
+              [paymentTermConcated]="paymentTermConcated"
+              [deliveryTermConcated]="deliveryTermConcated"
+              [deadlineErrorMess]="deadlineErrorMess"
+              [deadlineDelivery]="deadlineDelivery"
+              [deadlinePayment]="deadlinePayment"
+            >
+            </ceit-delivery-payment-deadline>
+          </div>
+          <ng-container *ngTemplateOutlet="buttons"></ng-container>
+        </div>
+
+        <dx-popup
+          contentTemplate="deleteBasisContent"
+          [(visible)]="deleteBasis || deleteGood"
+          [hideOnOutsideClick]="false"
+          [showTitle]="true"
+          title="{{
+            this.deleteBasis
+              ? ('createOffer.termsDeliveryTime.removingBasis' | translate)
+              : ('createOffer.goodInfo.removingGoods' | translate)
+          }}"
+          width="510"
+          height="auto"
+          maxHeight="900"
+          [showCloseButton]="true"
+          (onHiding)="deleteBasis = false; deleteGood = false"
+        >
+          <dxo-animation
+            [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+          ></dxo-animation>
+          <div
+            *dxTemplate="let data of 'deleteBasisContent'"
+            class="flexContentColumn20"
+          >
+            <div class="flexContentColumn8" *ngIf="this.deleteBasis">
+              <div>
+                {{
+                  "createOffer.termsDeliveryTime.removingBasisText" | translate
+                }}
+              </div>
+            </div>
+            <div *ngIf="deleteGood">
+              <div>
+                {{ "createOffer.goodInfo.removingGoodText" | translate }} '{{
+                  this.goodsList[0].name
+                }}'?
+              </div>
+            </div>
+            <div class="buttonsClass flexContent20">
+              <button
+                class="btn btn-primary submit w-50"
+                (click)="this.deleteBasis ? onDeleteBasis() : OnDelete()"
+              >
+                {{ "btns.delete" | translate }}
+              </button>
+              <!--   -->
+              <button
+                class="btn btn-outline-primary btn-inherit w-50"
+                (click)="deleteBasis = false; deleteGood = false"
+              >
+                {{ "btns.cancel" | translate }}
+              </button>
+            </div>
+          </div>
+        </dx-popup>
+
+        <!-- ШАГ 4 -->
+        <div *ngIf="activeStep == 4" class="stepBody">
+          <div
+            *ngIf="!this.isNotSpecified; else isNotSpecifiedTrue"
+            class="info flexContentColumn8"
+          >
+            <div *ngIf="deliveryBasis.length > 0" class="flexContentColumn24">
+              <div
+                *ngFor="let delivery of deliveryBasis; let i = index"
+                class="accordion"
+              >
+                <dx-accordion
+                  [dataSource]="[delivery]"
+                  [multiple]="true"
+                  [collapsible]="true"
+                  [animationDuration]="300"
+                  id="accordion-container"
+                >
+                  <div *dxTemplate="let basis of 'title'">
+                    <div class="flexContent20">
+                      <div
+                        class="font-s12 l-h16"
+                        [ngClass]="{
+                          flexContentColumn8: basis.coreBasis,
+                          flexContent8: !basis.coreBasis
+                        }"
+                      >
+                        <div *ngIf="basis.coreBasis">
+                          {{
+                            "createOffer.termsDeliveryTime.coreBasis"
+                              | translate
+                          }}
+                        </div>
+                        <div>
+                          {{ basis.concatedCondition
+                          }}
+                        </div>
+                      </div>
+                      <div
+                        class="flexContent16 accordionButton fl-wrap ai-c"
+                        [ngClass]="{ 'h-40px': basis.coreBasis }"
+                      >
+                        <dx-button
+                          (onClick)="
+                            onEditBasis(
+                              $event,
+                              basis,
+                              basis.basis,
+                              basis.enterPlaceName
+                            )
+                          "
+                          [disabled]="
+                            !(
+                              (addBasisValue && openBasis.length == 0) ||
+                              !(addBasisValue && openBasis.length > 0)
+                            )
+                          "
+                        >
+                          <i
+                            [ngStyle]="{
+                              'pointer-events': addBasisValue ? 'none' : 'all'
+                            }"
+                            class="editGood"
+                            [ngClass]="{
+                              disabled: !(
+                                (addBasisValue && openBasis.length == 0) ||
+                                !(addBasisValue && openBasis.length > 0)
+                              )
+                            }"
+                          ></i
+                        ></dx-button>
+                        <dx-button
+                          (onClick)="
+                            $event.event.stopPropagation();
+                            this.deleteBasis = true
+                          "
+                          [disabled]="
+                            !(
+                              (addBasisValue && openBasis.length == 0) ||
+                              !(addBasisValue && openBasis.length > 0)
+                            )
+                          "
+                        >
+                          <i
+                            [ngStyle]="{
+                              'pointer-events': addBasisValue ? 'none' : 'all'
+                            }"
+                            class="deleteGood"
+                            [ngClass]="{
+                              disabled: !(
+                                (addBasisValue && openBasis.length == 0) ||
+                                !(addBasisValue && openBasis.length > 0)
+                              )
+                            }"
+                          ></i>
+                        </dx-button>
+                      </div>
+                    </div>
+                  </div>
+                  <div *dxTemplate="let basis of 'item'">
+                    <!--                  -->
+                    <div *ngIf="openBasis.length == 0" class="basisTable">
+                      <dx-data-grid
+                        #dataGridDeliveryCondition
+                        [dataSource]="basis.goods"
+                        class="deliveryBasisGrid"
+                        [showColumnLines]="true"
+                        [showRowLines]="true"
+                      >
+                        <dxi-column
+                          caption="{{ 'createOffer.good.good' | translate }}"
+                          dataField="name"
+                          cssClass="column"
+                        >
+                        </dxi-column>
+
+                        <dxi-column
+                          caption="{{
+                            'createOffer.good.quantity' | translate
+                          }}"
+                          dataField="volume"
+                          cssClass="column date-roboto-mono "
+                          cellTemplate="quantityTemplate"
+                          alignment="right"
+                        >
+                        </dxi-column>
+                        <div
+                          *dxTemplate="let item of 'quantityTemplate'"
+                          class="flexContent4 jc-end"
+                        >
+                          <div>
+                            {{
+                              item.data.volume.toLocaleString("ru", {
+                                maximumFractionDigits: this.volumePrecision
+                              })
+                            }}
+                          </div>
+                          <div>{{ item.data.units }}</div>
+                        </div>
+
+                        <dxi-column
+                          *ngIf="
+                            demandsModal?.pricingTypeId ==
+                            pricingType?.formulaWithQuotation
+                          "
+                          caption="{{
+                            'createOffer.goodInfo.quotation' | translate
+                          }}"
+                          dataField="quotation"
+                          cssClass="column date-roboto-mono "
+                          cellTemplate="quotationTemplate"
+                          alignment="right"
+                        >
+                        </dxi-column>
+                        <div
+                          *dxTemplate="let item of 'quotationTemplate'"
+                          class="flexContent4 jc-end"
+                        >
+                          <div>
+                            {{
+                              getNumber(item.data.quotation).toLocaleString(
+                                "ru",
+                                {
+                                  minimumFractionDigits:
+                                    this.quoteCurrencyPrecision
+                                }
+                              )
+                            }}
+                          </div>
+                          <div>{{ item.data.quoteCurrency.name }}</div>
+                        </div>
+
+                        <dxi-column
+                          *ngIf="
+                            demandsModal?.pricingTypeId != pricingType?.price
+                          "
+                          caption="{{
+                            'createOffer.goodInfo.amendment' | translate
+                          }}"
+                          dataField="amendment"
+                          cssClass="column date-roboto-mono "
+                          cellTemplate="amendmentTemplate"
+                          alignment="right"
+                        >
+                        </dxi-column>
+                        <div
+                          *dxTemplate="let item of 'amendmentTemplate'"
+                          class="flexContent4 jc-end"
+                        >
+                          <div>
+                            {{
+                              getNumber(item.data.amendment).toLocaleString(
+                                "ru",
+                                {
+                                  minimumFractionDigits: this.currencyPrecision
+                                }
+                              )
+                            }}
+                          </div>
+                          <div>
+                            {{
+                              item.data.priceAdjustment == 1
+                                ? "%"
+                                : item.data.currency
+                            }}
+                          </div>
+                        </div>
+
+                        <dxi-column
+                          *ngIf="
+                            demandsModal?.pricingTypeId !=
+                            pricingType?.formulaWithoutQuotation
+                          "
+                          caption="{{
+                            'createOffer.good.priceWithoutVAT' | translate
+                          }}"
+                          dataField="cost"
+                          cssClass="column date-roboto-mono "
+                          cellTemplate="priceWithoutVATTemplate"
+                          alignment="right"
+                        >
+                        </dxi-column>
+                        <div
+                          *dxTemplate="let item of 'priceWithoutVATTemplate'"
+                          class="flexContent4 jc-end"
+                          [ngClass]="{ errorValue: item.data?.error }"
+                        >
+                          <div>
+                            {{
+                              getNumber(item.data?.cost).toLocaleString("ru", {
+                                minimumFractionDigits: this.currencyPrecision
+                              })
+                            }}
+                          </div>
+                          <div>{{ item.data.currency }}</div>
+                          <div
+                            class="errorIconThin"
+                            id="error{{ item.data.id }}_{{ i }}"
+                            *ngIf="item.data?.error"
+                          >
+                            <dx-tooltip
+                              target="#error{{ item.data.id }}_{{ i }}"
+                              [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                              hideEvent="mouseleave"
+                            >
+                              <div
+                                *dxTemplate="let data = data; of: 'content'"
+                                class="whiteTextColor text-align-left"
+                              >
+                                {{
+                                  "createOffer.termsDeliveryTime.priceQuoteTooltip"
+                                    | translate
+                                }}
+                                {{ item.data.quotation }}
+                                {{ item.data.currency }}
+                              </div>
+                            </dx-tooltip>
+                          </div>
+                        </div>
+
+                        <dxi-column
+                          *ngIf="
+                            demandsModal?.pricingTypeId !=
+                            pricingType?.formulaWithoutQuotation
+                          "
+                          caption="{{
+                            'createOffer.termsDeliveryTime.costVAT' | translate
+                          }}"
+                          dataField="costVAT"
+                          cssClass="column date-roboto-mono"
+                          cellTemplate="costVATTemplate"
+                          alignment="right"
+                        >
+                        </dxi-column>
+                        <div
+                          *dxTemplate="let item of 'costVATTemplate'"
+                          class="flexContent4 jc-end"
+                        >
+                          <div>
+                            {{
+                              getNumber(item.data?.costVAT).toLocaleString(
+                                "ru",
+                                {
+                                  minimumFractionDigits: this.currencyPrecision,
+                                  maximumFractionDigits: this.currencyPrecision
+                                }
+                              )
+                            }}
+                          </div>
+                          <div>{{ item.data.currency }}</div>
+                        </div>
+
+                        <dxo-summary>
+                          <dxi-total-item
+                            column="costVAT"
+                            cssClass="blackColor date-roboto-mono d-flex jc-end"
+                            summaryType="sum"
+                            displayFormat="{{
+                              'createOffer.termsDeliveryTime.totalBased'
+                                | translate
+                            }}: {0} {{ this.goodsList[0].currency.name }}"
+                            alignment="right footer"
+                            showInColumn="costVAT"
+                          >
+                            <dxo-value-format
+                              type="fixedPoint"
+                              precision="{{ this.currencyPrecision }}"
+                            >
+                            </dxo-value-format>
+                          </dxi-total-item>
+                        </dxo-summary>
+                      </dx-data-grid>
+                    </div>
+                    <div *ngIf="addBasisValue && openBasis[0] == basis">
+                      <ng-container *ngTemplateOutlet="addBasis"></ng-container>
+                    </div>
+                  </div>
+                </dx-accordion>
+              </div>
+            </div>
+
+            <ng-template #addBasis>
+              <basis-direct-info
+                [deliveryBasis]="deliveryBasis"
+                [deliveryConditions]="deliveryConditions"
+                [goodsList]="goodsList"
+                [vatValue]="totalForm.controls.vat.value"
+                [basisValue]="openBasis ? openBasis : null"
+                [isMinPriceOnBasicBasis]="isMinPriceOnBasicBasis"
+                [pricingType]="this.demandsModal.pricingTypeId"
+                [createOffer]="this.createOffer"
+                [sessionInfo]="{
+                  sectionId: this.sectionId,
+                  sessionId: this.sessionId,
+                  idMarketType: this.idMarketType
+                }"
+                [paymentTypeId]="
+                  this.termsPaymentForm.controls.termsPayment?.value
+                "
+                (saveBasis)="saveBasis($event)"
+                (deleteBasis)="this.deleteBasis = true"
+              >
+              </basis-direct-info>
+            </ng-template>
+
+            <div class="blockWithBorder" *ngIf="deliveryBasis.length == 0">
+              <div
+                class="flexContentColumn8 ai-c"
+                *ngIf="
+                  !(addBasisValue && openBasis.length == 0) ||
+                  (addBasisValue && openBasis.length > 0)
+                "
+                [ngClass]="{
+                  disabled: !(
+                    (addBasisValue && openBasis.length == 0) ||
+                    !(addBasisValue && openBasis.length > 0)
+                  )
+                }"
+              >
+                <div class="noData" *ngIf="deliveryBasis.length == 0">
+                  {{ "createOffer.termsDeliveryTime.noDataText" | translate }}
+                </div>
+                <button
+                  class="btn btn-withoutBorder"
+                  style="vertical-align: top"
+                  aria-disabled="true"
+                  (click)="onCreateBasis()"
+                >
+                  <span class="addProduct"></span
+                  >{{
+                    "createOffer.termsDeliveryTime.addDeliveryTime" | translate
+                  }}
+                </button>
+              </div>
+
+              <div *ngIf="addBasisValue && openBasis.length == 0">
+                <ng-container *ngTemplateOutlet="addBasis"></ng-container>
+              </div>
+            </div>
+
+            <ng-container *ngTemplateOutlet="buttons"></ng-container>
+          </div>
+
+          <ng-template #isNotSpecifiedTrue>
+            <div class="info flexContentColumn8">
+              <div class="blockWithBorder noData d-flex jc-c">
+                {{
+                  "createOffer.termsDeliveryTime.isNotSpecifiedMess" | translate
+                }}
+              </div>
+            </div>
+
+            <ng-container *ngTemplateOutlet="buttons"></ng-container>
+          </ng-template>
+        </div>
+
+        <delivery-schedule-direct
+          *ngIf="deliverySchedulePopup"
+          [goodsList]="goodsList"
+          [deliverySchedule]="deliverySchedule"
+          [schedule]="this.schedule"
+          [deliveryTermSchedule]="deliveryTermSchedule"
+          [typeDeliverySchedule]="deliveryTermForm.controls.deliveryType.value"
+          [deliveryStartDate]="this.deliveryTermForm.controls.startDate.value"
+          [deliveryPeriodInDays]="
+            this.deliveryTermForm.controls.deliveryType.value == 3
+              ? this.deliveryTermForm.controls.endDate.value
+              : this.deliveryTermForm.controls.deliveryTerm.value
+          "
+          [isDifferentPeriod]="isDifferentPeriod"
+          (save)="OnSaveDeliverySchedule($event)"
+        >
+        </delivery-schedule-direct>
+
+        <!-- ШАГ 5 -->
+        <div *ngIf="activeStep == 5" class="stepBody">
+          <div class="info flexContentColumn8">
+            <div class="blockWithBorder">
+              <form
+                [formGroup]="commonParametersForm"
+                class="flexContentColumn16"
+              >
+                <div class="form-group" *ngIf="domesticCondition()">
+                  <div class="flexContent20">
+                    <label
+                      >{{
+                        "createOffer.commonParameters.additionalTerms"
+                          | translate
+                      }}
+                      <span *ngIf="foreignCondition()"
+                        >({{ "general.domesticMarket" | translate }})</span
+                      ></label
+                    >
+                    <div>
+                      {{
+                        this.commonParametersForm.controls
+                          .additionalTermsDomestic?.value
+                          ? this.commonParametersForm.controls
+                              .additionalTermsDomestic?.value.length
+                          : 0
+                      }}
+                      /{{ maxLengthTextArea }}
+                    </div>
+                  </div>
+                  <div class="flexContentColumn4">
+                    <dx-text-area
+                      height="124px"
+                      [maxLength]="maxLengthTextArea"
+                      formControlName="additionalTermsDomestic"
+                      valueChangeEvent="keyup"
+                    >
+                    </dx-text-area>
+                    <div class="optinalField">
+                      {{ "general.optionalField" | translate }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group" *ngIf="foreignCondition()">
+                  <div class="flexContent20">
+                    <label
+                      >{{
+                        "createOffer.commonParameters.additionalTerms"
+                          | translate
+                      }}
+                      <span *ngIf="domesticCondition()"
+                        >({{ "general.foreignMarket" | translate }})</span
+                      ></label
+                    >
+                    <div>
+                      {{
+                        this.commonParametersForm.controls
+                          .additionalTermsForeign?.value
+                          ? this.commonParametersForm.controls
+                              .additionalTermsForeign?.value.length
+                          : 0
+                      }}
+                      /{{ maxLengthTextArea }}
+                    </div>
+                  </div>
+                  <div class="flexContentColumn4">
+                    <dx-text-area
+                      height="124px"
+                      [maxLength]="maxLengthTextArea"
+                      formControlName="additionalTermsForeign"
+                      valueChangeEvent="keyup"
+                    >
+                    </dx-text-area>
+                    <div class="optinalField">
+                      {{ "general.optionalField" | translate }}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="form-group"
+                  *ngIf="this.modelsResult?.isAllowedFilesPublic"
+                >
+                  <label
+                    >{{ "general.attach" | translate }}
+                    {{
+                      "createOffer.commonParameters.commonFiles" | translate
+                    }}</label
+                  >
+                  <div class="flexContentColumn4">
+                    <div
+                      class="upload flexContentColumn8"
+                      id="idCommon"
+                      appFileDragNDrop
+                      (fileDropped)="onFileAddDrag($event, 'commonFiles')"
+                    >
+                      <span class="fieldfile flexContentColumn4">
+                        <label class="p-0 l-h20 font-s14" for="fileUpload"
+                          ><a>{{ "general.addFile" | translate }}</a></label
+                        >
+                        <input
+                          (change)="onFileAdd($event, 'commonFiles')"
+                          id="fileUpload"
+                          type="file"
+                          multiple
+                          accept="*"
+                        />
+                        <div
+                          class="text-gray_1 font-s12 l-h16 text-align-center"
+                        >
+                          {{
+                            "createOffer.commonParameters.allowedDocs"
+                              | translate
+                          }}
+                          {{ extensions }}
+                          {{
+                            "createOffer.commonParameters.maxSize" | translate
+                          }}
+                        </div>
+                      </span>
+
+                      <div *ngIf="commonFiles.length > 0">
+                        <div
+                          *ngFor="let file of commonFiles"
+                          class="files flexContent16 w-100 jc-sb ai-bl"
+                        >
+                          <div>
+                            <div
+                              id="file{{ file.idDocument }}"
+                              class="fileName"
+                              [ngClass]="{
+                                colorError:
+                                  maxFileSize(file) ||
+                                  fileZeroSize(file) ||
+                                  fileNotValidType(file) ||
+                                  hasDoubleExtension(file)
+                              }"
+                              (click)="downloadFile(file)"
+                            >
+                              {{ file.filename }}
+                            </div>
+                            <dx-tooltip
+                              *ngIf="
+                                maxFileSize(file) ||
+                                fileZeroSize(file) ||
+                                fileNotValidType(file) ||
+                                hasDoubleExtension(file)
+                              "
+                              target="#file{{ file.idDocument }}"
+                              [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                              hideEvent="mouseleave"
+                            >
+                              <div *dxTemplate="let data = data; of: 'content'">
+                                <div *ngIf="maxFileSize(file)">
+                                  {{ "errors.maximumSizeFile" | translate }}
+                                </div>
+                                <div *ngIf="fileZeroSize(file)">
+                                  {{ "errors.fileZeroSize" | translate }}
+                                </div>
+                                <div *ngIf="fileNotValidType(file)">
+                                  {{ "errors.fileNotValidType" | translate }}
+                                </div>
+                                <div *ngIf="hasDoubleExtension(file)">
+                                  {{ "errors.hasDoubleExtension" | translate }}
+                                </div>
+                              </div>
+                            </dx-tooltip>
+                          </div>
+
+                          <div class="flexContent16">
+                            <div class="colorGrey" *ngIf="!file?.idDemandOffer">
+                              {{
+                                file.idDemandOffer
+                                  ? file.size
+                                  : niceBytes(file.size)
+                              }}
+                            </div>
+                            <i
+                              class="close"
+                              (click)="deleteFile(file, 'commonFiles')"
+                            ></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="optinalField">
+                      {{ "general.optionalField" | translate }}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="form-group"
+                  *ngIf="this.modelsResult?.isAllowedFilesPrivate"
+                >
+                  <label
+                    >{{ "general.attach" | translate }}
+                    {{
+                      "createOffer.commonParameters.hiddenFiles" | translate
+                    }}</label
+                  >
+                  <div class="flexContentColumn4">
+                    <div
+                      class="upload flexContentColumn8"
+                      id="idHidden"
+                      appFileDragNDrop
+                      (fileDropped)="onFileAddDrag($event, 'hiddenFiles')"
+                    >
+                      <span class="fieldfile flexContentColumn4">
+                        <label class="p-0 l-h20 font-s14" for="hiddenFiles"
+                          ><a>{{ "general.addFile" | translate }}</a></label
+                        >
+                        <input
+                          (change)="onFileAdd($event, 'hiddenFiles')"
+                          id="hiddenFiles"
+                          type="file"
+                          multiple
+                          accept="*"
+                        />
+                        <div
+                          class="text-gray_1 font-s12 l-h16 text-align-center"
+                        >
+                          {{
+                            "createOffer.commonParameters.allowedDocs"
+                              | translate
+                          }}
+                          {{ extensions }}
+                          {{
+                            "createOffer.commonParameters.maxSize" | translate
+                          }}
+                        </div>
+                      </span>
+
+                      <div *ngIf="hiddenFiles.length > 0">
+                        <div
+                          *ngFor="let file of hiddenFiles"
+                          class="files flexContent16 w-100 jc-sb ai-bl"
+                          id="idHiddenFilles"
+                          [ngClass]="{
+                            colorError:
+                              maxFileSize(file) ||
+                              fileZeroSize(file) ||
+                              fileNotValidType(file) ||
+                              hasDoubleExtension(file)
+                          }"
+                        >
+                          <div>
+                            <div
+                              id="file{{ file.idDocument }}"
+                              class="fileName"
+                              [ngClass]="{
+                                colorError:
+                                  maxFileSize(file) ||
+                                  fileZeroSize(file) ||
+                                  fileNotValidType(file) ||
+                                  hasDoubleExtension(file)
+                              }"
+                              (click)="downloadFile(file)"
+                            >
+                              {{ file.filename }}
+                            </div>
+                            <dx-tooltip
+                              *ngIf="
+                                maxFileSize(file) ||
+                                fileZeroSize(file) ||
+                                fileNotValidType(file) ||
+                                hasDoubleExtension(file)
+                              "
+                              target="#file{{ file.idDocument }}"
+                              [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                              hideEvent="mouseleave"
+                            >
+                              <div *dxTemplate="let data = data; of: 'content'">
+                                <div *ngIf="maxFileSize(file)">
+                                  {{ "errors.maximumSizeFile" | translate }}
+                                </div>
+                                <div *ngIf="fileZeroSize(file)">
+                                  {{ "errors.fileZeroSize" | translate }}
+                                </div>
+                                <div *ngIf="fileNotValidType(file)">
+                                  {{ "errors.fileNotValidType" | translate }}
+                                </div>
+                                <div *ngIf="hasDoubleExtension(file)">
+                                  {{ "errors.hasDoubleExtension" | translate }}
+                                </div>
+                              </div>
+                            </dx-tooltip>
+                          </div>
+
+                          <div class="flexContent16">
+                            <div class="colorGrey" *ngIf="!file?.idDemandOffer">
+                              {{
+                                file.idDemandOffer ? file : niceBytes(file.size)
+                              }}
+                            </div>
+                            <i
+                              class="close"
+                              (click)="deleteFile(file, 'hiddenFiles')"
+                            ></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="optinalField">
+                      {{ "general.optionalField" | translate }}
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <ng-container *ngTemplateOutlet="buttons"></ng-container>
+        </div>
+
+        <!-- ШАГ 6-->
+        <div *ngIf="activeStep == 6" class="stepBody">
+          <div class="info flexContentColumn8">
+            <direct-preview
+              [goodsList]="this.goodsList"
+              [deliveryBasis]="this.deliveryBasis"
+              [isPriceRangeWarning]="this.isPriceRangeWarning"
+              [paymentTermConcated]="this.paymentTermConcated"
+              [deliveryTermConcated]="deliveryTermConcated"
+              [commonParameters]="this.commonParametersForm.value"
+              [modelsResult]="this.modelsResult"
+              [commonFiles]="this.commonFiles"
+              [hiddenFiles]="this.hiddenFiles"
+              [demandsModal]="this.demandsModal"
+              [choosenMarketType]="this.choosenMarketType"
+              [sectionName]="this.sectionName"
+              [direction]="this.direction"
+              [currentStageDateEnd]="this.currentStageDateEnd"
+              [participant]="
+                this.generalInfoStep.get('participantSeller').value
+              "
+              [contractType]="
+                this.generalInfoStep.get('participantSeller').value ==
+                role.broker
+                  ? contractTypeChooseSeller
+                  : null
+              "
+              [brokerClientChoose]="this.brokerClientChooseSeller"
+              [listBranchChoose]="this.listBranchChooseSeller"
+              [schedule]="this.schedule"
+              [deliveryTermSchedule]="this.deliveryTermScheduleChoose"
+              [delivScope]="this.delivScope"
+              [isNotSpecified]="this.isNotSpecified"
+              [currencyPrecision]="this.currencyPrecision"
+              [quoteCurrencyPrecision]="this.quoteCurrencyPrecision"
+              [volumePrecision]="this.volumePrecision"
+              [firmName]="this.idOffer ? this.offerGeneral?.firmName : null"
+              [UserRole]="UserRoleSeller"
+              [brokerClient]="this.brokerClientSeller"
+              [consignees]="UserRoleSeller == role.worker
+          ? null
+          : generalInfoStep.controls.brokerClientSeller.value"
+              (activeStep)="activeStep = $event"
+              (delivScopeResult)="delivScope = $event"
+            >
+            </direct-preview>
+            <!--  [generalInfo]="this.generalInfoStep.value"(save)="OnSaveDeliveryScope($event)"-->
+
+            <!--            *ngIf="previewVisible"-->
+          </div>
+          <ng-container *ngTemplateOutlet="buttons"></ng-container>
+        </div>
+      </div>
+      <!-- фиксированный блок Итого по заявке -->
+      <div class="fixidBlock flexContentColumn16">
+        <div class="title">
+          {{ "createOffer.total.totalTitle" | translate }}
+        </div>
+        <form [formGroup]="totalForm" class="flexContentColumn16" id="total">
+          <div
+            class="form-group"
+            id="2"
+            *ngIf="
+              demandsModal?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            <label>{{ "createOffer.total.costNoVAT" | translate }}</label>
+            <div class="number-style">
+              <dx-text-box
+                [disabled]="true"
+                placeholder="0,00"
+                class="date-roboto-mono"
+                formControlName="costWithoutVat"
+              >
+              </dx-text-box>
+            </div>
+          </div>
+
+          <div class="form-group" id="1">
+            <label>{{ "createOffer.total.VAT" | translate }} (%)</label>
+            <div class="number-style">
+              <dx-text-box
+                [disabled]="true"
+                placeholder="0"
+                class="date-roboto-mono"
+                formControlName="vat"
+              >
+              </dx-text-box>
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            id="3"
+            *ngIf="
+              demandsModal?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            <label>{{ "createOffer.total.amountVAT" | translate }}</label>
+            <div class="number-style">
+              <dx-text-box
+                [disabled]="true"
+                placeholder="0,00"
+                class="date-roboto-mono"
+                formControlName="amountVAT"
+              >
+              </dx-text-box>
+            </div>
+          </div>
+
+          <div
+            class="form-group"
+            id="4"
+            *ngIf="
+              demandsModal?.pricingTypeId !=
+              pricingType?.formulaWithoutQuotation
+            "
+          >
+            <label>{{ "createOffer.total.costVAT" | translate }}</label>
+            <div class="number-style">
+              <dx-text-box
+                [disabled]="true"
+                placeholder="0,00"
+                class="date-roboto-mono"
+                formControlName="costVat"
+              >
+              </dx-text-box>
+            </div>
+          </div>
+
+          <div class="form-group" id="5">
+            <label>{{ "general.quantity" | translate }}</label>
+
+            <div class="number-style">
+              <dx-text-box
+                [disabled]="true"
+                placeholder="0"
+                formControlName="quantity"
+                class="date-roboto-mono"
+              >
+              </dx-text-box>
+            </div>
+          </div>
+
+          <div
+            *ngIf="
+              ((this.goodsList?.length > 0 &&
+                this.generalInfoStep.controls.contractTypeSeller?.value == 20 &&
+                this.generalInfoStep.controls.brokerClientSeller?.value
+                  ?.length > 1) ||
+                (idOffer && offerDeliveryScopes.length > 0)) &&
+              this.activeStep != 6
+            "
+            class="w-100 mt-1"
+          >
+            <button
+              class="btn btn-outline-primary w-100"
+              (click)="this.delivScopePopup = true"
+            >
+              {{ "createOffer.total.allocateVolumes" | translate }}
+            </button>
+          </div>
+        </form>
+        <dx-tooltip
+          target="#target"
+          [showEvent]="{ name: 'mouseenter', delay: 500 }"
+          hideEvent="mouseleave"
+        >
+          <div *dxTemplate="let data = data; of: 'content'">
+            {{ "createOffer.total.tooltipText" | translate }}
+          </div>
+        </dx-tooltip>
+      </div>
+    </div>
+
+    <direct-delivery-scope
+      *ngIf="delivScopePopup"
+      [consignees]="
+        this.UserRoleSeller == role.worker
+          ? null
+          : this.generalInfoStep.controls.brokerClientSeller.value
+      "
+      [brokerClient]="
+        this.UserRoleSeller == role.worker ? null : this.brokerClientSeller
+      "
+      [delivScope]="this.delivScope"
+      [goodsList]="this.goodsList.length > 0 ? this.goodsList : this.offerGoods"
+      [direction]="direction"
+      [userRole]="this.UserRoleSeller"
+      (save)="OnSaveDeliveryScope($event)"
+    >
+    </direct-delivery-scope>
+
+    <!-- кнопки назад/далее -->
+    <ng-template #buttons>
+      <div
+        class="flexContent24 buttonsClass jc-sb mt-3"
+        [ngClass]="{ 'jc-end': activeStep == 1 }"
+      >
+        <button
+          *ngIf="activeStep != 1"
+          id="cancelButton"
+          class="btn btn-withoutBorder"
+          (click)="goToPrevStep()"
+        >
+          <div class="flexContent8 ai-c">
+            <i class="preButton"></i>{{ "btns.back" | translate }}
+          </div>
+        </button>
+        <dx-button (onClick)="goToNextStep()">
+          <button
+            *ngIf="activeStep != 6"
+            id="nextButton"
+            class="btn btn-primary submit w-155px"
+          >
+            <div class="flexContent8 ai-c">
+              {{ "btns.next" | translate }} <i class="nextButton"></i>
+            </div>
+          </button>
+        </dx-button>
+        <div *ngIf="activeStep == 6" class="flexContent24">
+          <!--  <dx-button (onClick)="checkOffer($event)">
+              <button class="btn btn-outline-primary w-140px">{{'btns.checkOffer' | translate}}</button>
+            </dx-button>-->
+          <dx-button (onClick)="checkOffer($event, 'submit')">
+            <button class="btn btn-primary submit w-120px">
+              {{ "btns.apply" | translate }}
+            </button>
+          </dx-button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</main>
+
+<dx-popup
+  id="error"
+  contentTemplate="errorContent"
+  [(visible)]="error"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{
+    errorState == 1
+      ? ('errors.error' | translate)
+      : ('errors.message' | translate)
+  }}"
+  maxWidth="450px"
+  height="auto"
+  (onHiding)="editOffer()"
+  [showCloseButton]="true"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'errorContent'">
+    <div class="borderRed errorPopup" *ngIf="errorState == 1">
+      <i class="errorIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+
+    <div class="borderOrange errorPopup" *ngIf="errorState == 0">
+      <i class="unavailableIcon"></i>
+      <div [innerHTML]="this.messageError"></div>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  id="checkingResult"
+  contentTemplate="checkingContent"
+  [(visible)]="checkOfferError"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'createOffer.checkingResult' | translate }}"
+  maxWidth="660px"
+  height="auto"
+  [showCloseButton]="true"
+  [shading]="false"
+  (onHiding)="checkOfferError = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'checkingContent'" class="message">
+    <div *ngIf="checkButtons" class="flexContent8 jc-end">
+      <dx-button (onClick)="checkOffer($event)">
+        <button class="btn btn-withoutBorder">
+          <div class="flexContent8 ai-c">
+            <i class="update"></i>{{ "sessions-schedule.update" | translate }}
+          </div>
+        </button>
+      </dx-button>
+    </div>
+    <div *ngIf="this.checkOfferMessages.length > 0; else correct">
+      <div
+        *ngFor="let item of checkOfferMessages; let i = index"
+        class="message_info"
+      >
+        <span *ngIf="item.messageType == 2" class="flexContent4 ai-c"
+          ><i class="unavailableIcon"></i>{{ item.messageText }}</span
+        >
+        <!--     todo сообщение типа предупреждения узнать тип-->
+        <span *ngIf="item.messageType == 1" class="flexContent4 ai-c"
+          ><i class="errorIcon"></i>{{ item.messageText }}</span
+        >
+      </div>
+    </div>
+    <ng-template #correct>
+      <div>{{ "createOffer.correctForm" | translate }}</div>
+    </ng-template>
+
+    <div
+      class="flexContent24 buttonsClass mt-3"
+      [ngClass]="{ 'jc-end': checkOfferError, 'jc-sb': !checkOfferError }"
+    >
+      <!--  ++перенести две кнопки -->
+      <button
+        *ngIf="checkButtons"
+        class="btn btn-primary submit"
+        (click)="checkOfferError = false"
+      >
+        <div class="flexContent8 ai-c">
+          {{ "btns.returnToFilling" | translate }}
+        </div>
+      </button>
+      <button
+        *ngIf="!checkButtons"
+        class="btn btn-primary submit w-50"
+        (click)="submitOffer($event)"
+      >
+        <div class="flexContent8 ai-c">{{ "btns.apply" | translate }}</div>
+      </button>
+      <button
+        *ngIf="!checkButtons"
+        class="btn btn-outline-primary w-50"
+        (click)="checkOfferError = false"
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>
+
+<dx-popup
+  id="popupForm"
+  contentTemplate="popupContent"
+  [(visible)]="popupForm"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ popupTitle }}"
+  maxWidth="{{isAdjustedPriceResetError ? '660px' : '450px'}}"
+  height="auto"
+  class="visible1525"
+  [showCloseButton]="true"
+  (onHiding)="popupForm = false"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'popupContent'">
+    <div>
+      {{ popupMessage }}
+    </div>
+
+    <div class="flexContent24 buttonsClass jc-sb mt-3" id="popupFormButtons"
+         *ngIf="!isAdjustedPriceResetError; else adjustedPriceResetError">
+      <button
+        *ngIf="popupButton"
+        class="btn btn-primary submit w-50"
+        (click)="cancelForm()"
+      >
+        <div class="flexContent8 ai-c" id="true">
+          {{
+            idOffer
+              ? ("btns.cancelEdit" | translate)
+              : ("btns.cancelFilling" | translate)
+          }}
+        </div>
+      </button>
+      <button
+        *ngIf="!popupButton"
+        class="btn btn-primary submit w-50"
+        (click)="clearOfferForGood()"
+      >
+        <div class="flexContent8 ai-c">{{ "btns.continue" | translate }}</div>
+      </button>
+      <button
+        class="btn btn-outline-primary w-50"
+        id="false"
+        (click)="popupForm = false"
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+
+    <ng-template #adjustedPriceResetError>
+      <div class="flexContent24 buttonsClass jc-sb mt-3">
+        <button
+          class="btn btn-primary submit w-50"
+          (click)="resetAdjustedPrice()"
+        >
+          <div class="flexContent8 ai-c">{{ "btns.resetAdjustablePrice" | translate }}</div>
+        </button>
+        <button
+          class="btn btn-outline-primary w-50"
+          (click)="popupForm = false; isAdjustedPriceResetError = false;"
+        >
+          {{ "btns.editDeliveryTimeAndSchedule" | translate }}
+        </button>
+      </div>
+    </ng-template>
+  </div>
+</dx-popup>
+
+<dx-toast
+  [(visible)]="isVisibleToast"
+  [type]="'info'"
+  [maxWidth]="500"
+  [width]="'fit-content'"
+  [maxHeight]="80"
+  [displayTime]="100000"
+>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+  <div *dxTemplate="let data of 'content'" class="w-fit-cnt">
+    <div [innerHTML]="toastMessage" class="l-h20"></div>
+  </div>
+</dx-toast>
+
+<dx-popup
+  id="submit"
+  contentTemplate="submitContent"
+  [(visible)]="isVisible"
+  [hideOnOutsideClick]="false"
+  [showTitle]="true"
+  title="{{ 'createOffer.filingApplication' | translate }}"
+  maxWidth="550px"
+  height="auto"
+  [showCloseButton]="true"
+  (onHidden)="closeSubmitPopup()"
+>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'submitContent'">
+    <div class="borderGreen resultMessage successMessage">
+      <span class="message">{{ message }}</span>
+    </div>
+
+    <div class="flexContent24 buttonsClass mt-3 jc-end">
+      <button class="btn btn-primary submit w-50" (click)="closeSubmitPopup()">
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

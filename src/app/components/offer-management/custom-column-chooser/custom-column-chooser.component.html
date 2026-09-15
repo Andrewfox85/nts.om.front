@@ -1,0 +1,118 @@
+<!-- eslint-disable -->
+<div *ngIf="columnsData" class="content-wrapper">
+  <div class="flexContent16">
+    <div class="list-header">
+      <dx-check-box
+        [text]="columnsData[CATEGORY_TYPE.ABOUT_OFFER].columnNamePath | translate"
+        [value]="areAllCheckedForGroups([columnsData[CATEGORY_TYPE.ABOUT_OFFER][COLUMN_TYPE.STATIC]])"
+        (onValueChanged)="toggleAllForGroups($event, [columnsData[CATEGORY_TYPE.ABOUT_OFFER][COLUMN_TYPE.STATIC]])"
+      ></dx-check-box>
+    </div>
+    <div class="list-header">
+      <dx-check-box
+        [text]="columnsData[CATEGORY_TYPE.GOOD].columnNamePath | translate"
+        [value]="areAllCheckedForGroups([
+              columnsData[CATEGORY_TYPE.GOOD][COLUMN_TYPE.STATIC],
+              columnsData[CATEGORY_TYPE.GOOD][COLUMN_TYPE.DYNAMIC]
+            ])"
+        (onValueChanged)="toggleAllForGroups($event, [
+              columnsData[CATEGORY_TYPE.GOOD][COLUMN_TYPE.STATIC],
+              columnsData[CATEGORY_TYPE.GOOD][COLUMN_TYPE.DYNAMIC]
+            ])"
+      ></dx-check-box>
+    </div>
+    <div class="list-header">
+      <dx-check-box
+        [text]="columnsData[CATEGORY_TYPE.ADDITIONAL_FIELD].columnNamePath | translate"
+        [value]="areAllCheckedForGroups([
+              columnsData[CATEGORY_TYPE.ADDITIONAL_FIELD][COLUMN_TYPE.STATIC],
+              columnsData[CATEGORY_TYPE.ADDITIONAL_FIELD][COLUMN_TYPE.DYNAMIC]
+            ])"
+        (onValueChanged)="toggleAllForGroups($event, [
+              columnsData[CATEGORY_TYPE.ADDITIONAL_FIELD][COLUMN_TYPE.STATIC],
+              columnsData[CATEGORY_TYPE.ADDITIONAL_FIELD][COLUMN_TYPE.DYNAMIC]
+            ])"
+      ></dx-check-box>
+    </div>
+    <div class="list-header">
+      <dx-check-box
+        [text]="columnsData[CATEGORY_TYPE.GENERAL_FIELD].columnNamePath | translate"
+        [value]="areAllGeneralFieldsChecked()"
+        (onValueChanged)="toggleAllGeneralFields($event)"
+      ></dx-check-box>
+    </div>
+  </div>
+  <dx-scroll-view #scrollViewRef>
+    <div class="flexContent16">
+      <div class="column-list">
+        <div class="column-item"
+             *ngFor="let item of sortedAboutOfferStatic; trackBy: trackByColumnId">
+          <dx-check-box [text]="item.caption | translate" [(value)]="item.isChecked"></dx-check-box>
+        </div>
+      </div>
+      <div class="column-list">
+        <div class="column-item"
+             *ngFor="let item of sortedGoodStatic; trackBy: trackByColumnId">
+          <dx-check-box [text]="item.caption | translate" [(value)]="item.isChecked"></dx-check-box>
+        </div>
+        <div class="dynamic-data">
+          <div class="column-item"
+               *ngFor="let item of sortedGoodDynamic; trackBy: trackByColumnId">
+            <dx-check-box [text]="item.caption | translate" [(value)]="item.isChecked"
+                          [elementAttr]="{ class: 'column-name-text' }"></dx-check-box>
+          </div>
+        </div>
+      </div>
+      <div class="column-list">
+        <div class="column-item"
+             *ngFor="let item of sortedAdditionalFieldDynamic; trackBy: trackByColumnId">
+          <dx-check-box [text]="item.caption | translate" [(value)]="item.isChecked"></dx-check-box>
+        </div>
+        <div class="column-item"
+             *ngFor="let item of sortedAdditionalFieldStatic; trackBy: trackByColumnId">
+          <dx-check-box [text]="item.caption | translate" [(value)]="item.isChecked"></dx-check-box>
+        </div>
+      </div>
+      <div class="column-list">
+        <div class="column-item"
+             *ngFor="let item of sortedGeneralFieldStatic; trackBy: trackByColumnId">
+          <dx-check-box [text]="item.caption | translate" [(value)]="item.isChecked"
+                        (onValueChanged)="selectAllFiles($event, item)"></dx-check-box>
+          <ng-container *ngIf="item.children">
+            <div class="child-checkbox-wrapper">
+              <div class="column-item" *ngFor="let child of sortedGeneralFieldChildren(item); trackBy: trackByColumnId">
+                <dx-check-box [text]="child.caption | translate" [(value)]="child.isChecked"
+                              (onValueChanged)="selectSpecificFiles($event, item)"></dx-check-box>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </dx-scroll-view>
+  <div class="column-chooser-action-buttons flexContent16">
+    <button
+      type="button"
+      class="btn reset-button"
+      (click)="resetTable.emit()"
+    >
+      {{ "tableSettings.resetTable" | translate }}
+    </button>
+    <div class="action-buttons flexContent16">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="applyColumnChanges.emit(columnsData)"
+      >
+        {{ "btns.save" | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="closeDialog.emit()"
+      >
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</div>

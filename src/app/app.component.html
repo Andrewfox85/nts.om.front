@@ -1,0 +1,17 @@
+<app-header></app-header>
+<app-sidebar></app-sidebar>
+<main>
+  <div class="warning" *ngIf="this.message?.length > 0">
+    <div class="resultMessage errorMessage borderRed h-ft">
+                    <span class="message">
+                        <i class="errorIcon"></i>
+                      <span [innerHTML]="this.message"></span>
+                    </span>
+    </div>
+  </div>
+    <router-outlet></router-outlet>
+</main>
+<app-footer></app-footer>
+<error-popup></error-popup>
+<loader-panel></loader-panel>
+<ceit-loading-page></ceit-loading-page>

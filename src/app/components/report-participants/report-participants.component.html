@@ -1,0 +1,304 @@
+<!-- eslint-disable -->
+<main class="offer-management">
+  <div class="main_component">
+    <div class="head flexContentColumn8" id="head">
+      <h1>{{ "report-participants.reportParticipants" | translate }}</h1>
+      <div class="subtitle">
+        {{ "filters.session" | translate }}
+        <div class="item date-roboto-mono">
+         {{ sessionDate | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000" }}
+        </div>
+        <div class="item date-roboto-mono">№{{ idSession }}</div>
+        <div class="item">
+          {{ sessionName }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="body" *ngIf="listParticipants; else nodata">
+      <div class="offers-management-body-wrapper">
+        <div class="body_content">
+          <dx-data-grid
+            id="dataGrid"
+            [dataSource]="listParticipants"
+            [showBorders]="false"
+            [showColumnLines]="true"
+            [allowColumnResizing]="true"
+            [allowColumnReordering]="true"
+            [showRowLines]="true"
+            [columnAutoWidth]="true"
+            [wordWrapEnabled]="true"
+            [columnResizingMode]="'widget'"
+            (onExporting)="exportGrid($event)"
+          >
+            <dxo-export [enabled]="true"></dxo-export>
+
+            <dxo-column-chooser
+              [enabled]="true"
+              mode="select"
+              sortOrder="asc"
+              [ngClass]="{ 'mb-4': true }"
+            ></dxo-column-chooser>
+
+            <dxo-column-fixing [enabled]="true"></dxo-column-fixing>
+
+            <dxo-scrolling
+              mode="standard"
+              [scrollByContent]="true"
+              showScrollbar="always"
+            ></dxo-scrolling>
+
+            <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+
+            <dxo-header-filter
+              [visible]="true"
+              [allowSearch]="true"
+            ></dxo-header-filter>
+
+            <dxo-state-storing
+              [enabled]="true"
+              type="localStorage"
+              [storageKey]="REPORT_PARTICIPANTS_KEY"
+            ></dxo-state-storing>
+
+            <dxo-paging [pageSize]="numberEntriesPage[1]"></dxo-paging>
+
+            <dxo-pager
+              [visible]="true"
+              [allowedPageSizes]="numberEntriesPage"
+              displayMode="compact"
+              [showPageSizeSelector]="true"
+            >
+            </dxo-pager>
+
+            <!-- № -->
+            <dxi-column
+              caption="№"
+              cssClass="column date-roboto-mono text-align-left"
+              width="70"
+              [allowHiding]="false"
+              alignment="left"
+              [allowFiltering]="false"
+              [fixed]="true"
+              [allowFixing]="false"
+              cellTemplate="cellTemplateRowNumber"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'cellTemplateRowNumber'">
+              <div>{{ data.row.rowIndex + 1 }}</div>
+            </div>
+
+            <dxi-column
+              caption="{{ 'report-participants.directionName' | translate }}"
+              dataField="directionName"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-trading-session-orders.concatedFirmName' | translate
+              }}"
+              dataField="firmNameShort"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.firmRegNumber' | translate }}"
+              dataField="firmRegistrationNumber"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-participants.accreditationDate' | translate
+              }}"
+              dataField="firmDateAccreditationString"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.firmCountry' | translate }}"
+              dataField="firmCountry"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.firmDepositType' | translate }}"
+              dataField="firmDepositName"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.brokerClient' | translate }}"
+              dataField="clientNameShort"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.clientRegNumber' | translate }}"
+              dataField="clientRegistrationNumber"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.clientCountry' | translate }}"
+              dataField="clientCountry"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-participants.clientDepositType' | translate
+              }}"
+              dataField="clientDepositName"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.traderName' | translate }}"
+              dataField="traderFullName"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-participants.traderPhoneNumber' | translate
+              }}"
+              dataField="traderPhone"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.traderMail' | translate }}"
+              dataField="traderEmail"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{ 'report-participants.numberDemoff' | translate }}"
+              dataField="numberDemoff"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+            >
+            </dxi-column>
+
+            <dxi-column
+              caption="{{
+                'report-participants.isExistRegistration' | translate
+              }}"
+              dataField="isExistRegistration"
+              cssClass="column"
+              width="120"
+              [allowSorting]="true"
+              [allowFiltering]="true"
+              [visible]="true"
+              alignment="left"
+              cellTemplate="isExistRegistrationTemplate"
+            >
+            </dxi-column>
+
+            <div *dxTemplate="let data of 'isExistRegistrationTemplate'">
+              <div *ngIf="data.data.isExistRegistration">
+                {{ "btns.yes" | translate }}
+              </div>
+              <div *ngIf="!data.data.isExistRegistration">
+                {{ "btns.no" | translate }}
+              </div>
+            </div>
+          </dx-data-grid>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #nodata>
+      <div class="noData mt-5">
+        {{ "errors.emptyData" | translate }}
+      </div>
+    </ng-template>
+  </div>
+</main>

@@ -1,0 +1,122 @@
+<!-- eslint-disable -->
+<div
+  class="greyColor jc-c d-flex"
+  *ngIf="allCharacteristics.length == 0"
+>
+  {{
+    "createOffer.productCharacteristicsAppear" | translate
+  }}
+</div>
+<div
+  *ngIf="allCharacteristics.length > 0"
+  class="flexContentColumn16"
+>
+  <dx-validation-group class="form">
+    <form
+      [formGroup]="characteristicsNSI"
+      class="flexContentColumn16"
+    >
+      <div
+        *ngFor="
+                              let ref of allCharacteristics;
+                              let i = index;
+                              trackBy: trackByFn
+                            "
+        class="w-100"
+      >
+        <div class="form-group">
+          <div
+            paddingLeft
+            [ref]="ref"
+            class="flexContent16 ai-c"
+          >
+            <div *ngIf="ref.isDepend" class="arrowRight h-20px"></div>
+            <div class="w-100">
+              <span class="flexContent8 flex-start">
+                <label>{{ ref.name }}</label>
+                <div *ngIf="isDisabledActualFields(ref.id)"
+                     class="moreIcon w-16px" id="icon{{ref.id}}">
+                   <dx-tooltip
+                     target="#icon{{ref.id}}"
+                     [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                     hideEvent="mouseleave"
+                   >
+                  <div *dxTemplate="let data = data; of: 'content'">
+                    {{ 'createOffer.good.editingValueInFirstProduct' | translate }}
+                  </div>
+                </dx-tooltip>
+                </div>
+              </span>
+              <dx-tag-box
+                [dataSource]="ref.values"
+                valueExpr="id"
+                displayExpr="name"
+                (onInitialized)="addNsiGoodService.getRefData(ref, user, sectionId, addGoodNSIForm.get('goods')?.value.idLink, fullData)"
+                width="100%"
+                height="40px"
+                placeholder="{{
+                                    'filters.selection' | translate
+                                  }}"
+                formControlName="{{ ref.id }}"
+                tagTemplate="tagTemplate"
+                [searchEnabled]="!this.characteristicsNSI.controls[
+                                      ref.id.toString()
+                                    ]?.value
+                                  "
+                [class.disabled]="isDisabledActualFields(ref.id) || isDisabledTheSameVariety(ref.id)"
+                [showClearButton]="false"
+                (onValueChanged)="addNsiGoodService.listPropertyNSI(ref, isAnalogSession, user, sectionId, addGoodNSIForm.get('goods')?.value.idValue);
+               onChangedStandardizedProps(ref.id)"
+                [showDropDownButton]="true"
+              >
+                <div
+                  *dxTemplate="let tagData of 'tagTemplate'"
+                  class="tagOne"
+                >
+                  {{ tagData.name }}
+                </div>
+
+                <dx-validator>
+                  <dxi-validation-rule
+                    type="required"
+                  ></dxi-validation-rule>
+                </dx-validator>
+              </dx-tag-box>
+            </div>
+          </div>
+          <div
+            *ngIf="i != allCharacteristics.length - 1"
+            class="border-bottom mt-3"
+          ></div>
+        </div>
+      </div>
+    </form>
+
+    <div class="buttonsClass flexContent16 mt-25" *ngIf="isAddGoodFromNSI">
+      <dx-button
+        (onClick)="onAddGoodFromNSI($event)"
+        class="w-50"
+      >
+        <button
+          [disabled]="
+                                NSIlistProperty.length !=
+                                allCharacteristics.length
+                              "
+          class="btn btn-primary submit w-100"
+        >
+          {{
+            this.commonService.ucFirst(
+              "createOffer.good.addGoodLink" | translate
+            )
+          }}
+        </button>
+      </dx-button>
+      <button
+        class="btn btn-outline-primary btn-inherit w-50"
+        (click)="onResetData()"
+      >
+        {{ "filters.reset" | translate }}
+      </button>
+    </div>
+  </dx-validation-group>
+</div>

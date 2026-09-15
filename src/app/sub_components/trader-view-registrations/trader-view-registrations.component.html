@@ -1,0 +1,95 @@
+<!-- eslint-disable -->
+<dx-popup
+  contentTemplate="viewRegistrationsPopup"
+  [hideOnOutsideClick]="false"
+  [visible]="viewRegistrationsPopup"
+  [showTitle]="true"
+  title="{{
+    sessionInfo?.idDirection === IdDirection.buy
+      ? ('sessions-schedule.viewRegsTitleBuy' | translate)
+      : ('sessions-schedule.viewRegsTitleSale' | translate)
+  }}"
+  width="840"
+  height="auto"
+  maxHeight="90vh"
+  [showCloseButton]="true"
+  (onShowing)="onShowing($event)"
+  (onHiding)="closePopup()"
+>
+  <dxo-position my="center" at="center"></dxo-position>
+  <dxo-animation
+    [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+  ></dxo-animation>
+  <div *dxTemplate="let data of 'viewRegistrationsPopup'" class="view-registrations-body">
+    <div class="flexContent8">
+      <span>{{ "filters.session" | translate }}</span>
+      <span>{{  sessionInfo?.sessionDateTime | excelDate | date : "dd.MM.yyyy HH:mm" : "+0000" }}</span>
+      <span>№ {{ sessionInfo?.sessionId }}</span>
+      <span>{{ sessionInfo?.sessionName }}</span>
+    </div>
+
+    <div class="view-registrations-grid-wrap">
+    <button class="btn secondary-btn export-btn h-32px" id="exportButton">
+      <i class="exportIcon"></i>
+    </button>
+    <dx-data-grid
+      id="gridContainer"
+      [dataSource]="registrations"
+      [height]="gridHeight"
+      [showBorders]="false"
+      [showColumnLines]="true"
+      [showRowLines]="true"
+      (onContentReady)="onCellPrepared($event)"
+    >
+      <dxo-filter-panel [visible]="true"></dxo-filter-panel>
+
+      <dxo-scrolling mode="standard" [scrollByContent]="true" showScrollbar="always"></dxo-scrolling>
+
+      <dxo-header-filter
+        [visible]="true"
+        [allowSearch]="true"
+      ></dxo-header-filter>
+
+      <dxi-column
+        caption="{{ 'worker.registration.participant' | translate }}"
+        dataField="firmName"
+        cssClass="column text-align-left"
+        [minWidth]="230"
+        [allowHiding]="false"
+        [allowFiltering]="false"
+      ></dxi-column>
+
+      <dxi-column
+        caption="{{ 'worker.registration.contractType' | translate }}"
+        dataField="clientContractTypeName"
+        cssClass="column text-align-left"
+        width="125"
+        [allowHiding]="false"
+        [allowFiltering]="true"
+      ></dxi-column>
+
+      <dxi-column
+        caption="{{ 'worker.registration.client' | translate }}"
+        dataField="clientName"
+        cssClass="column text-align-left"
+        width="210"
+        [allowHiding]="false"
+      ></dxi-column>
+
+      <dxi-column
+        caption="{{ 'filters.listBranchs' | translate }}"
+        dataField="branchName"
+        cssClass="column text-align-left"
+        width="220"
+        [allowHiding]="false"
+      ></dxi-column>
+    </dx-data-grid>
+    </div>
+
+    <div class="view-registrations-footer d-flex jc-end mt-3">
+      <button class="btn btn-primary submit w-180px" (click)="closePopup()">
+        {{ "btns.close" | translate }}
+      </button>
+    </div>
+  </div>
+</dx-popup>

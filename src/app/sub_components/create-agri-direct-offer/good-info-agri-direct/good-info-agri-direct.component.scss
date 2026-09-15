@@ -1,0 +1,110 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+
+
+.goodInfo{
+  //padding: 16px; background: $backgroundGrey;
+  text-align: left;
+  color: $mainTextColor;
+
+  .name{
+    min-height: 32px;
+    label{
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+    }
+
+    a{
+      white-space: nowrap;
+      padding-right: 13px;
+    }
+  }
+
+
+  .form {
+
+
+    .block {
+
+      .contentFlex {
+        display: flex;
+        flex-wrap: wrap;
+        .item{
+          min-width: 244px;
+          flex-basis: 31%;
+
+          .number-style{
+            ::ng-deep.dx-widget input {
+            font-family: $date-number-font !important;
+          }
+          }
+        }
+
+      }
+
+      .costBlock{
+        .dx-state-disabled.dx-widget{
+          border-color: $lightGrayBackgroundColorButton;
+        }
+      }
+      .properties {
+        font-size: 14px;
+        line-height: 20px;
+
+        .propName{
+          color: $headerTopColor;
+        }
+      }
+    }
+  }
+
+  .buttonsClass:before{
+    hr{
+      display: none;
+    }
+  }
+/*  hr:last-child{
+    display: none;
+  }*/
+
+}
+
+.addCond{
+  flex-basis: 100% !important;
+}
+
+@media (min-width: 1920px){
+  .goodInfo{
+    .form {
+      .block {
+        .contentFlex {
+          .item{
+            min-width: 244px;
+            flex-basis: 32%;
+          }
+        }
+      }
+    }
+  }
+}
+
+.redField{
+  color: $colorError;
+}
+
+::ng-deep .redBack {
+  background-color: $backgroundColorError;
+}
+
+.list-dropdown-content {
+  ::ng-deep .dx-list-item {
+    border: none;
+  }
+
+  ::ng-deep .dx-list-item-content {
+    padding: 9px 0 !important;
+  }
+}

@@ -1,0 +1,129 @@
+/* eslint-disable */
+@import 'src/assets/scss/_variables.scss';
+@import 'src/assets/scss/_config.scss';
+
+
+::ng-deep.dx-scrollable{
+  height: auto;
+}
+
+table {
+  width: 100%;
+  border: 1px solid $borderTable;
+  border-collapse: collapse;
+
+  thead{
+    position: sticky;
+    background-color: $white;
+    z-index: 3;
+    top:0;
+  }
+
+  th, td {
+    font-size: 12px;
+    line-height: 16px;
+    padding: 12px 8px;
+
+    border: 1px solid $borderTable;
+    text-align: right;
+    color: $secondTextColor;
+  }
+
+  th {
+    align-items: center;
+    color: $columnNameTextColor;
+    font-weight: 400;
+    letter-spacing: 0.48px;
+  }
+
+  th:last-child, td:last-child {
+    padding: 8px;
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  .viewGood {
+    content: url('~src/assets/img/icons/edit_good.svg');
+    border: none;
+    cursor: pointer;
+  }
+
+  .viewGoodInfo {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+
+    background: $backgroundGrey;
+    color: $mainTextColor;
+
+    .name {
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: space-between;
+
+      label {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+      }
+
+      .cancel {
+        content: url("~src/assets/img/icons/cancel_grey.svg");
+      }
+    }
+
+    .description {
+      font-size: 14px;
+      line-height: 20px;
+    }
+  }
+
+  .redBorder{
+    //background-color: $backgroundColorError;
+    //box-shadow: 0 0 0 2px #e36969;
+    border: 2px solid $colorError;
+  }
+
+  ::ng-deep.dx-numberbox{
+    background-color: $layerHoverTable;
+  }
+
+
+  .noData {
+    padding: 12px 16px 12px 8px !important;
+    font-size: 14px;
+    line-height: 20px;
+    color: $headerTopColor;
+  }
+}
+
+
+::ng-deep.dx-dropdowneditor-icon {
+  height: 41px;
+}
+
+::ng-deep.dx-toast-error{
+  background-color: $backgroundColorError;
+  color: $mainTextColor;
+  font-weight: 400;
+  border-radius: 2px;
+  border-left: 3px solid $colorError;
+  padding: 15px;
+  display: flex;
+}
+
+::ng-deep.dx-toast-message{
+  width: 450px;
+}
+
+
+
+::ng-deep.dx-toast-icon {
+  background-image: url('../../../../assets/img/icons/info-thin.svg') !important;
+  width: 20px;
+  height: 20px;
+}
+

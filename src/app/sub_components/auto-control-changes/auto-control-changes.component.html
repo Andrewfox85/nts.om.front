@@ -1,0 +1,1838 @@
+<!-- eslint-disable -->
+<main class="auto-control">
+  <div
+    class="main_component"
+    *ngIf="
+      offerGeneralParent &&
+      this.currencyPrecision &&
+      this.currencyPrecisionParent
+    "
+  >
+    <div class="flexContentColumn16">
+      <div class="nameSession flexContent16 ai-bl">
+        <div class="status">{{ offerGeneral.sessionStageName }}</div>
+        <span>{{ "filters.session" | translate }}</span>
+        <span class="date-roboto-mono">{{
+          offerGeneral.sessionDatetime | excelDate
+            | date : "dd.MM.yyyy HH:mm" : "+0000"
+        }}</span>
+        <span class="date-roboto-mono">№{{ offerGeneral.idSession }}</span>
+        <span>{{ offerGeneral.sessionName }}</span>
+      </div>
+
+      <div class="flexContent16 ai-c">
+        <div class="nameLot">№ {{ offerGeneral.lotNumber }}</div>
+        <div class="flexContent8">
+          <div class="direction">
+            {{
+              offerGeneral.directionId == IdDirection.buy
+                ? ("btns.buy" | translate)
+                : ("btns.sell" | translate)
+            }}
+          </div>
+          <div class="direction">{{ offerGeneral.statusName }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="offerGeneral.rejectionReason"
+      class="flexContentColumn10 flex-start h-ft resultMessage errorMessage borderRed"
+    >
+      <span class="font-w500">{{
+        "worker.registration.reason" | translate
+      }}</span>
+      <span>{{
+        offerGeneral.rejectionReason || offerGeneralParent.rejectionReason
+      }}</span>
+    </div>
+
+    <div class="flexContent16">
+      <button
+        *ngIf="offerGeneral.isCanApprove"
+        class="btn btn-primary submit w-fit-cnt px-3"
+        (click)="onApproveOffer()"
+      >
+        {{ "offer-management.includeInRegister" | translate }}
+      </button>
+      <button
+        *ngIf="offerGeneral.isCanReject"
+        class="btn btn-outline-red w-fit-cnt px-3"
+        (click)="onRejectOffer()"
+      >
+        {{ "offer-management.rejecteApplication" | translate }}
+      </button>
+    </div>
+
+    <div class="flexContentColumn16">
+      <dx-tabs
+        [dataSource]="this.dataSourceTabs"
+        [selectedIndex]="0"
+        (onItemClick)="this.tabValue = $event.itemIndex"
+      >
+      </dx-tabs>
+
+      <!--      общая информация-->
+      <ng-container *ngIf="this.tabValue == 0">
+        <div class="blockWithBorder flexContentColumn16">
+          <table class="compareTable">
+            <tr>
+              <th [width]="22 + '%'"></th>
+              <th [width]="39 + '%'">
+                <span class="font-w500">{{
+                  "autoControlChanges.previousApplication" | translate
+                }}</span>
+                <span class="date-roboto-mono font-s14">
+                  {{
+                    offerGeneralParent.dateCreate | excelDate
+                      | date : "dd.MM.yyyy HH:mm:ss" : "+0000"
+                  }}</span
+                >
+              </th>
+              <th [width]="39 + '%'">
+                <span class="font-w500">{{
+                  "autoControlChanges.currentApplication" | translate
+                }}</span>
+                <span class="date-roboto-mono font-s14">
+                  {{
+                    offerGeneral.dateCreate | excelDate
+                      | date : "dd.MM.yyyy HH:mm:ss" : "+0000"
+                  }}</span
+                >
+              </th>
+            </tr>
+            <!--Участник-->
+            <tr
+              [ngClass]="{
+                change: offerGeneralParent.firmName != offerGeneral.firmName
+              }"
+            >
+              <td>{{ "createOffer.generalInfo.participant" | translate }}</td>
+              <td>{{ offerGeneralParent.firmName }}</td>
+              <td>{{ offerGeneral.firmName }}</td>
+            </tr>
+            <!--Тип договора-->
+            <tr
+              *ngIf="
+                offerGeneralParent.idClientContractType ||
+                offerGeneral.idClientContractType
+              "
+              [ngClass]="{
+                change:
+                  offerGeneralParent.idClientContractType !=
+                  offerGeneral.idClientContractType
+              }"
+            >
+              <td>{{ "general.contractType" | translate }}</td>
+              <td>
+                {{
+                  offerGeneralParent.idClientContractType
+                    ? offerGeneralParent.idClientContractType == 20
+                      ? ("general.commissionAgreement" | translate)
+                      : ("general.agencyAgreement" | translate)
+                    : "-"
+                }}
+              </td>
+              <td>
+                {{
+                  offerGeneral.idClientContractType
+                    ? offerGeneral.idClientContractType == 20
+                      ? ("general.commissionAgreement" | translate)
+                      : ("general.agencyAgreement" | translate)
+                    : "-"
+                }}
+              </td>
+            </tr>
+            <!--Клиент брокера-->
+            <tr
+              *ngIf="
+                offerGeneral.clientName ||
+                deliveryScopes?.length > 0 ||
+                offerGeneralParent.clientName ||
+                deliveryScopesParent?.length > 0
+              "
+              [ngClass]="{
+                change:
+                  offerGeneralParent.clientName !== offerGeneral.clientName ||
+                  !changedClients()
+              }"
+            >
+              <td>{{ "filters.brokerClient" | translate }}</td>
+              <td>
+                <div *ngIf="deliveryScopesParent?.length > 0" class="d-flex">
+                  <div class="list">
+                    <div
+                      class="client flexContentColumn4"
+                      [ngClass]="{ opened: clientHidden }"
+                    >
+                      <div
+                        *ngFor="let client of this.uniqueDeliveryScopesParent"
+                        class="flexContent16 l-h24"
+                      >
+                        <span>{{ client.firmClientName }}</span>
+                        <span
+                          *ngIf="!addTagClient(client, uniqueDeliveryScopes)"
+                          class="padding0 deleteTag"
+                          >{{ "general.deleted" | translate }}</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    [ngStyle]="{
+                      display:
+                        this.uniqueDeliveryScopesParent?.length > 1
+                          ? 'flex'
+                          : 'none'
+                    }"
+                  >
+                    <div
+                      *ngIf="clientHidden"
+                      (click)="clientHidden = !clientHidden"
+                    >
+                      <a>{{ "btns.collapse" | translate }} </a>
+                    </div>
+                    <div
+                      *ngIf="!clientHidden"
+                      (click)="clientHidden = !clientHidden"
+                    >
+                      <a>{{ "btns.expand" | translate }} </a>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="deliveryScopesParent?.length == 0">
+                  {{
+                    offerGeneralParent.clientName
+                      ? offerGeneralParent.clientName
+                      : "-"
+                  }}
+                </div>
+              </td>
+              <td>
+                <div *ngIf="deliveryScopes?.length > 0" class="d-flex">
+                  <div class="list">
+                    <div
+                      class="client flexContentColumn4"
+                      [ngClass]="{ opened: clientHidden }"
+                    >
+                      <div
+                        *ngFor="let client of this.uniqueDeliveryScopes"
+                        class="flexContent16 l-h24"
+                      >
+                        <span>{{ client.firmClientName }}</span>
+                        <span
+                          *ngIf="
+                            !addTagClient(client, uniqueDeliveryScopesParent)
+                          "
+                          class="addTag padding0 clientAddedTag"
+                          >{{ "general.added" | translate }}</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    [ngStyle]="{
+                      display:
+                        this.uniqueDeliveryScopes?.length > 1 ? 'flex' : 'none'
+                    }"
+                  >
+                    <div
+                      *ngIf="clientHidden"
+                      (click)="clientHidden = !clientHidden"
+                    >
+                      <a>{{ "btns.collapse" | translate }} </a>
+                    </div>
+                    <div
+                      *ngIf="!clientHidden"
+                      (click)="clientHidden = !clientHidden"
+                    >
+                      <a>{{ "btns.expand" | translate }} </a>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="deliveryScopes?.length == 0">
+                  {{ offerGeneral.clientName ? offerGeneral.clientName : "-" }}
+                </div>
+              </td>
+            </tr>
+            <!--Структурное подразделение-->
+            <tr
+              *ngIf="offerGeneral.branchName || offerGeneralParent.branchName"
+              [ngClass]="{
+                change: offerGeneralParent.branchId != offerGeneral.branchId
+              }"
+            >
+              <td>{{ "general.structuralSubdivision" | translate }}</td>
+              <td>
+                {{
+                  offerGeneralParent.branchName
+                    ? offerGeneralParent.branchName
+                    : "-"
+                }}
+              </td>
+              <!--prev-->
+              <td>
+                {{ offerGeneral.branchName ? offerGeneral.branchName : "-" }}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <hr />
+              </td>
+            </tr>
+            <!--Условия поставки-->
+            <tr
+              *ngIf="
+                this.deliveryConditions?.length > 0 ||
+                this.deliveryConditionsParent?.length > 0
+              "
+              [ngClass]="{
+                change:
+                  mainBasisParent.concatedCondition !=
+                  mainBasis.concatedCondition
+              }"
+            >
+              <td>
+                {{ "createOffer.stepName.termsDeliveryTime" | translate }}
+              </td>
+              <td>
+                {{
+                  mainBasisParent.concatedCondition
+                    ? mainBasisParent.concatedCondition
+                    : "-"
+                }}
+              </td>
+              <!--prev-->
+              <td>
+                {{
+                  mainBasis.concatedCondition
+                    ? mainBasis.concatedCondition
+                    : "-"
+                }}
+              </td>
+            </tr>
+            <!--Тип рынка-->
+            <tr
+              [ngClass]="{
+                change:
+                  offerGeneralParent.concatedMarketTypes !==
+                  offerGeneral.concatedMarketTypes
+              }"
+            >
+              <td>{{ "general.marketType" | translate }}</td>
+              <td>
+                {{
+                  offerGeneralParent.concatedMarketTypes
+                    ? offerGeneralParent.concatedMarketTypes
+                    : "-"
+                }}
+              </td>
+              <!--prev-->
+              <td>
+                {{
+                  offerGeneral.concatedMarketTypes
+                    ? offerGeneral.concatedMarketTypes
+                    : "-"
+                }}
+              </td>
+            </tr>
+            <!--Срок поставки-->
+            <tr
+              [ngClass]="{
+                change:
+                  offerGeneralParent.concatedDeliveryPeriod !=
+                  offerGeneral.concatedDeliveryPeriod
+              }"
+            >
+              <td>{{ "createOffer.deliveryTime.deliveryTime" | translate }}</td>
+              <td>
+                {{
+                  offerGeneralParent.concatedDeliveryPeriod
+                    ? commonService.ucFirst(
+                        offerGeneralParent.concatedDeliveryPeriod
+                      )
+                    : "-"
+                }}
+              </td>
+              <!--prev-->
+              <td>
+                {{
+                  offerGeneral.concatedDeliveryPeriod
+                    ? commonService.ucFirst(offerGeneral.concatedDeliveryPeriod)
+                    : "-"
+                }}
+              </td>
+            </tr>
+            <!--Условия оплаты-->
+            <tr
+              [ngClass]="{
+                change:
+                  offerGeneralParent.concatedPaymentConditions !=
+                  offerGeneral.concatedPaymentConditions
+              }"
+            >
+              <td>{{ "createOffer.termsPayment.termsPayment" | translate }}</td>
+              <td>
+                {{
+                  offerGeneralParent.concatedPaymentConditions
+                    ? commonService.ucFirst(
+                        offerGeneralParent.concatedPaymentConditions
+                      )
+                    : "-"
+                }}
+              </td>
+              <!--prev-->
+              <td>
+                {{
+                  offerGeneral.concatedPaymentConditions
+                    ? commonService.ucFirst(
+                        offerGeneral.concatedPaymentConditions
+                      )
+                    : "-"
+                }}
+              </td>
+            </tr>
+            <!--Дополнительные условия (Внутренний)-->
+            <tr
+              *ngIf="
+                offerGeneral.detailsImportDomestic?.length > 0 ||
+                offerGeneralParent.detailsImportDomestic?.length > 0
+              "
+              [ngClass]="{
+                change:
+                  offerGeneralParent.detailsImportDomestic !=
+                  offerGeneral.detailsImportDomestic
+              }"
+            >
+              <td>
+                {{
+                  "createOffer.commonParameters.additionalTerms" | translate
+                }}
+                <span
+                  *ngIf="
+                    offerGeneral.detailsExportForeign?.length > 0 ||
+                    offerGeneralParent.detailsExportForeign?.length > 0
+                  "
+                  >({{ "general.domesticMarket" | translate }})</span
+                >
+              </td>
+              <td>
+                <div class="flexContent8">
+                  <div class="details">
+                    {{
+                      offerGeneralParent.detailsImportDomestic
+                        ? offerGeneralParent.detailsImportDomestic
+                        : "-"
+                    }}
+                  </div>
+                  <div
+                    *ngIf="offerGeneralParent.detailsImportDomestic?.length > 0"
+                  >
+                    <a
+                      (click)="
+                        compareTextPopup(
+                          offerGeneralParent.detailsImportDomestic
+                            ? offerGeneralParent.detailsImportDomestic
+                            : '-',
+                          offerGeneral.detailsImportDomestic
+                            ? offerGeneral.detailsImportDomestic
+                            : '-'
+                        )
+                      "
+                      >{{ "btns.expand" | translate }}
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="flexContent8">
+                  <div class="details">
+                    {{
+                      offerGeneral.detailsImportDomestic
+                        ? offerGeneral.detailsImportDomestic
+                        : "-"
+                    }}
+                  </div>
+                  <div *ngIf="offerGeneral.detailsImportDomestic?.length > 0">
+                    <a
+                      (click)="
+                        compareTextPopup(
+                          offerGeneralParent.detailsImportDomestic
+                            ? offerGeneralParent.detailsImportDomestic
+                            : '-',
+                          offerGeneral.detailsImportDomestic
+                            ? offerGeneral.detailsImportDomestic
+                            : '-'
+                        )
+                      "
+                      >{{ "btns.expand" | translate }}
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!--Дополнительные условия (Внешний)-->
+            <tr
+              *ngIf="
+                offerGeneral.detailsExportForeign?.length > 0 ||
+                offerGeneralParent.detailsExportForeign?.length > 0
+              "
+              [ngClass]="{
+                change:
+                  offerGeneralParent.detailsExportForeign !=
+                  offerGeneral.detailsExportForeign
+              }"
+            >
+              <td>
+                {{
+                  "createOffer.commonParameters.additionalTerms" | translate
+                }}
+                <span
+                  *ngIf="
+                    offerGeneral.detailsImportDomestic?.length > 0 ||
+                    offerGeneralParent.detailsImportDomestic?.length > 0
+                  "
+                  >({{ "general.foreignMarket" | translate }})</span
+                >
+              </td>
+              <td>
+                <div class="flexContent8">
+                  <div class="details">
+                    {{
+                      offerGeneralParent.detailsExportForeign
+                        ? offerGeneralParent.detailsExportForeign
+                        : "-"
+                    }}
+                  </div>
+                  <div
+                    *ngIf="offerGeneralParent.detailsExportForeign?.length > 0"
+                  >
+                    <a
+                      (click)="
+                        compareTextPopup(
+                          offerGeneralParent.detailsExportForeign
+                            ? offerGeneralParent.detailsExportForeign
+                            : '-',
+                          offerGeneral.detailsExportForeign
+                            ? offerGeneral.detailsExportForeign
+                            : '-'
+                        )
+                      "
+                      >{{ "btns.expand" | translate }}
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="flexContent8">
+                  <div class="details">
+                    {{
+                      offerGeneral.detailsExportForeign
+                        ? offerGeneral.detailsExportForeign
+                        : "-"
+                    }}
+                  </div>
+                  <div *ngIf="offerGeneral.detailsExportForeign?.length > 0">
+                    <a
+                      (click)="
+                        compareTextPopup(
+                          offerGeneralParent.detailsExportForeign
+                            ? offerGeneralParent.detailsExportForeign
+                            : '-',
+                          offerGeneral.detailsExportForeign
+                            ? offerGeneral.detailsExportForeign
+                            : '-'
+                        )
+                      "
+                      >{{ "btns.expand" | translate }}
+                    </a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <!--Прикрепленные файлы-->
+            <tr
+              *ngIf="
+                (this.offerDocuments?.length > 0 &&
+                  checkNoPrivateDocuments()) ||
+                (this.offerDocumentsParent?.length > 0 &&
+                  checkNoPrivateDocumentsParent())
+              "
+            >
+              <td>{{ "viewOffer.attachedFiles" | translate }}</td>
+              <td>
+                <div *ngIf="offerDocumentsParent?.length > 0">
+                  <div *ngFor="let file of offerDocumentsParent">
+                    <div class="flexContent8 ai-c" *ngIf="!file.isPrivate">
+                      <i class="fileIcon"></i>
+                      <a class="file" (click)="downloadDoc(file)">{{
+                        file.filename
+                      }}</a>
+                      <div
+                        *ngIf="!include(offerDocuments, file.idDocument)"
+                        class="deleteTag"
+                      >
+                        {{ "general.deleted" | translate }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="offerDocumentsParent?.length == 0">-</div>
+              </td>
+              <!--prev-->
+              <td>
+                <div *ngIf="offerDocuments?.length > 0">
+                  <div *ngFor="let file of offerDocuments">
+                    <div class="flexContent8 ai-c" *ngIf="!file.isPrivate">
+                      <i class="fileIcon"></i>
+                      <a class="file" (click)="downloadDoc(file)">{{
+                        file.filename
+                      }}</a>
+                      <div
+                        *ngIf="!include(offerDocumentsParent, file.idDocument)"
+                        class="addTag"
+                      >
+                        {{ "general.added" | translate }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="offerDocuments?.length == 0">-</div>
+              </td>
+            </tr>
+            <!--Скрытые файлы-->
+            <tr
+              *ngIf="
+                (this.offerDocuments?.length > 0 &&
+                  checkIsPrivateDocuments()) ||
+                (this.offerDocumentsParent?.length > 0 &&
+                  checkIsPrivateDocumentsParent())
+              "
+            >
+              <td>{{ "viewOffer.hiddenFiles" | translate }}</td>
+              <td>
+                <div *ngFor="let file of offerDocumentsParent">
+                  <div class="flexContent8 ai-c" *ngIf="file.isPrivate">
+                    <i class="fileIcon"></i>
+                    <a class="file" (click)="downloadDoc(file)">{{
+                      file.filename
+                    }}</a>
+                    <div
+                      *ngIf="!include(offerDocuments, file.idDocument)"
+                      class="deleteTag"
+                    >
+                      {{ "general.deleted" | translate }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <!--prev-->
+              <td>
+                <div *ngFor="let file of offerDocuments">
+                  <div class="flexContent8 ai-c" *ngIf="file.isPrivate">
+                    <i class="fileIcon"></i>
+                    <a class="file" (click)="downloadDoc(file)">{{
+                      file.filename
+                    }}</a>
+                    <div
+                      *ngIf="!include(offerDocumentsParent, file.idDocument)"
+                      class="addTag"
+                    >
+                      {{ "general.added" | translate }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <hr />
+              </td>
+            </tr>
+            <!--Ставка НДС-->
+            <tr
+              [ngClass]="{
+                change: VatFieldParent.fieldValue != VatField.fieldValue
+              }"
+            >
+              <td>{{ "createOffer.total.VAT" | translate }}</td>
+              <td>{{ VatFieldParent.fieldValue }}</td>
+              <!--prev-->
+              <td>{{ VatField.fieldValue }}</td>
+            </tr>
+            <!--Общая стоимость по заявке (без НДС)-->
+            <tr
+              [ngClass]="{
+                change:
+                  Number(costWithoutVATSumParent) != Number(costWithoutVATSum)
+              }"
+            >
+              <td>{{ "general.totalCostWithoutVAT" | translate }}</td>
+              <td>
+                <span class="date-roboto-mono">
+                {{
+                  Number(costWithoutVATSumParent) | ruNumberFormat : currencyPrecisionParent : currencyPrecisionParent
+                }}
+              </span>
+                {{ offerGoodsParent[0].currency }}
+              </td>
+              <!--prev-->
+              <td>
+                <span class="date-roboto-mono">{{
+                  Number(costWithoutVATSum) | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}</span>
+                {{ offerGoods[0].currency }}
+              </td>
+            </tr>
+            <!--Общая сумма НДС-->
+            <tr
+              [ngClass]="{
+                change: Number(amountVATSumParent) != Number(amountVATSum)
+              }"
+            >
+              <td>{{ "catalogs.totalAmountVAT" | translate }}</td>
+              <td>
+                <span class="date-roboto-mono">{{
+                  Number(amountVATSumParent) | ruNumberFormat : currencyPrecisionParent : currencyPrecisionParent
+                }}</span>
+                {{ offerGoodsParent[0].currency }}
+              </td>
+              <!--prev-->
+              <td>
+                <span class="date-roboto-mono">{{
+                  Number(amountVATSum) | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}</span>
+                {{ offerGoods[0].currency }}
+              </td>
+            </tr>
+            <!--Общая стоимость (с учетом НДС)-->
+            <tr
+              [ngClass]="{
+                change: Number(costVATSumParent) != Number(costVATSum)
+              }"
+            >
+              <td>{{ "general.totalCostVat" | translate }}</td>
+              <td>
+                <span class="date-roboto-mono">{{
+                  Number(costVATSumParent) | ruNumberFormat : currencyPrecisionParent : currencyPrecisionParent
+                }}</span>
+                {{ offerGoodsParent[0].currency }}
+              </td>
+              <!--prev-->
+              <td>
+                <span class="date-roboto-mono">{{
+                  Number(costVATSum) | ruNumberFormat : currencyPrecision : currencyPrecision
+                }}</span>
+                {{ this.offerGoods[0].currency }}
+              </td>
+            </tr>
+            <!--Общее количество-->
+            <tr
+              [ngClass]="{
+                change: Number(volumeSumParent) != Number(volumeSum)
+              }"
+            >
+              <td>{{ "catalogs.totalVolume" | translate }}</td>
+              <td>
+                <div *ngIf="volumeSumParent > 0">
+                  <span class="date-roboto-mono">{{
+                    Number(volumeSumParent) | ruNumberFormat : null : volumePrecisionParent
+                  }}</span>
+                  {{ offerGoodsParent[0].unitName }}
+                </div>
+                <div *ngIf="volumeSumParent == 0">-</div>
+              </td>
+              <td>
+                <div *ngIf="volumeSum > 0">
+                  <span class="date-roboto-mono">{{
+                    Number(volumeSum) | ruNumberFormat : null : volumePrecision
+                  }}</span>
+                  {{ offerGoods[0].unitName }}
+                </div>
+                <div *ngIf="volumeSum == 0">-</div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="flexContentColumn24">
+          <div class="flexContentColumn16">
+            <div class="l-h20">
+              {{ "viewOffer.number" | translate }}: {{ offerGoods?.length }}
+            </div>
+            <div class="flexContentColumn24" *ngFor="let good of offerGoods">
+              <div class="blockWithBorder flexContentColumn16">
+                <div class="flexContent8 mb-1">
+                  <span *ngIf="!findGoodinParent(good)" class="addTag">{{
+                    "general.added" | translate
+                  }}</span>
+                  <span *ngIf="changeGoodTag(good.idGood)" class="changeTag">{{
+                    "general.changed" | translate
+                  }}</span>
+                  <span class="nameGood">{{ good.goodName }}</span>
+                </div>
+                <div class="description">
+                  <span *ngFor="let prop of good.properties">
+                    <span class="propName"> {{ prop.propertyName }}</span>
+                    <span> {{ prop.propertyValue }}.</span>
+                  </span>
+                  <a (click)="openSidebar(good)" *ngIf="good.idGood != null">
+                    {{ "btns.moreDetails" | translate }}</a
+                  >
+                </div>
+
+                <div>
+                  <table class="compareTable w-100" id="table{{ good.idGood }}">
+                    <tr
+                      *ngFor="
+                        let field of good.goodsSpecifications;
+                        let i = index
+                      "
+                      [display-specs]="DisplaySpecMode.CHANGES"
+                      [pricingTypeId]="offerGeneral?.pricingTypeId"
+                      [field]="field"
+                      [ngClass]="{
+                        change:
+                          findGoodinParent(good) &&
+                          changedRowGood(good.idGood, i)
+                      }"
+                    >
+                      <td
+                        [width]="22 + '%'"
+                      >
+                        {{ field.fieldName }}
+                      </td>
+
+                      <td
+                        [width]="39 + '%'"
+                        [ngClass]="{
+                          'date-roboto-mono':
+                            field.controlFieldType == 'dxNumberBox' ||
+                            field?.costWithoutVAT ||
+                            field?.amountVAT ||
+                            field?.amountVAT == 0 ||
+                            field?.costVAT
+                        }"
+                      >
+                        <div *ngIf="findGoodinParent(good); let parentGood"
+                          id="parent{{ findGoodinParent(good)?.idGood }}_{{
+                            i
+                          }}"
+                        >
+                          {{
+                            getValueGoodField(field, this.findGoodinParent(good)?.goodsSpecifications[i])
+                          }}
+                          {{ field | fieldSuffix: parentGood }}
+                        </div>
+                        <div *ngIf="!findGoodinParent(good)">-</div>
+                      </td>
+                      <td
+                        [width]="39 + '%'"
+                        [ngClass]="{
+                          'date-roboto-mono':
+                            field.controlFieldType == 'dxNumberBox' ||
+                            field?.costWithoutVAT ||
+                            field?.amountVAT ||
+                            field.amountVAT == 0 ||
+                            field?.costVAT
+                        }"
+                      >
+                        <div
+
+                          id="current{{ good.idGood }}_{{ i }}"
+                        >
+                          {{
+                            getValueGoodField(field)
+                          }}
+                          {{ field | fieldSuffix: good }}
+                        </div
+                       >
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!--удаленные товары, есть в родительском и нет в текущем-->
+            <div *ngIf="deletedGoods()?.length > 0">
+              <div
+                class="flexContentColumn24"
+                *ngFor="let good of deletedGoods()"
+              >
+                <div class="blockWithBorder flexContentColumn16">
+                  <div class="flexContent8 mb-1">
+                    <span class="deleteTag">{{
+                      "general.deleted" | translate
+                    }}</span>
+                    <span class="nameGood">{{ good.goodName }}</span>
+                  </div>
+                  <div class="description">
+                    <span *ngFor="let prop of good.properties">
+                      <span class="propName"> {{ prop.propertyName }}</span>
+                      <span> {{ prop.propertyValue }}.</span>
+                    </span>
+                    <a (click)="openSidebar(good)" *ngIf="good.id != null">
+                      {{ "btns.moreDetails" | translate }}</a
+                    >
+                  </div>
+
+                  <div>
+                    <table
+                      class="compareTable w-100"
+                      id="table{{ good.idGood }}"
+                    >
+                      <tr
+                        *ngFor="
+                          let field of good.goodsSpecifications;
+                          let i = index
+                        "
+                        [display-specs]="DisplaySpecMode.CHANGES"
+                        [pricingTypeId]="offerGeneral?.pricingTypeId"
+                        [field]="field"
+                      >
+                        <td [width]="22 + '%'">{{ field.fieldName }}</td>
+                        <td [width]="39 + '%'">
+                          <div id="current{{ good.idGood }}_{{ i }}">
+                            {{ field | fieldValueDisplay: (field | getFieldPrecision: currencyPrecision) }}
+                            {{ field | fieldSuffix: good }}
+                          </div>
+                        </td>
+                        <td [width]="39 + '%'">-</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!--Базисы поставки-->
+      <ng-container
+        *ngIf="
+          this.tabValue == 1 &&
+          (this.deliveryConditions?.length > 0 ||
+            this.deliveryConditionsParent?.length > 0)
+        "
+      >
+        <div class="flexContentColumn32 w-100">
+          <div class="flexContent16 flex-start">
+            <div class="flexContentColumn16 w-50">
+              <div>
+                <span class="font-w500">{{
+                  "autoControlChanges.previousApplication" | translate
+                }}</span>
+                <span class="date-roboto-mono">
+                  {{
+                    offerGeneralParent.dateCreate | excelDate
+                      | date : "dd.MM.yyyy HH:mm:ss" : "+0000"
+                  }}</span
+                >
+              </div>
+
+              <table class="basisRow">
+                <tr>
+                  <th class="text-align-left">
+                    {{ "autoControlChanges.deliveryBasis" | translate }}
+                  </th>
+                </tr>
+                <tbody>
+                  <ng-container *ngFor="let basis of uniqueDelConditionsParent">
+                    <tr>
+                      <td class="text-align-left">
+                        {{ basis.concatedCondition }}
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flexContentColumn16 w-50">
+              <div>
+                <span class="font-w500">{{
+                  "autoControlChanges.currentApplication" | translate
+                }}</span>
+                <span class="date-roboto-mono">
+                  {{
+                    offerGeneral.dateCreate | excelDate
+                      | date : "dd.MM.yyyy HH:mm:ss" : "+0000"
+                  }}</span
+                >
+              </div>
+              <table class="basisRow">
+                <tr>
+                  <th class="text-align-left">
+                    {{ "autoControlChanges.deliveryBasis" | translate }}
+                  </th>
+                </tr>
+                <tbody>
+                  <ng-container *ngFor="let basis of deliveryConditions">
+                    <tr>
+                      <td class="text-align-left">{{ basis[0] }}</td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="flexContentColumn16">
+            <div class="flexContent16 ai-c">
+              <span class="changeTag" *ngIf="!includeBasis()">{{
+                "general.changed" | translate
+              }}</span>
+              <span class="font-w500">{{
+                "autoControlChanges.deliveryBasisCurrent" | translate
+              }}</span>
+            </div>
+
+            <div class="flexContentColumn24 basisTableCurrent w-80">
+              <div *ngFor="let basis of deliveryConditions; let i = index">
+                <dx-data-grid
+                  [dataSource]="basis[1]"
+                  class="deliveryBasisGrid"
+                  [showColumnLines]="true"
+                  [showRowLines]="true"
+                >
+                  <dxo-state-storing
+                    [enabled]="true"
+                    type="localStorage"
+                    storageKey="autoControlOrderManagment"
+                  >
+                  </dxo-state-storing>
+
+                  <dxo-sorting mode="none"></dxo-sorting>
+
+                  <dxi-column
+                    dataField="concatedCondition"
+                    [groupIndex]="0"
+                    groupCellTemplate="groupCellTemplate"
+                  ></dxi-column>
+
+                  <div *dxTemplate="let data of 'groupCellTemplate'">
+                    <div>{{ data.value }}</div>
+                  </div>
+
+                  <dxi-column
+                    headerCellTemplate="headerBasis"
+                    dataField="goodName"
+                    cssClass="column"
+                    alignment="left"
+                    width="50%"
+                    cellTemplate="goodNameWithTooltip"
+                  ></dxi-column>
+                  <div *dxTemplate="let item of 'goodNameWithTooltip'">
+                    <div id="name{{ i }}{{ item.data.idOfferGood }}">
+                      {{ item.data.goodName }}
+                    </div>
+                    <dx-tooltip
+                      target="#name{{ i }}{{ item.data.idOfferGood }}"
+                      [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                      hideEvent="mouseleave"
+                    >
+                      <div *dxTemplate="let data = data; of: 'content'">
+                        <div class="properties">
+                          <span *ngFor="let prop of item.data.properties">
+                            {{ prop.propertyName }} {{ prop.propertyValue }}.
+                          </span>
+                        </div>
+                      </div>
+                    </dx-tooltip>
+                  </div>
+
+                  <div *dxTemplate="let item of 'headerBasis'">
+                    <div>
+                      {{
+                        basis[1][0].isMain
+                          ? ("createOffer.termsDeliveryTime.coreBasis"
+                            | translate)
+                          : ("createOffer.termsDeliveryTime.additionalbasis"
+                            | translate)
+                      }}
+                    </div>
+                  </div>
+
+                  <dxi-column
+                    caption="{{ 'createOffer.good.quantity' | translate }}"
+                    dataField="volume"
+                    cssClass="column date-roboto-mono "
+                    cellTemplate="quantityTemplate"
+                    alignment="right"
+                  >
+                  </dxi-column>
+                  <div
+                    *dxTemplate="let item of 'quantityTemplate'"
+                    class="flexContent4 jc-end"
+                  >
+                    <div>
+                      {{
+                        Number(item.data.volume) | ruNumberFormat : null : volumePrecision
+                      }}
+                    </div>
+                    <div>{{ item.data.unitName }}</div>
+                  </div>
+
+                  <dxi-column
+                    *ngIf="
+                      offerGeneral.pricingTypeId ==
+                      pricingType?.formulaWithQuotation
+                    "
+                    caption="{{ 'createOffer.goodInfo.quotation' | translate }}"
+                    dataField="quotation"
+                    cssClass="column date-roboto-mono "
+                    cellTemplate="quotationTemplate"
+                    alignment="right"
+                  >
+                  </dxi-column>
+                  <div
+                    *dxTemplate="let item of 'quotationTemplate'"
+                    class="flexContent4 jc-end"
+                  >
+                    <div>
+                      {{
+                        Number(item.data.quotation) | ruNumberFormat : quotationCurrencyPrecision : quotationCurrencyPrecision
+                      }}
+                    </div>
+                    <div>{{ item.data.quoteCurrency }}</div>
+                  </div>
+
+                  <dxi-column
+                    *ngIf="offerGeneral.pricingTypeId != pricingType?.price"
+                    caption="{{ 'createOffer.goodInfo.amendment' | translate }}"
+                    dataField="amendment"
+                    cssClass="column date-roboto-mono "
+                    cellTemplate="amendmentTemplate"
+                    alignment="right"
+                  >
+                  </dxi-column>
+                  <div
+                    *dxTemplate="let item of 'amendmentTemplate'"
+                    class="flexContent4 jc-end"
+                  >
+                    <div>
+                      {{
+                        item.data.amendment.toLocaleString("ru", {
+                          minimumFractionDigits:
+                            item.data.priceAdjustment.id == 1
+                              ? 0
+                              : this.currencyPrecision,
+                          maximumFractionDigits:
+                            item.data.priceAdjustment.id == 1
+                              ? 0
+                              : this.currencyPrecision
+                        })
+                      }}
+                    </div>
+                    <div>
+                      {{
+                        item.data.priceAdjustment == 1
+                          ? "%"
+                          : item.data.currency
+                      }}
+                    </div>
+                  </div>
+
+                  <dxi-column
+                    *ngIf="
+                      offerGeneral.pricingTypeId !=
+                      pricingType?.formulaWithoutQuotation
+                    "
+                    caption="{{
+                      'createOffer.good.priceWithoutVAT' | translate
+                    }}"
+                    dataField="cost"
+                    cssClass="column date-roboto-mono "
+                    cellTemplate="priceWithoutVATTemplate"
+                    alignment="right"
+                  >
+                  </dxi-column>
+                  <div
+                    *dxTemplate="let item of 'priceWithoutVATTemplate'"
+                    class="flexContent4 jc-end"
+                  >
+                    <div>
+                      {{
+                        Number(item.data.priceWithoutVat) | ruNumberFormat : currencyPrecision : currencyPrecision
+                      }}
+                    </div>
+                    <div>{{ item.data.currency }}</div>
+                  </div>
+
+                  <dxi-column
+                    *ngIf="
+                            offerGeneral.pricingTypeId !==
+                              pricingType?.formulaWithoutQuotation
+                               && this.direction === IdDirection.buy
+                               && isMinPrice()
+                          "
+                    caption="{{'createOffer.good.minPriceWithoutVAT' | translate}}"
+                    dataField="minPriceField"
+                    cssClass="column date-roboto-mono "
+                    alignment="right"
+                    cellTemplate="minPriceWithoutVATTemplate"
+                  >
+                  </dxi-column>
+
+                  <div
+                    *dxTemplate="let item of 'minPriceWithoutVATTemplate'"
+                    class="flexContent4 jc-end"
+                  >
+                    <span *ngIf="item.data?.minPriceWithoutVat" class="flexContent4">
+                      <div>
+                        {{ Number(item.data.minPriceWithoutVat) | ruNumberFormat : currencyPrecision : currencyPrecision }}
+                      </div>
+                      <div>{{ item.data.currency }}</div>
+                    </span>
+                  </div>
+
+                  <dxi-column
+                    *ngIf="
+                      offerGeneral.pricingTypeId !=
+                      pricingType?.formulaWithoutQuotation
+                    "
+                    caption="{{
+                      'createOffer.termsDeliveryTime.costVAT' | translate
+                    }}"
+                    dataField="costVat"
+                    cssClass="column date-roboto-mono"
+                    cellTemplate="costVATTemplate"
+                    alignment="right"
+                  >
+                  </dxi-column>
+                  <div
+                    *dxTemplate="let item of 'costVATTemplate'"
+                    class="flexContent4 jc-end"
+                  >
+                    <div>
+                      {{
+                        Number(item.data.costVat) | ruNumberFormat : currencyPrecision : currencyPrecision
+                      }}
+                    </div>
+                    <div>{{ item.data.currency }}</div>
+                  </div>
+
+                  <dxo-summary>
+                    <dxi-total-item
+                      column="costVat"
+                      cssClass="blackColor date-roboto-mono d-flex jc-end"
+                      summaryType="sum"
+                      displayFormat="{{
+                        'createOffer.termsDeliveryTime.totalBased' | translate
+                      }}: {0} {{ basis[1][0].currency }}"
+                      alignment="right footer"
+                      showInColumn="costVAT"
+                    >
+                      <dxo-value-format
+                        type="fixedPoint"
+                        precision="{{ this.currencyPrecision }}"
+                      >
+                      </dxo-value-format>
+                    </dxi-total-item>
+                  </dxo-summary>
+                </dx-data-grid>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- График поставки-->
+      <ng-container
+        *ngIf="
+          (this.schedule?.length > 0 ||
+            this.delivSchPeriodsParent?.length > 0) &&
+          ((this.dataSourceTabs?.length > 2 &&
+            (this.deliveryConditions?.length > 0 ||
+              this.deliveryConditionsParent?.length > 0) &&
+            this.tabValue == 2) ||
+            (this.deliveryConditions?.length == 0 &&
+              this.deliveryConditionsParent?.length == 0 &&
+              this.tabValue == 1))
+        "
+      >
+        <div class="flexContentColumn12 w-100">
+          <div class="flexContent16 ai-c">
+            <span
+              class="changeTag"
+              *ngIf="this.delivSchPeriods?.length > 0 && !changeSchedule()"
+              >{{ "general.changed" | translate }}</span
+            >
+            <span
+              class="deleteTag"
+              *ngIf="
+                this.delivSchPeriods?.length == 0 &&
+                this.delivSchPeriodsParent?.length > 0
+              "
+              >{{ "general.deleted" | translate }}</span
+            >
+            <span class="font-w500">{{
+              "createOffer.paymentDeliveryTerms.deliverySchedule" | translate
+            }}</span>
+          </div>
+
+          <div *ngIf="this.delivSchPeriods?.length > 0">
+            <table class="w-80">
+              <thead>
+                <tr>
+                  <th id="number">
+                    №
+                    <dx-tooltip
+                      target="#number"
+                      [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                      hideEvent="mouseleave"
+                      contentTemplate="numberTemplate"
+                    >
+                      <div *dxTemplate="let data of 'numberTemplate'">
+                        {{
+                          "createOffer.paymentDeliveryTerms.serialNumberPeriod"
+                            | translate
+                        }}
+                      </div>
+                    </dx-tooltip>
+                  </th>
+                  <th class="w-112px">
+                    {{ "general.beginningPeriod" | translate }}
+                  </th>
+                  <th class="w-112px">{{ "general.endPeriod" | translate }}</th>
+                  <th class="text-align-left">
+                    {{ "general.nameProduct" | translate }}
+                  </th>
+                  <th class="text-align-right w-194px">
+                    {{ "general.quantity" | translate }}
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <ng-container
+                  *ngFor="let term of this.delivSchPeriods; let i = index"
+                >
+                  <tr>
+                    <td [attr.rowspan]="term[1]?.length">{{ i + 1 }}</td>
+                    <td
+                      [attr.rowspan]="term[1]?.length"
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        term[1][0].periodDateBegin | excelDate
+                          | date : "dd.MM.yyyy"
+                      }}
+                    </td>
+                    <td
+                      [attr.rowspan]="term[1]?.length"
+                      class="date-roboto-mono"
+                    >
+                      {{
+                        term[1][0].periodDateEnd | excelDate
+                          | date : "dd.MM.yyyy"
+                      }}
+                    </td>
+                    <td class="text-align-left">
+                      <span id="name{{ i + 1 }}{{ term[1][0].idOfferGood }}">{{
+                        term[1][0].goodName
+                      }}</span>
+                      <dx-tooltip
+                        target="#name{{ i + 1 }}{{ term[1][0].idOfferGood }}"
+                        [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                        hideEvent="mouseleave"
+                      >
+                        <div *dxTemplate="let data = data; of: 'content'">
+                          <div class="properties">
+                            <span *ngFor="let prop of term[1][0].properties">
+                              {{ prop.propertyName }} {{ prop.propertyValue }}.
+                            </span>
+                          </div>
+                        </div>
+                      </dx-tooltip>
+                    </td>
+                    <td [attr.rowspan]="isSameGradesInSaleOffer ? term[1].length : null" class="text-align-right">
+                      <div class="flexContent8 jc-end">
+                        <div class="number-style">{{ term[1][0].periodVolume }}</div>
+                        <span class="d-flex ai-c text-align-left">{{ term[1][0].unitName }}</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr *ngFor="let g of term[1].slice(1)">
+                    <td class="text-align-left">
+                      <span id="name{{ i + 1 }}{{ g.idOfferGood }}">{{
+                        g?.goodName
+                      }}</span>
+
+                      <dx-tooltip
+                        target="#name{{ i + 1 }}{{ g.idOfferGood }}"
+                        [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                        hideEvent="mouseleave"
+                      >
+                        <div
+                          *dxTemplate="let data = data; of: 'content'"
+                          class="w-500px text-align-left"
+                        >
+                          <div class="properties">
+                            <span *ngFor="let prop of g.properties">
+                              {{ prop.propertyName }} {{ prop.propertyValue }}.
+                            </span>
+                          </div>
+                        </div>
+                      </dx-tooltip>
+                    </td>
+                    <td *ngIf="!isSameGradesInSaleOffer" class="text-align-right">
+                      <div class="flexContent8 jc-end">
+                        <div class="number-style">
+                          {{
+                            Number(g.periodVolume) | ruNumberFormat : null : volumePrecision
+                          }}
+                        </div>
+                        <span class="d-flex ai-c text-align-left">{{
+                          g.unitName
+                        }}</span>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </ng-container>
+
+      <!--Грузоотправители-->
+      <ng-container
+        *ngIf="
+          (this.scopes?.length > 0 || this.deliveryScopesParent?.length > 0) &&
+          (((this.deliveryConditions?.length > 0 ||
+            this.deliveryConditionsParent?.length > 0) &&
+            (this.delivSchPeriods?.length > 0 ||
+              this.delivSchPeriodsParent?.length > 0) &&
+            this.tabValue == 3) ||
+            (this.deliveryConditions?.length == 0 &&
+              this.deliveryConditionsParent?.length == 0 &&
+              this.delivSchPeriods?.length > 0 &&
+                this.delivSchPeriodsParent?.length > 0) ||
+              (this.deliveryConditions?.length > 0 &&
+                this.deliveryConditionsParent?.length > 0 &&
+                this.delivSchPeriods?.length == 0 &&
+                  this.delivSchPeriodsParent?.length == 0 &&
+                this.tabValue == 2) ||
+            (this.deliveryConditions?.length == 0 &&
+              this.deliveryConditionsParent?.length == 0 &&
+              this.delivSchPeriods?.length == 0 &&
+                this.delivSchPeriodsParent?.length == 0 &&
+              this.tabValue == 1))
+        "
+      >
+        <div class="flexContentColumn12 w-80">
+          <div class="flexContent16 ai-c">
+            <span
+              class="changeTag"
+              *ngIf="this.deliveryScopes?.length > 0 && !changeScope()"
+              >{{ "general.changed" | translate }}</span
+            >
+            <span
+              class="deleteTag"
+              *ngIf="
+                this.deliveryScopes?.length == 0 &&
+                this.deliveryScopesParent?.length > 0
+              "
+              >{{ "general.deleted" | translate }}</span
+            >
+            <span class="font-w500">{{
+              offerGeneral.directionId == IdDirection.buy
+                ? ("createOffer.delivScope.consignees" | translate)
+                : ("createOffer.delivScope.consignors" | translate)
+            }}</span>
+          </div>
+
+          <div
+            *ngIf="this.deliveryScopes?.length > 0"
+            class="flexContentColumn32"
+          >
+            <div *ngFor="let scope of this.deliveryScopes">
+              <dx-data-grid
+                [dataSource]="scope[SCOPE_BLOCK.SCOPE_INFO]"
+                [showBorders]="false"
+                [showColumnLines]="true"
+                [showRowLines]="true"
+                (onCellPrepared)="createOfferService.onCellPreparedDelivScope($event, offerGoods?.length, isSameGradesInSaleOffer)"
+              >
+                <div
+                  *dxTemplate="let item of 'headerTemplate'"
+                  class="flexContent4"
+                >
+                  <div>{{ scope[1][0].firmClientName }}</div>
+                </div>
+
+                <dxi-column
+                  headerCellTemplate="headerTemplate"
+                  dataField="goodName"
+                  cssClass="column text-align-left"
+                  alignment="left"
+                  cellTemplate="goodNameWithTooltip"
+                >
+                </dxi-column>
+
+                <div *dxTemplate="let item of 'goodNameWithTooltip'">
+                  <div
+                    id="name{{ item.data.idFirmClient }}{{
+                      item.data.idOfferGood
+                    }}"
+                  >
+                    {{ item.data.goodName }}
+                  </div>
+                  <dx-tooltip
+                    target="#name{{ item.data.idFirmClient }}{{
+                      item.data.idOfferGood
+                    }}"
+                    [showEvent]="{ name: 'mouseenter', delay: 500 }"
+                    hideEvent="mouseleave"
+                  >
+                    <div *dxTemplate="let data = data; of: 'content'">
+                      <div class="properties">
+                        <span *ngFor="let prop of item.data.properties">
+                          {{ prop.propertyName }} {{ prop.propertyValue }}.
+                        </span>
+                      </div>
+                    </div>
+                  </dx-tooltip>
+                </div>
+
+                <dxi-column
+                  headerCellTemplate="headerSummaryTemplate"
+                  width="25%"
+                  dataField="volume"
+                  cssClass="column text-align-right"
+                  alignment="right"
+                  cellTemplate="volumeTemplate"
+                ></dxi-column>
+
+                <div
+                  *dxTemplate="let item of 'volumeTemplate'"
+                  class="flexContent4 jc-end"
+                >
+                  <div class="number-style">
+                    {{
+                      Number(item.data.volume) | ruNumberFormat : null : volumePrecision
+                    }}
+                  </div>
+                  <div>{{ item.data.unitName }}</div>
+                </div>
+                <div *dxTemplate="let item of 'headerSummaryTemplate'">
+                  <div *ngIf="onSameUnits(this.offerGoods)">
+                    {{ "general.total" | translate }}
+                    : {{
+                      isSameGradesInSaleOffer ? scope[SCOPE_BLOCK.SCOPE_INFO][0].volume : (scope[SCOPE_BLOCK.SCOPE_INFO] | sumVolume: 'volume')
+                        | ruNumberFormat : null: null
+                    }}
+                    {{ scope[SCOPE_BLOCK.SCOPE_INFO][0].unitName }}
+                  </div>
+                </div>
+              </dx-data-grid>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Сравнение текстов -->
+      <dx-popup
+        contentTemplate="compareDetailsContent"
+        [(visible)]="compareText"
+        [hideOnOutsideClick]="false"
+        [showTitle]="true"
+        title="{{ 'autoControlChanges.comparisonTexts' | translate }}"
+        maxWidth="1020px"
+        height="auto"
+        maxHeight="90vh"
+        (onHiding)="compareText = false"
+        [showCloseButton]="true"
+      >
+        <dxo-animation
+          [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+        ></dxo-animation>
+        <div
+          *dxTemplate="let data of 'compareDetailsContent'"
+          class="flexContentColumn16"
+        >
+          <div class="flexContent24">
+            <div class="flexContentColumn10 w-50">
+              <div class="flexContent8">
+                <span class="font-w500">{{
+                  "autoControlChanges.previousApplication" | translate
+                }}</span>
+                <span class="date-roboto-mono font-s14">
+                  {{
+                    (offerGeneralParent.dateCreate - 25569) * 24 * 3600 * 1000
+                      | date : "dd.MM.yyyy HH:mm:ss" : "+0000"
+                  }}</span
+                >
+              </div>
+              <div class="detailsText">
+                <dx-text-area
+                  [height]="350"
+                  [readOnly]="true"
+                  [(value)]="previousDetails"
+                >
+                </dx-text-area>
+              </div>
+            </div>
+
+            <div class="flexContentColumn10 w-50">
+              <div class="flexContent8">
+                <span class="font-w500">{{
+                  "autoControlChanges.currentApplication" | translate
+                }}</span>
+                <span class="date-roboto-mono font-s14">
+                  {{
+                    offerGeneral.dateCreate | excelDate
+                      | date : "dd.MM.yyyy HH:mm:ss" : "+0000"
+                  }}</span
+                >
+              </div>
+              <div class="detailsText">
+                <dx-text-area
+                  [height]="350"
+                  [readOnly]="true"
+                  [(value)]="currentDetails"
+                >
+                </dx-text-area>
+              </div>
+            </div>
+          </div>
+          <div class="flexContentColumn8 w-100">
+            <div class="font-w500">
+              {{ "autoControlChanges.comparisonTexts" | translate }}
+            </div>
+            <div class="detailsText">
+              <dx-scroll-view class="maxHeight230" [useNative]="true">
+                <td-ngx-text-diff
+                  [left]="previousDetails"
+                  [right]="currentDetails"
+                  [diffContent]="contentObservable$"
+                  [format]="'LineByLine'"
+                  [hideMatchingLines]="false"
+                  [showToolbar]="false"
+                  [compareRowsClass]="'compare'"
+                  (compareResults)="onCompareResults($event)"
+                  [synchronizeScrolling]="true"
+                >
+                </td-ngx-text-diff>
+              </dx-scroll-view>
+            </div>
+          </div>
+          <div class="notificationBlue borderBlue h-ft flexContent16">
+            <div class="flexContent4">
+              <i class="greenEllipse"></i>
+              <div>{{ "autoControlChanges.addedToText" | translate }}</div>
+            </div>
+            <div class="flexContent4">
+              <i class="redEllipse"></i>
+              <div>{{ "autoControlChanges.removedFromText" | translate }}</div>
+            </div>
+          </div>
+        </div>
+      </dx-popup>
+
+      <!-- Отклонение заявки -->
+      <dx-popup
+        #rejectPopupOpen
+        contentTemplate="rejectPopupContent"
+        [hideOnOutsideClick]="false"
+        [visible]="rejectPopup"
+        [showTitle]="true"
+        title="{{ 'viewOffer.rejectionOfTheApp' | translate }}"
+        width="670"
+        height="auto"
+        maxHeight="900"
+        (onInitialized)="onInitializedPopup($event)"
+        [showCloseButton]="true"
+        (onHiding)="rejectPopup = false"
+      >
+        <dxo-animation
+          [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+        ></dxo-animation>
+        <div *dxTemplate="let data of 'rejectPopupContent'">
+          <div class="flexContentColumn32">
+            <dx-tabs
+              [dataSource]="[
+                'filters.myTemplates' | translate,
+                'filters.sectionTemplates' | translate
+              ]"
+              [selectedIndex]="0"
+              (onItemClick)="
+                this.myTemplate = $event.itemIndex; getRejectionTemplates()
+              "
+            >
+            </dx-tabs>
+            <div class="flexContentColumn16">
+              <div class="flexContentColumn8">
+                <div class="label">
+                  {{ "filters.availableTemplates" | translate }}
+                </div>
+                <div class="l-h20 template">
+                  <div class="flexContent8 actions" *ngIf="condEditButton()">
+                    <i class="editPenIcon" (click)="onEditTemplate('edit')"></i>
+                    <i class="trashIcon" (click)="onDeleteTemplate()"></i>
+                  </div>
+                  <dx-select-box
+                    [dataSource]="this.rejectionTemplates"
+                    valueExpr="this"
+                    displayExpr="name"
+                    height="40px"
+                    placeholder="{{ 'filters.searchByTemplates' | translate }}"
+                    [showClearButton]="false"
+                    [value]="chooseRejectionTempl"
+                    (onValueChanged)="
+                      chooseRejectionTempl = $event.value;
+                      rejectReason = $event.value.text
+                    "
+                  >
+                  </dx-select-box>
+                </div>
+              </div>
+              <button
+                class="btn btn-withoutBorder w-fit-cnt h-20px"
+                *ngIf="this.myTemplate == 0"
+                id="chooseGoodLink"
+                (click)="onEditTemplate('create')"
+              >
+                <span class="addProduct"></span
+                >{{ "btns.createNewTemplate" | translate }}
+              </button>
+            </div>
+
+            <div class="flexContentColumn8">
+              <div class="flexContent20">
+                <div class="label">
+                  {{ "worker.registration.reason" | translate }}
+                </div>
+                <div>
+                  {{
+                    this.rejectReason?.length > 0
+                      ? this.rejectReason?.length
+                      : 0
+                  }}/500
+                </div>
+              </div>
+              <dx-text-area
+                height="124px"
+                placeholder="{{ 'general.text' | translate }}"
+                maxLength="500"
+                [(value)]="rejectReason"
+                valueChangeEvent="keyup"
+              >
+              </dx-text-area>
+            </div>
+            <div class="buttons flexContent24 buttonsClass">
+              <button
+                class="btn btn-primary submit w-50"
+                [disabled]="this.rejectReason?.length <= 0"
+                (click)="rejectPopup = false; onPopupSubmit('reject')"
+              >
+                {{ "btns.rejectApplication" | translate }}
+              </button>
+              <button
+                class="btn btn-outline-primary w-50"
+                (click)="rejectPopup = false"
+              >
+                {{ "btns.close" | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </dx-popup>
+
+      <dx-popup
+        contentTemplate="approvePopup"
+        [hideOnOutsideClick]="false"
+        [visible]="approvePopup"
+        [showTitle]="true"
+        [title]="popupTitle"
+        width="570"
+        height="auto"
+        maxHeight="900"
+        [showCloseButton]="true"
+        (onHiding)="approvePopup = false"
+      >
+        <dxo-animation
+          [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+        ></dxo-animation>
+        <div *dxTemplate="let data of 'approvePopup'">
+          <div class="flexContentColumn32">
+            <div>{{ popupMessage }}</div>
+            <div class="buttons flexContent24 buttonsClass">
+              <button
+                class="btn btn-primary submit w-50"
+                (click)="approvePopup = false; onPopupSubmit('approve')"
+              >
+                {{ "offer-management.includeInRegister" | translate }}
+              </button>
+              <button
+                class="btn btn-outline-primary w-50"
+                (click)="approvePopup = false"
+              >
+                {{ "btns.close" | translate }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </dx-popup>
+
+      <dx-popup
+        contentTemplate="popupContent"
+        [hideOnOutsideClick]="false"
+        [visible]="popup"
+        [showTitle]="true"
+        [title]="popupTitle"
+        width="570"
+        height="auto"
+        maxHeight="900"
+        [showCloseButton]="true"
+        (onHiding)="onClose()"
+      >
+        <dxo-animation
+          [show]="{ easing: 'ease-in-out', type: 'fadeIn', duration: 150 }"
+        ></dxo-animation>
+        <div *dxTemplate="let data of 'popupContent'">
+          <div *ngIf="popupSuccess" class="flexContentColumn32">
+            <div class="resultMessage successMessage borderGreen">
+              <span class="message">
+                <i class="checkIcon"></i>
+                <span>{{ popupMessage }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="popupWarning" class="flexContentColumn32">
+            <div class="resultMessage errorMessage borderRed">
+              <span class="message">
+                <i class="errorIcon"></i>
+                <span [innerHTML]="popupMessage"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </dx-popup>
+    </div>
+  </div>
+</main>
+<dx-toast
+  [(visible)]="isVisibleToast"
+  message="{{
+    'offer-management.сhangesTemplatesSavedSuccessfully' | translate
+  }}"
+  type="info"
+  [width]="400"
+  [height]="52"
+  [displayTime]="5000"
+>
+  <dxo-position
+    my="top right"
+    at="right top"
+    of="window"
+    offset="-23 50"
+  ></dxo-position>
+</dx-toast>

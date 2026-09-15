@@ -1,0 +1,267 @@
+import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppComponent } from './app.component';
+import {
+  DxButtonModule,
+  DxCheckBoxModule,
+  DxDataGridModule,
+  DxDateBoxModule,
+  DxDrawerModule,
+  DxDropDownBoxModule,
+  DxDropDownButtonModule,
+  DxFormModule,
+  DxListModule,
+  DxLoadIndicatorModule,
+  DxLoadPanelModule,
+  DxLookupModule,
+  DxNumberBoxModule,
+  DxPopupModule,
+  DxRadioGroupModule,
+  DxSelectBoxModule,
+  DxSwitchModule,
+  DxTabPanelModule,
+  DxTagBoxModule,
+  DxTextAreaModule,
+  DxTextBoxModule,
+  DxTooltipModule,
+  DxTreeListModule,
+  DxTreeViewModule,
+  DxValidationGroupModule,
+  DxValidationSummaryModule,
+  DxValidatorModule,
+  DxToastModule,
+  DxTabsModule,
+  DxScrollViewModule,
+  DxFileUploaderModule,
+  DxAccordionModule,
+  DxMenuModule,
+  DxRangeSliderModule,
+  DxProgressBarModule,
+} from 'devextreme-angular';
+import { RouterModule } from '@angular/router';
+import { AppRoutingModule } from './app-routing.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  HttpClientModule,
+} from '@angular/common/http';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HeaderComponent } from './sub_components/header/header.component';
+import { FiltersComponent } from './sub_components/filters/filters.component';
+import { SessionsScheduleComponent } from './components/sessions-schedule/sessions-schedule.component';
+import { AppConfigService } from './app-config.service';
+import { BreadcrumbComponent } from './sub_components/breadcrumb/breadcrumb.component';
+import { CreateOfferComponent } from './sub_components/create-offer/create-offer.component';
+import { GoodInfoComponent } from './sub_components/create-offer/good-info/good-info.component';
+import { RegistrationFormComponent } from './components/registration-form/registration-form.component';
+import { PaginationComponent } from './sub_components/pagination/pagination.component';
+import { WorkerViewRegistrationComponent } from './components/worker-view-registration/worker-view-registration.component';
+import { DetailInfoComponent } from './components/worker-view-registration/detail-info/detail-info.component';
+import { FooterComponent } from './sub_components/footer/footer.component';
+import { SidebarComponent } from './sub_components/sidebar/sidebar.component';
+import { StartCreateOfferComponent } from './sub_components/create-offer/start-create-offer/start-create-offer.component';
+import { ErrorPageComponent } from './sub_components/error-page/error-page.component';
+import { BasisInfoComponent } from './sub_components/create-offer/basis-info/basis-info.component';
+import { DeliverySchedulComponent } from './sub_components/create-offer/delivery-schedule/delivery-schedule.component';
+import { FileDragNDropDirective } from './core/directives/file-drag-ndrop.directive';
+import { DeliveScopeComponent } from './sub_components/create-offer/delive-scope/delive-scope.component';
+import { ErrorPopupComponent } from './core/interceptors/error-popup/error-popup.component';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import { CatalogsComponent } from './components/catalogs/catalogs.component';
+import { OfferManagementComponent } from './components/offer-management/offer-management.component';
+import { PreviewComponent } from './sub_components/create-offer/preview/preview.component';
+import { ViewOfferComponent } from './sub_components/view-offer/view-offer.component';
+import { DetailRejectionInfoComponent } from './components/offer-management/detail-rejection-info/detail-rejection-info.component';
+import { AutoControlChangesComponent } from './sub_components/auto-control-changes/auto-control-changes.component';
+import { NgxTextDiffModule } from 'ngx-text-diff';
+import { OpenAccessComponent } from './sub_components/open-access/open-access.component';
+import { OpenAccessPopupComponent } from './sub_components/open-access/open-access-popup/open-access-popup.component';
+import { LoaderInterceptor } from './core/interceptors/loader.interceptor';
+import { LoaderPanelComponent } from './core/interceptors/loader-panel/loader-panel.component';
+import { LimitationsComponent } from './sub_components/limitations/limitations.component';
+import { DepositComponent } from './sub_components/deposit/deposit.component';
+import { LanguageInterceptor } from './core/interceptors/language.interceptor';
+import { RestoreOfferComponent } from './sub_components/restore-offer/restore-offer.component';
+import { CreateDirectOfferComponent } from './sub_components/create-direct-offer/create-direct-offer.component';
+import { BasisDirectInfoComponent } from './sub_components/create-direct-offer/basis-direct-info/basis-direct-info.component';
+import { DirectDeliveryScopeComponent } from './sub_components/create-direct-offer/direct-delivery-scope/direct-delivery-scope.component';
+import { DeliveryScheduleDirectComponent } from './sub_components/create-direct-offer/delivery-schedule-direct/delivery-schedule-direct.component';
+import { GoodInfoDirectComponent } from './sub_components/create-direct-offer/good-info-direct/good-info-direct.component';
+import { DirectPreviewComponent } from './sub_components/create-direct-offer/direct-preview/direct-preview.component';
+import { DirectStartCreateOfferComponent } from './sub_components/create-direct-offer/direct-start-create-offer/direct-start-create-offer.component';
+import { EditPriceStepComponent } from './sub_components/edit-price-step/edit-price-step.component';
+import { CreateAgriDirectOfferComponent } from './sub_components/create-agri-direct-offer/create-agri-direct-offer.component';
+import { ChooseOfferPopupComponent } from './sub_components/create-agri-direct-offer/choose-offer-popup/choose-offer-popup.component';
+import { DeliveryScheduleAgriDirectComponent } from './sub_components/create-agri-direct-offer/delivery-schedule-agri-direct/delivery-schedule-agri-direct.component';
+import { GoodInfoAgriDirectComponent } from './sub_components/create-agri-direct-offer/good-info-agri-direct/good-info-agri-direct.component';
+import { AgriDirectDeliveryScopeComponent } from './sub_components/create-agri-direct-offer/agri-direct-delivery-scope/agri-direct-delivery-scope.component';
+import { AgriDirectPreviewComponent } from './sub_components/create-agri-direct-offer/agri-direct-preview/agri-direct-preview.component';
+import { DxNumberBoxClearDirective } from './core/directives/dx-number-box-clear.directive';
+import { UnrealizedVolumesWorkerComponent } from './components/unrealized-volumes-worker/unrealized-volumes-worker.component';
+import { DetailUnrealizedVolumesInfoComponent } from './components/unrealized-volumes-worker/detail-unrealized-volumes-info/detail-unrealized-volumes-info.component';
+import { ChooseArchiveOfferPopupComponent } from './sub_components/create-offer/choose-archive-offer-popup/choose-archive-offer-popup.component';
+import { CachingInterceptor } from './core/interceptors/caching.interceptor';
+import { ReportDealsComponent } from './components/report-deals/report-deals.component';
+import { ReportTradingSessionOrdersComponent } from './components/report-trading-session-orders/report-trading-session-orders.component';
+import { ActualDimensionsPipe } from './shared/pipes/actual-dimensions-pipe/actual-dimensions.pipe';
+import { ReportParticipantsComponent } from './components/report-participants/report-participants.component';
+import { ExcelDatePipe } from './shared/pipes/excel-date/excel-date.pipe';
+import { PopupExportRequestListComponent } from './sub_components/header/popups/popup-export-request-list/popup-export-request-list.component';
+import { ActualDimensionsComponent } from './sub_components/actual-dimensions/actual-dimensions.component';
+import { TextWrapperPipe } from './shared/pipes/parse-text-wrap/parse-text-wrap.pipe';
+<<<<<<< HEAD
+import { TraderViewRegistrationsComponent } from './sub_components/trader-view-registrations/trader-view-registrations.component';
+import { RemoveAdjustedPriceComponent } from './sub_components/popups/remove-adjusted-price/remove-adjusted-price.component';
+=======
+import { RouteReuseStrategy } from '@angular/router';
+import { OfferManagementReuseStrategy } from './core/router/offer-management-reuse.strategy';
+>>>>>>> FEAT/CEIT-13444-111-menuitems-open-in-new-tab
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    FiltersComponent,
+    SessionsScheduleComponent,
+    BreadcrumbComponent,
+    CreateOfferComponent,
+    GoodInfoComponent,
+    RegistrationFormComponent,
+    PaginationComponent,
+    WorkerViewRegistrationComponent,
+    DetailInfoComponent,
+    FooterComponent,
+    SidebarComponent,
+    StartCreateOfferComponent,
+    ErrorPageComponent,
+    BasisInfoComponent,
+    DeliverySchedulComponent,
+    FileDragNDropDirective,
+    DeliveScopeComponent,
+    ErrorPopupComponent,
+    CatalogsComponent,
+    OfferManagementComponent,
+    ReportDealsComponent,
+    ReportTradingSessionOrdersComponent,
+    ReportParticipantsComponent,
+    PreviewComponent,
+    ViewOfferComponent,
+    DetailRejectionInfoComponent,
+    AutoControlChangesComponent,
+    OpenAccessComponent,
+    OpenAccessPopupComponent,
+    LimitationsComponent,
+    DepositComponent,
+    LoaderPanelComponent,
+    RestoreOfferComponent,
+    CreateDirectOfferComponent,
+    BasisDirectInfoComponent,
+    DirectDeliveryScopeComponent,
+    DeliveryScheduleDirectComponent,
+    GoodInfoDirectComponent,
+    DirectPreviewComponent,
+    DirectStartCreateOfferComponent,
+    EditPriceStepComponent,
+    CreateAgriDirectOfferComponent,
+    ChooseOfferPopupComponent,
+    DeliveryScheduleAgriDirectComponent,
+    GoodInfoAgriDirectComponent,
+    AgriDirectDeliveryScopeComponent,
+    AgriDirectPreviewComponent,
+    DxNumberBoxClearDirective,
+    UnrealizedVolumesWorkerComponent,
+    DetailUnrealizedVolumesInfoComponent,
+    ChooseArchiveOfferPopupComponent,
+    ActualDimensionsPipe,
+    ExcelDatePipe,
+    PopupExportRequestListComponent,
+    ActualDimensionsComponent,
+    TextWrapperPipe,
+    TraderViewRegistrationsComponent,
+    RemoveAdjustedPriceComponent
+  ],
+  imports: [
+    BrowserModule,
+    DxButtonModule,
+    DxDataGridModule,
+    DxCheckBoxModule,
+    RouterModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpTranslateLoader,
+        deps: [HttpClient],
+      },
+      defaultLanguage: 'RU',
+    }),
+    AppRoutingModule,
+    DxTabPanelModule,
+    DxFormModule,
+    ReactiveFormsModule,
+    DxTreeListModule,
+    DxTreeViewModule,
+    DxDateBoxModule,
+    DxDropDownBoxModule,
+    DxSelectBoxModule,
+    DxTextBoxModule,
+    DxNumberBoxModule,
+    DxPopupModule,
+    HttpClientModule,
+    DxLookupModule,
+    DxListModule,
+    FormsModule,
+    DxDrawerModule,
+    DxTooltipModule,
+    DxTagBoxModule,
+    DxDropDownButtonModule,
+    DxRadioGroupModule,
+    DxTextAreaModule,
+    DxValidatorModule,
+    DxValidationSummaryModule,
+    DxValidationGroupModule,
+    DxSwitchModule,
+    DxLoadIndicatorModule,
+    DxLoadPanelModule,
+    DxToastModule,
+    DxTabsModule,
+    DxScrollViewModule,
+    DxFileUploaderModule,
+    DxAccordionModule,
+    DxMenuModule,
+    NgxTextDiffModule,
+    DxRangeSliderModule,
+    DxProgressBarModule,
+  ],
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appConfigInit,
+      multi: true,
+      deps: [AppConfigService],
+    },
+
+    { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LanguageInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: CachingInterceptor, multi: true },
+    { provide: RouteReuseStrategy, useClass: OfferManagementReuseStrategy },
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: ConditionalHeaderRemovalInterceptor,
+    //   multi: true,
+    // },
+  ],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+
+export function httpTranslateLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+function appConfigInit(appConfigService: AppConfigService) {
+  return () => appConfigService.load();
+}
